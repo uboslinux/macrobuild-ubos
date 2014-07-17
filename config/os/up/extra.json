@@ -1,0 +1,22 @@
+{
+    "directory" : "${archUpstreamSite}/extra/os/${arch}",
+
+    "packages" : {
+        "apache" : {},
+        "apr" : {},
+        "apr-util" : {},
+        "libaio" : {},
+        "libmariadbclient" : {},
+        "libunistring" : {},
+        "libxml2" : {},
+        "mariadb" : {},
+        "mariadb-clients" : {},
+        "ntp" : {},
+        "perl-archive-zip" : {},
+        "perl-dbi" : {},
+        "perl-dbd-mysql" : {},
+        "perl-log-log4perl" : {},
+        "python2" : {},
+        "sqlite" : {}
+    }
+}

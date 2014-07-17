@@ -1,0 +1,9 @@
+{
+    "directory" : "${archUpstreamSite}/community/os/${arch}",
+
+    "packages" : {
+        "mod_wsgi2" : {},
+        "perl-lchown" : {},
+        "perl-json" : {}
+    }
+}

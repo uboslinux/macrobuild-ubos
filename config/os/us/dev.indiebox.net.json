@@ -1,0 +1,8 @@
+{
+    "url"    : "http://dev.indiebox.net/git-indie-box/",
+    "branch" : "master",
+
+    "directories" : [
+        "indie-box"
+    ]
+}
