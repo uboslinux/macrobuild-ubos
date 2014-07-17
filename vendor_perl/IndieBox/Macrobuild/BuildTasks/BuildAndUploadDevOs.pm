@@ -12,6 +12,7 @@ use IndieBox::Macrobuild::ComplexTasks::BuildDevOsPackages;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::BasicTasks::ReportViaMosquitto;
 use Macrobuild::CompositeTasks::Sequential;
+use Macrobuild::CompositeTasks::SplitJoin;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;

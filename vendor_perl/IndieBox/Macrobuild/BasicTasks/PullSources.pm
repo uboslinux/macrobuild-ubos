@@ -80,9 +80,11 @@ sub run {
             $gitCmd .= " --depth 1"; 
             $gitCmd .= " '$url' '$name'";
             my $err;
-            IndieBox::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err ); # swallow
-
-            $dirsToBuild->{$name} = $directories; # all of them
+            if( IndieBox::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
+                error( "Failed to clone via", $gitCmd );
+            } else {
+                $dirsToBuild->{$name} = $directories; # all of them
+            }
         }
     }
 

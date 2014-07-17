@@ -37,7 +37,7 @@ sub run {
             info( "makepkg in $dir" );
             my $err;
             IndieBox::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
-            if( IndieBox::Utils::myexec( "cd $dir; makepkg -c -f", undef, undef, \$err )) { # writes to stderr
+            if( IndieBox::Utils::myexec( "cd $dir; makepkg -c -f -d", undef, undef, \$err )) { # writes to stderr, don't complain about dependencies
                 error( "makepkg in $dir failed", $err );
 
                 if( $self->{stopOnError} ) {
