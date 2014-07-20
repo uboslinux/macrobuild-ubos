@@ -350,7 +350,7 @@ END
             . " '--config=$config'"
             . " --cachedir '$targetDir/var/cache/pacman/pkg'"
             . " --noconfirm"
-            . " base indie-box";
+            . " base indiebox-admin";
 
     my $out;
     my $err;

@@ -34,7 +34,7 @@ sub new {
             new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
                     'name'         => 'Create 1-partition boot disk',
                     'repodir'      => '${repodir}/${arch}/os',
-                    'image'        => '${imagedir}/${arch}/images/indie-box_dev_${arch}_${tstamp}-1part.img',
+                    'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part.img',
                     'imagesize'    => '3G',
                     'rootpartsize' => 'all',
                     'fs'           => 'btrfs' ),
@@ -46,14 +46,14 @@ sub new {
 #            '2-partition-boot-disk' => new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
 #                    'name'         => 'Create 2-partition boot disk',
 #                    'repodir'      => '${repodir}/${arch}/os',
-#                    'image'        => '${imagedir}/${arch}/images/indie-box_dev_${arch}_${tstamp}-2part.img',
+#                    'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-2part.img',
 #                    'imagesize'    => '3G',
 #                    'rootpartsize' => '1G',
 #                    'fs'           => 'btrfs' ),
 #            '1-partition-boot-disk' => new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
 #                    'name'         => 'Create 1-partition boot disk',
 #                    'repodir'      => '${repodir}/${arch}/os',
-#                    'image'        => '${imagedir}/${arch}/images/indie-box_dev_${arch}_${tstamp}-1part.img',
+#                    'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part.img',
 #                    'imagesize'    => '3G',
 #                    'rootpartsize' => 'all',
 #                    'fs'           => 'btrfs' )

@@ -1,0 +1,8 @@
+{
+    "url"    : "https://github.com/indiebox/gladiwashere",
+    "branch" : "master",
+
+    "directories" : [
+        "gladiwashere"
+    ]
+}
