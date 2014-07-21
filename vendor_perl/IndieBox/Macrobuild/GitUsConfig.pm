@@ -1,11 +1,11 @@
 # 
-# Config file for upstream sources
+# Config file for upstream sources obtained from git
 #
 
 use strict;
 use warnings;
 
-package IndieBox::Macrobuild::UsConfig;
+package IndieBox::Macrobuild::GitUsConfig;
 
 use fields qw( name url branch directories );
 
@@ -38,6 +38,14 @@ sub name {
     my $self = shift;
 
     return $self->{name};
+}
+
+##
+# Get the type
+sub type {
+	my $self = shift;
+	
+	return 'git';
 }
 
 ##

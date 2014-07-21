@@ -9,7 +9,8 @@ package IndieBox::Macrobuild::UsConfigs;
 
 use fields qw( dir settingsConfigsMap );
 
-use IndieBox::Macrobuild::UsConfig;
+use IndieBox::Macrobuild::DownloadUsConfig;
+use IndieBox::Macrobuild::GitUsConfig;
 use IndieBox::Utils;
 use Macrobuild::Logging;
 
@@ -59,18 +60,39 @@ sub configs {
 
             my $usConfigJson = IndieBox::Utils::readJsonFromFile( $file );
 
-            foreach my $entry ( 'url', 'branch', 'directories' ) {
-                unless( defined( $usConfigJson->{$entry} )) {
-                    warn( "No $entry given in $file, skipping." );
-                    next CONFIGFILES;
-                }
-            }
+			if( ! $usConfigJson->{type} ) {
+				warn( "No type given in $file, skipping." );
+				next;
+			} elsif( $usConfigJson->{type} eq 'git' ) {
+				foreach my $entry ( 'url', 'branch' ) {
+					unless( defined( $usConfigJson->{$entry} )) {
+						warn( "No $entry given in $file, skipping." );
+						next CONFIGFILES;
+					}
+				}
+				$ret->{$shortSourceName} = new IndieBox::Macrobuild::GitUsConfig(
+						$shortSourceName,
+						$usConfigJson->{url},
+						$usConfigJson->{branch},
+						$usConfigJson->{directories} );
+				
+			} elsif( $usConfigJson->{type} eq 'download' ) {
+				foreach my $entry ( 'url' ) {
+					unless( defined( $usConfigJson->{$entry} )) {
+						warn( "No $entry given in $file, skipping." );
+						next CONFIGFILES;
+					}
+				}
+				$ret->{$shortSourceName} = new IndieBox::Macrobuild::DownloadUsConfig(
+						$shortSourceName,
+						$usConfigJson->{url},
+                        $usConfigJson->{directories} );
+			} else {
+				warn( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
+				next;
+			}
+				
 
-            $ret->{$shortSourceName} = new IndieBox::Macrobuild::UsConfig(
-                    $shortSourceName,
-                    $usConfigJson->{url},
-                    $usConfigJson->{branch},
-                    $usConfigJson->{directories} );
         }
     }
     return $ret;

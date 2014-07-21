@@ -1,14 +1,14 @@
 # 
-# Builds os in dev, updates packages
+# Builds dev, updates packages
 #
 
 use strict;
 use warnings;
 
-package IndieBox::Macrobuild::ComplexTasks::BuildDevOsPackages;
+package IndieBox::Macrobuild::ComplexTasks::BuildDevPackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( upconfigs usconfigs );
+use fields qw( upconfigs usconfigs repository );
 
 use IndieBox::Macrobuild::BasicTasks::BuildPackages;
 use IndieBox::Macrobuild::BasicTasks::DownloadPackageDbs;
@@ -54,7 +54,7 @@ sub new {
                                 'downloaddir' => '${builddir}/upc/${arch}' ),
                         new IndieBox::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/os' ),
+                                'stagedir'    => '${repodir}/${arch}/${repository}' ),
                     ]
                 ),
                 'build-indie-packages' => new Macrobuild::CompositeTasks::Sequential(
@@ -69,7 +69,7 @@ sub new {
                                 'stopOnError' => 0 ),
                         new IndieBox::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/os' ),
+                                'stagedir'    => '${repodir}/${arch}/${repository}' ),
                     ]                
                 )
             },
@@ -80,7 +80,7 @@ sub new {
                             'keys'         => [ 'build-indie-packages', 'fetch-upstream-packages' ] ),
                     new IndieBox::Macrobuild::BasicTasks::UpdatePackageDatabase(
                             'name'         => 'Update package database with new packages',
-                            'dbfile'       => '${repodir}/${arch}/os/os.db.tar.xz' )
+                            'dbfile'       => '${repodir}/${arch}/${repository}/${repository}.db.tar.xz' )
                 ]
             ));
 

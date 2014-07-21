@@ -38,27 +38,43 @@ sub run {
     my $notRebuilt = {};
     while( my( $repoName, $repoInfo ) = each %$dirsUpdated ) {
         foreach my $subdir ( @$repoInfo ) {
-            my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName/$subdir";
+            my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
+            if( $subdir ) {
+                $dir .= "/$subdir";
+            }
 
-            info( "dir updated: makepkg in", $dir );
-            
             my $packageName = _determinePackageName( $dir );
-            if( $self->_buildPackage( $dir, $packageName, $built->{$repoName} ) == -1 ) {
+            info( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
+            
+            my $inThisRepo = {};
+            if( $self->_buildPackage( $dir, $packageName, $inThisRepo ) == -1 ) {
 				return -1;
 			}
+            if( %$inThisRepo ) {
+                $built->{$repoName} = $inThisRepo;
+            }
         }
     }
     while( my( $repoName, $repoInfo ) = each %$dirsNotUpdated ) {
         foreach my $subdir ( @$repoInfo ) {
-            my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName/$subdir";
+            my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
+            if( $subdir ) {
+                $dir .= "/$subdir";
+            }
 
             my $packageName = _determinePackageName( $dir );
+            info( "dir not updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
+
             if( -e "$dir/$failedstamp" ) {
 				info( "build failed last time: makepkg in", $dir );
 
-				if( $self->_buildPackage( $dir, $packageName, $built->{$repoName} ) == -1 ) {
+                my $inThisRepo = {};
+				if( $self->_buildPackage( $dir, $packageName, $inThisRepo ) == -1 ) {
 					return -1;
 				}
+                if( %$inThisRepo ) {
+                    $built->{$repoName} = $inThisRepo;
+                }
 			} else {
 				my $out;
 				IndieBox::Utils::myexec( "echo $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
@@ -114,7 +130,7 @@ sub _buildPackage {
 		error( "could not find package built by makepkg in", $dir );
 		return -1;
 	}
-	return $packageName;
+	return 0;
 }
 
 sub _determinePackageName {

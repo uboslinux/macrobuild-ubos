@@ -1,11 +1,11 @@
 # 
-# Builds os in dev, updates packages
+# Builds a repository in dev, updates packages
 #
 
 use strict;
 use warnings;
 
-package IndieBox::Macrobuild::BuildTasks::BuildDevOs;
+package IndieBox::Macrobuild::BuildTasks::BuildDev;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -13,7 +13,7 @@ use fields;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::Logging;
-use IndieBox::Macrobuild::ComplexTasks::BuildDevOsPackages;
+use IndieBox::Macrobuild::ComplexTasks::BuildDevPackages;
 
 ##
 # Constructor
@@ -27,16 +27,17 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my $upConfigs = IndieBox::Macrobuild::UpConfigs->allIn( '${configdir}/os/up' );
-    my $usConfigs = IndieBox::Macrobuild::UsConfigs->allIn( '${configdir}/os/us' );
+    my $upConfigs = IndieBox::Macrobuild::UpConfigs->allIn( '${configdir}/${repository}/up' );
+    my $usConfigs = IndieBox::Macrobuild::UsConfigs->allIn( '${configdir}/${repository}/us' );
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new IndieBox::Macrobuild::ComplexTasks::BuildDevOsPackages(
+            new IndieBox::Macrobuild::ComplexTasks::BuildDevPackages(
                 'upconfigs'   => $upConfigs,
-                'usconfigs'   => $usConfigs ),
+                'usconfigs'   => $usConfigs,
+                'repository'  => '${repository}' ),
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report build activity for os',
+                'name'        => 'Report build activity for ${repository} in dev',
                 'fields'      => [ 'updated-packages' ] )
         ]
     );

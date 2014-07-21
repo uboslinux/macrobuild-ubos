@@ -1,5 +1,6 @@
 {
     "url"    : "https://github.com/indiebox/indiebox-admin/",
+    "type"   : "git",
     "branch" : "master",
 
     "directories" : [
