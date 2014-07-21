@@ -24,9 +24,10 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $dirsUpdated   = {};
-    my $dirNotUpdated = {};
-    my $usConfigs   = $self->{usconfigs}->configs( $run->{settings} );
+    my $dirsUpdated    = {};
+    my $dirsNotUpdated = {};
+
+    my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
     foreach my $usConfig ( values %$usConfigs ) {
         Macrobuild::Logging::info( "Now processing upstream source config file", $usConfig->name );
 
@@ -96,7 +97,7 @@ sub run {
             'dirs-updated'     => $dirsUpdated,
             'dirs-not-updated' => $dirsNotUpdated
     } );
-    if( %$dirsToBuild ) {
+    if( %$dirsUpdated ) {
         return 0;
     } else {
         return 1;

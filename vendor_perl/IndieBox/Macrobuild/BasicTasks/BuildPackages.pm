@@ -42,7 +42,8 @@ sub run {
 
             info( "dir updated: makepkg in", $dir );
             
-            if( $self->_buildPackage( $dir, $built->{$repoName} ) == -1 ) {
+            my $packageName = _determinePackageName( $dir );
+            if( $self->_buildPackage( $dir, $packageName, $built->{$repoName} ) == -1 ) {
 				return -1;
 			}
         }
@@ -51,15 +52,17 @@ sub run {
         foreach my $subdir ( @$repoInfo ) {
             my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName/$subdir";
 
-            if( -e "$sourceSourceDir/$dir/$failedstamp" ) {
+            my $packageName = _determinePackageName( $dir );
+            if( -e "$dir/$failedstamp" ) {
 				info( "build failed last time: makepkg in", $dir );
 
-				if( $self->_buildPackage( $dir, $built->{$repoName} ) == -1 ) {
+				if( $self->_buildPackage( $dir, $packageName, $built->{$repoName} ) == -1 ) {
 					return -1;
 				}
 			} else {
 				my $out;
-				IndieBox::Utils::myexec( "cd $sourceSourceDir/$dir; ls $packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
+				my $packageName = 
+				IndieBox::Utils::myexec( "cd $dir; ls $packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
 				$out =~ s!^\s+!!;
 				$out =~ s!\s+$!!;
 					
@@ -81,10 +84,11 @@ sub run {
 }
 
 ##
-_sub buildPackage {
-	my $self      = shift;
-	my $dir       = shift;
-	my $builtRepo = shift;
+sub _buildPackage {
+	my $self        = shift;
+	my $dir         = shift;
+	my $packageName = shift;
+	my $builtRepo   = shift;
 
 	my $err;
 	IndieBox::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
@@ -96,11 +100,8 @@ _sub buildPackage {
 		}
 
 	} elsif( $err =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
-		my $packageName    = $1;
-		my $packageVersion = $2;
-
 		my $out;
-		IndieBox::Utils::myexec( "echo $dir/$packageName-$packageVersion-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
+		IndieBox::Utils::myexec( "echo $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
 		$out =~ s!^\s+!!;
 		$out =~ s!\s+$!!;
 			
@@ -114,7 +115,16 @@ _sub buildPackage {
 		error( "could not find package built by makepkg in", $dir );
 		return -1;
 	}
-	return 0;
+	return $packageName;
+}
+
+sub _determinePackageName {
+	my $dir = shift;
+
+	my $packageName;
+	IndieBox::Utils::myexec( "grep ^pkgname= $dir/PKGBUILD | sed -e 's/pkgname=\\s*//'", undef, \$packageName );
+	$packageName =~ s/\s+//g;
+	return $packageName;
 }
 
 1;

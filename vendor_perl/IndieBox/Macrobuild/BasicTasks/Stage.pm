@@ -43,11 +43,11 @@ sub run {
                 IndieBox::Utils::myexec( "cp '$fileName' '$destDir/'" );
 
                 $staged->{$packageName} = "$destDir/$localFileName";
-                debug( "Staged:", $staged->{$packageName};
+                debug( "Staged:", $staged->{$packageName} );
             }
         }
     }
-    if( %$oldPackages ) {
+    if( defined( $oldPackages ) && %$oldPackages ) {
         while( my( $repoName, $repoData ) = each %$oldPackages ) {
             while( my( $packageName, $fileName ) = each %$repoData ) {
                 my $localFileName = $fileName;
@@ -57,7 +57,7 @@ sub run {
 					IndieBox::Utils::myexec( "cp '$fileName' '$destDir/'" );
 
 					$staged->{$packageName} = "$destDir/$localFileName";
-					debug( "Staged again:", $staged->{$packageName};
+					debug( "Staged again:", $staged->{$packageName} );
 				}
             }
         }
