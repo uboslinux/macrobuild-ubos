@@ -24,7 +24,8 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $dirsToBuild = {};
+    my $dirsUpdated   = {};
+    my $dirNotUpdated = {};
     my $usConfigs   = $self->{usconfigs}->configs( $run->{settings} );
     foreach my $usConfig ( values %$usConfigs ) {
         Macrobuild::Logging::info( "Now processing upstream source config file", $usConfig->name );
@@ -47,20 +48,23 @@ sub run {
                 IndieBox::Utils::myexec( "( cd '$sourceSourceDir'; $gitCmd )", undef, \$out, \$err ); # just swallow
 
                 # Determine which of the directories had changes in them
-                my @toBuild;
+                my @updated;
+                my @notUpdated;
                 foreach my $dir ( @$directories ) {
                     if( $out =~ m!^\s\Q$dir\E/! ) {
                         # git pull output seems to put a space at the beginning of any line that indicates a change
                         # we look for anything below $dir, i.e. $dir plus appended slash
-                        push @toBuild, $dir;
-                    } elsif( -e "$sourceSourceDir/$dir/$failedstamp" ) {
-                        # build failed last time
-                        push @toBuild, $dir;
-                    }
-                        
+                        push @updated, $dir;
+
+                    } else {
+						push @notUpdated, $dir;
+					}
                 }
-                if( @toBuild ) {
-                    $dirsToBuild->{$name} = \@toBuild;
+                if( @updated ) {
+                    $dirsUpdated->{$name} = \@updated;
+                }
+                if( @notUpdated ) {
+                    $dirsNotUpdated->{$name} = \@notUpdated;
                 }
             } else {
                 info( "Source spec as changed. Starting over\n" );
@@ -83,13 +87,14 @@ sub run {
             if( IndieBox::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
                 error( "Failed to clone via", $gitCmd );
             } else {
-                $dirsToBuild->{$name} = $directories; # all of them
+                $dirsUpdated->{$name} = $directories; # all of them
             }
         }
     }
 
     $run->taskEnded( $self, {
-            'dirs-to-build' => $dirsToBuild
+            'dirs-updated'     => $dirsUpdated,
+            'dirs-not-updated' => $dirsNotUpdated
     } );
     if( %$dirsToBuild ) {
         return 0;

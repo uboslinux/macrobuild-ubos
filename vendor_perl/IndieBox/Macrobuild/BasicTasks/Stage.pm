@@ -27,14 +27,15 @@ sub run {
         return -1;
     }
 
-    my $downloaded = $in->{'new-packages'};
-    my $staged     = {};
+    my $newPackages = $in->{'new-packages'};
+    my $oldPackages = $in->{'old-packages'};
+    my $staged      = {};
 
-    if( %$downloaded ) {
-        my $destDir = $run->{settings}->replaceVariables( $self->{stagedir} );
-        Macrobuild::Utils::ensureDirectories( $destDir );
+    my $destDir = $run->{settings}->replaceVariables( $self->{stagedir} );
+    Macrobuild::Utils::ensureDirectories( $destDir );
 
-        while( my( $repoName, $repoData ) = each %$downloaded ) {
+    if( %$newPackages ) {
+        while( my( $repoName, $repoData ) = each %$newPackages ) {
             while( my( $packageName, $fileName ) = each %$repoData ) {
                 my $localFileName = $fileName;
                 $localFileName =~ s!.*/!!;
@@ -42,10 +43,24 @@ sub run {
                 IndieBox::Utils::myexec( "cp '$fileName' '$destDir/'" );
 
                 $staged->{$packageName} = "$destDir/$localFileName";
+                debug( "Staged:", $staged->{$packageName};
             }
         }
-    } else {
-        info( "Running " . $self->name . ": No packages to downloaded, nothing to do" );
+    }
+    if( %$oldPackages ) {
+        while( my( $repoName, $repoData ) = each %$oldPackages ) {
+            while( my( $packageName, $fileName ) = each %$repoData ) {
+                my $localFileName = $fileName;
+                $localFileName =~ s!.*/!!;
+
+				unless( -e "$destDir/$localFileName" ) {
+					IndieBox::Utils::myexec( "cp '$fileName' '$destDir/'" );
+
+					$staged->{$packageName} = "$destDir/$localFileName";
+					debug( "Staged again:", $staged->{$packageName};
+				}
+            }
+        }
     }
 
     $run->taskEnded( $self, {
