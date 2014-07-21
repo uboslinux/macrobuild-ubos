@@ -61,7 +61,6 @@ sub run {
 				}
 			} else {
 				my $out;
-				my $packageName = 
 				IndieBox::Utils::myexec( "cd $dir; ls $packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
 				$out =~ s!^\s+!!;
 				$out =~ s!\s+$!!;
@@ -121,9 +120,8 @@ sub _buildPackage {
 sub _determinePackageName {
 	my $dir = shift;
 
-	my $packageName;
-	IndieBox::Utils::myexec( "grep ^pkgname= $dir/PKGBUILD | sed -e 's/pkgname=\\s*//'", undef, \$packageName );
-	$packageName =~ s/\s+//g;
+	my $packageName = $dir;
+	$packageName =~ s!.*/!!;
 	return $packageName;
 }
 
