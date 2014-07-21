@@ -61,7 +61,7 @@ sub run {
 				}
 			} else {
 				my $out;
-				IndieBox::Utils::myexec( "cd $dir; ls $packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
+				IndieBox::Utils::myexec( "echo $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
 				$out =~ s!^\s+!!;
 				$out =~ s!\s+$!!;
 					
