@@ -27,21 +27,35 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my $upConfigs = IndieBox::Macrobuild::UpConfigs->allIn( '${configdir}/${repository}/up' );
-    my $usConfigs = IndieBox::Macrobuild::UsConfigs->allIn( '${configdir}/${repository}/us' );
+    my @repos = (
+        'os',
+        'hl' );
+    my $repoUpConfigs = {};
+    my $repoUsConfigs = {};
+    
+    map { $repoUpConfigs->{$_} = IndieBox::Macrobuild::UpConfigs->allIn( '${configdir}/' . $_ . '/up' ) } @repos;
+    map { $repoUsConfigs->{$_} = IndieBox::Macrobuild::UsConfigs->allIn( '${configdir}/' . $_ . '/us' ) } @repos;
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'tasks' => [
-            new IndieBox::Macrobuild::ComplexTasks::BuildDevPackages(
-                'upconfigs'   => $upConfigs,
-                'usconfigs'   => $usConfigs,
-                'repository'  => '${repository}' ),
-            new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report build activity for ${repository} in dev',
-                'fields'      => [ 'updated-packages' ] )
-        ]
-    );
-
+    my $buildTasks = {};
+    map { $buildTasks->{"build-$_"} = new IndieBox::Macrobuild::ComplexTasks::BuildDevPackages(
+                'upconfigs'   => $repoUpConfigs->{$_},
+                'usconfigs'   => $repoUsConfigs->{$_},
+                'repository'  => $_ ) } @repos;
+        
+    my @buildTaskNames = keys %$buildTasks;
+    
+    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin( 
+        'parallelTasks' => $buildTasks,
+        'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
+            'tasks' => [
+                new Macrobuild::CompositeTasks::MergeValuesTask(
+                    'name'         => 'Merge update lists from dev repositories: ' . join( ' ', @repos ),
+                    'keys'         => \@buildTaskNames ),
+                new Macrobuild::BasicTasks::Report(
+                    'name'        => 'Report build activity for dev repositories: ' . join( ' ', @repos ),
+                    'fields'      => [ 'updated-packages' ] )
+            ]
+        ));
     return $self;
 }
 

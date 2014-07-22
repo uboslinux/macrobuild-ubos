@@ -1,0 +1,9 @@
+{
+    "url"    : "https://github.com/indiebox/toyapps",
+    "type"   : "git",
+    "branch" : "master",
+
+    "directories" : [
+        "gladiwashere"
+    ]
+}
