@@ -16,5 +16,5 @@ done
 
 cd $WORKAREA
 echo "Now building in $(pwd)"
-macrobuild IndieBox::Macrobuild::BuildTasks::BuildDevOs --configdir git/github.com/indiebox/macrobuild-indiebox/config --archUpstreamSite http://mirrors.liquidweb.com/archlinux --arch x86_64 --builddir build --repodir repository
+macrobuild IndieBox::Macrobuild::BuildTasks::BuildDev --configdir git/github.com/indiebox/macrobuild-indiebox/config --archUpstreamSite http://mirrors.liquidweb.com/archlinux --arch x86_64 --builddir build --repodir repository --repository os -v -v 
 
