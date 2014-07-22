@@ -28,6 +28,7 @@ sub run {
 
     my $in              = $run->taskStarting( $self );
     my $updatedPackages = $in->{'updated-packages'};
+    my $arch            = $run->getSettings->getVariable( 'arch' );
 
     my @images;
     my $error = 0;
@@ -235,18 +236,22 @@ FSTAB
 
         # Production pacman file
         my $productionPacmanConfig = File::Temp->new( UNLINK => 1 );
-        print $productionPacmanConfig <<'END';
+        print $productionPacmanConfig <<END; # Not what is and isn't escaped here
 #
 # Pacman config file for Indie Box
 #
-[os]
-Server = http://depot.indiebox.net/dev/$arch/os
+#
+[options]
+Architecture = $arch
 
-[apps]
-Server = http://depot.indiebox.net/dev/$arch/apps
+[os]
+Server = http://depot.indiebox.net/dev/\$arch/os
+
+[hl]
+Server = http://depot.indiebox.net/dev/\$arch/hl
 
 # [tools]
-# Server = http://depot.indiebox.net/dev/$arch/tools
+# Server = http://depot.indiebox.net/dev/\$arch/tools
 END
         close $productionPacmanConfig;
         IndieBox::Utils::myexec( "sudo install -m644 " . $productionPacmanConfig->filename . " $mountedRootPart/etc/pacman.conf" );
