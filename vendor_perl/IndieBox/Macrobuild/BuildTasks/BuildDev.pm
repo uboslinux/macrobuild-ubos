@@ -1,5 +1,5 @@
 # 
-# Builds a repository in dev, updates packages
+# Builds the repositories in dev, updates packages
 #
 
 use strict;

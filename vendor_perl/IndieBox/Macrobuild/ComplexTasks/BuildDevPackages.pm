@@ -54,7 +54,7 @@ sub new {
                                 'downloaddir' => '${builddir}/upc/${arch}' ),
                         new IndieBox::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/${repository}' ),
+                                'stagedir'    => '${repodir}/${arch}/' . $self->{repository} ),
                     ]
                 ),
                 'build-indie-packages' => new Macrobuild::CompositeTasks::Sequential(
@@ -69,7 +69,7 @@ sub new {
                                 'stopOnError' => 0 ),
                         new IndieBox::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/${repository}' ),
+                                'stagedir'    => '${repodir}/${arch}/' . $self->{repository} ),
                     ]                
                 )
             },
@@ -80,7 +80,7 @@ sub new {
                             'keys'         => [ 'build-indie-packages', 'fetch-upstream-packages' ] ),
                     new IndieBox::Macrobuild::BasicTasks::UpdatePackageDatabase(
                             'name'         => 'Update package database with new packages',
-                            'dbfile'       => '${repodir}/${arch}/${repository}/${repository}.db.tar.xz' )
+                            'dbfile'       => '${repodir}/${arch}/' . $self->{repository} . '/' . $self->{repository} . '.db.tar.xz' )
                 ]
             ));
 

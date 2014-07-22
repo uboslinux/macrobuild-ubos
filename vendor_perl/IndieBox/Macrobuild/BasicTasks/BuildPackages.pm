@@ -37,6 +37,7 @@ sub run {
     my $built      = {};
     my $notRebuilt = {};
     while( my( $repoName, $repoInfo ) = each %$dirsUpdated ) {
+        my $inThisRepo = {};
         foreach my $subdir ( @$repoInfo ) {
             my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
             if( $subdir ) {
@@ -46,16 +47,16 @@ sub run {
             my $packageName = _determinePackageName( $dir );
             info( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
             
-            my $inThisRepo = {};
             if( $self->_buildPackage( $dir, $packageName, $inThisRepo ) == -1 ) {
 				return -1;
 			}
-            if( %$inThisRepo ) {
-                $built->{$repoName} = $inThisRepo;
-            }
+        }
+        if( %$inThisRepo ) {
+            $built->{$repoName} = $inThisRepo;
         }
     }
     while( my( $repoName, $repoInfo ) = each %$dirsNotUpdated ) {
+        my $inThisRepo = {};
         foreach my $subdir ( @$repoInfo ) {
             my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
             if( $subdir ) {
@@ -68,13 +69,9 @@ sub run {
             if( -e "$dir/$failedstamp" ) {
 				info( "build failed last time: makepkg in", $dir );
 
-                my $inThisRepo = {};
 				if( $self->_buildPackage( $dir, $packageName, $inThisRepo ) == -1 ) {
 					return -1;
 				}
-                if( %$inThisRepo ) {
-                    $built->{$repoName} = $inThisRepo;
-                }
 			} else {
 				my $out;
 				IndieBox::Utils::myexec( "echo $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
@@ -83,6 +80,9 @@ sub run {
 					
 				$notRebuilt->{$repoName}->{$packageName} = $out;
 			}
+        }
+        if( %$inThisRepo ) {
+            $built->{$repoName} = $inThisRepo;
         }
 	}
 
