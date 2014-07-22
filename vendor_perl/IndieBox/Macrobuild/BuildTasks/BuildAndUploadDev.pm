@@ -47,6 +47,7 @@ sub new {
                 'repository'  => $_ ) } @repos;
         
     my @buildTaskNames = keys %$buildTasks;
+    my @mergeKeys      = ( '', @buildTaskNames );
     
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin( 
         'parallelTasks' => $buildTasks,
@@ -57,7 +58,7 @@ sub new {
                     'to'          => 'buildmaster@depot.indiebox.net:/var/lib/cldstr-archdepot/a00000000000000000000000000000003/${arch}' ),
                 new Macrobuild::CompositeTasks::MergeValuesTask(
                     'name'         => 'Merge update lists from dev repositories: ' . join( ' ', @repos ),
-                    'keys'         => \@buildTaskNames ),
+                    'keys'         => \@mergeKeys ),
                 new Macrobuild::CompositeTasks::SplitJoin(
                     'parallelTasks' => {
                         'report-stdout' => new Macrobuild::BasicTasks::Report(
