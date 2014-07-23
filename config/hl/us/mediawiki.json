@@ -1,0 +1,10 @@
+{
+    "url"    : "https://github.com/indiebox/mediawiki",
+    "type"   : "git",
+    "branch" : "master",
+
+    "directories" : [
+        "mediawiki",
+        "mediawiki-ext-confirmaccount"
+    ]
+}

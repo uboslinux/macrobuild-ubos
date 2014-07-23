@@ -1,0 +1,9 @@
+{
+    "url"    : "https://github.com/indiebox/selfoss",
+    "type"   : "git",
+    "branch" : "master",
+
+    "directories" : [
+        "selfoss"
+    ]
+}

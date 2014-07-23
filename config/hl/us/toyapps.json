@@ -4,6 +4,7 @@
     "branch" : "master",
 
     "directories" : [
+        "helloworld",
         "gladiwashere"
     ]
 }

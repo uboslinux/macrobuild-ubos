@@ -1,0 +1,9 @@
+{
+    "url"    : "https://github.com/indiebox/idno",
+    "type"   : "git",
+    "branch" : "master",
+
+    "directories" : [
+        "idno"
+    ]
+}
