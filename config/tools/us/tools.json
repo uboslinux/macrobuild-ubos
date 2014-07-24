@@ -1,0 +1,9 @@
+{
+    "url"    : "https://github.com/indiebox/tools",
+    "type"   : "git",
+    "branch" : "master",
+
+    "directories" : [
+        "webapptest"
+    ]
+}
