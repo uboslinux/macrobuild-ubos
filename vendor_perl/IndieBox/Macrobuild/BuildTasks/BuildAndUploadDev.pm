@@ -33,7 +33,8 @@ sub new {
 
     my @repos = (
         'os',
-        'hl' );
+        'hl',
+        'tools' );
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
     
