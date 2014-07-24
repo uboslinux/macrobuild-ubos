@@ -89,15 +89,24 @@ sub _pullFromGit {
 			my @updated;
 			my @notUpdated;
             if( $directories ) {
-                foreach my $dir ( @$directories ) {
-                    if( $out =~ m!^\s\Q$dir\E/! ) {
-                        # git pull output seems to put a space at the beginning of any line that indicates a change
-                        # we look for anything below $dir, i.e. $dir plus appended slash
-                        push @updated, $dir;
-
-                    } else {
-                        push @notUpdated, $dir;
-                    }
+                # This naive approach to parsing does not seem to work under all circumstances, e.g.
+                # git might say:
+                # foo/two => bar/three
+                # so we rebuild everything even if only one directory has changed
+                # foreach my $dir ( @$directories ) {
+                #     if( $out =~ m!^\s\Q$dir\E/! ) {
+                #         # git pull output seems to put a space at the beginning of any line that indicates a change
+                #         # we look for anything below $dir, i.e. $dir plus appended slash
+                #         push @updated, $dir;
+                #
+                #     } else {
+                #         push @notUpdated, $dir;
+                #     }
+                # }
+                if( $out =~ m!Already up-to-date! ) {
+                    push @notUpdated, @$directories;
+                } else {
+                    push @updated, @$directories;
                 }
             } else {
                 if( $out =~ m!Already up-to-date! ) {
