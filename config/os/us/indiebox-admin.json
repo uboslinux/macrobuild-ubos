@@ -4,6 +4,7 @@
     "branch" : "master",
 
     "directories" : [
-        "indiebox-admin"
+        "indiebox-admin",
+        "indiebox-networking"
     ]
 }
