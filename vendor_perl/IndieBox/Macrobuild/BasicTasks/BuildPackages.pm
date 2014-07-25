@@ -74,7 +74,7 @@ sub run {
 				}
 			} else {
 				my $out;
-				IndieBox::Utils::myexec( "echo $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
+				IndieBox::Utils::myexec( "ls -1 $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
 				$out =~ s!^\s+!!;
 				$out =~ s!\s+$!!;
 					
@@ -116,7 +116,7 @@ sub _buildPackage {
 
 	} elsif( $err =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
 		my $out;
-		IndieBox::Utils::myexec( "echo $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
+		IndieBox::Utils::myexec( "ls -1 $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
 		$out =~ s!^\s+!!;
 		$out =~ s!\s+$!!;
 			
