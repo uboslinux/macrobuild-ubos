@@ -19,7 +19,7 @@ use IndieBox::Utils;
 use Macrobuild::Logging;
 use Macrobuild::Utils;
 
-my @basePackages = ( 'base' 'indiebox-admin' 'indiebox-networking' );
+my @basePackages = ( 'base', 'indiebox-admin', 'indiebox-networking' );
 
 ##
 # Run this task.
