@@ -19,6 +19,8 @@ use IndieBox::Utils;
 use Macrobuild::Logging;
 use Macrobuild::Utils;
 
+my @basePackages = ( 'base' 'indiebox-admin' 'indiebox-networking' );
+
 ##
 # Run this task.
 # $run: the inputs, outputs, settings and possible other context info for the run
@@ -355,7 +357,7 @@ END
             . " '--config=$config'"
             . " --cachedir '$targetDir/var/cache/pacman/pkg'"
             . " --noconfirm"
-            . " base indiebox-admin";
+            . join( ' ', @basePackages );
 
     my $out;
     my $err;
