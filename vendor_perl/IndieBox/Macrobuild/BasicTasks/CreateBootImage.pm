@@ -357,7 +357,7 @@ END
             . " '--config=$config'"
             . " --cachedir '$targetDir/var/cache/pacman/pkg'"
             . " --noconfirm"
-            . join( ' ', @basePackages );
+            . ' ' . join( ' ', @basePackages );
 
     my $out;
     my $err;
