@@ -5,12 +5,23 @@
         "apache" : {},
         "apr" : {},
         "apr-util" : {},
+        "ca-certificates-java" : {},
+        "eclipse-ecj" : {},
+        "java-commons-daemon" : {},
+        "java-jsvc" : {},
+        "java7-openjdk" : {},
+        "jre7-openjdk-headless" : {},
+        "lcms2" : {},
         "libaio" : {},
+        "libjpeg-turbo" : {},
         "libmariadbclient" : {},
+        "libtiff" : {},
         "libunistring" : {},
         "libxml2" : {},
         "mariadb" : {},
         "mariadb-clients" : {},
+        "nspr" : {},
+        "nss" : {},
         "ntp" : {},
         "perl-archive-zip" : {},
         "perl-dbi" : {},
@@ -21,6 +32,7 @@
         "php-gd" : {},
         "php-intl" : {},
         "python2" : {},
-        "sqlite" : {}
+        "sqlite" : {},
+        "tomcat7" : {}
     }
 }
