@@ -16,6 +16,8 @@
         "perl-dbi" : {},
         "perl-dbd-mysql" : {},
         "perl-log-log4perl" : {},
+        "php" : {},
+        "php-apache" : {},
         "python2" : {},
         "sqlite" : {}
     }
