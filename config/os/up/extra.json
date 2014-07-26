@@ -18,6 +18,8 @@
         "perl-log-log4perl" : {},
         "php" : {},
         "php-apache" : {},
+        "php-gd" : {},
+        "php-intl" : {},
         "python2" : {},
         "sqlite" : {}
     }
