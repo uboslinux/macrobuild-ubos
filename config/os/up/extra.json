@@ -26,11 +26,13 @@
         "perl-archive-zip" : {},
         "perl-dbi" : {},
         "perl-dbd-mysql" : {},
+        "perl-digest-sha1" : {},
         "perl-log-log4perl" : {},
         "php" : {},
         "php-apache" : {},
         "php-gd" : {},
         "php-intl" : {},
+        "php-xcache" : {},
         "python2" : {},
         "sqlite" : {},
         "tomcat7" : {}
