@@ -1,5 +1,5 @@
 pkgname=macrobuild-indiebox
-pkgver=0.9
+pkgver=0.10
 pkgrel=1
 pkgdesc="Indie Box tasks for macrobuild"
 arch=('any')
