@@ -206,6 +206,25 @@ FSTAB
 
         # Ramdisk
         info( "Generating ramdisk" );
+        # The optimized ramdisk doesn't always boot, so we always skip the optimization step
+        my $mkinitcpioConf = File::Temp->new( UNLINK => 1 );
+        print $mkinitcpioConf <<'END';
+# mkinitcpio preset file for the 'linux' package, modified for Indie Box
+#
+# Do not autodetect, as the device booting the image is most likely different
+# from the device that created the image
+
+ALL_config="/etc/mkinitcpio.conf"
+ALL_kver="/boot/vmlinuz-linux"
+
+PRESETS=('default')
+
+#default_config="/etc/mkinitcpio.conf"
+default_image="/boot/initramfs-linux.img"
+default_options="-S autodetect"
+END
+        close $mkinitcpioConf;
+        IndieBox::Utils::myexec( "sudo install -m644 " . $mkinitcpioConf->filename . " $mountedRootPart/etc/mkinitcpio.d/linux.preset" );
 
         if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' mkinitcpio -p linux", undef, \$out, \$err ) ) {
             error( "Generating ramdisk failed:", $err );
@@ -238,7 +257,7 @@ FSTAB
 
         # Production pacman file
         my $productionPacmanConfig = File::Temp->new( UNLINK => 1 );
-        print $productionPacmanConfig <<END; # Not what is and isn't escaped here
+        print $productionPacmanConfig <<END; # Note what is and isn't escaped here
 #
 # Pacman config file for Indie Box
 #
