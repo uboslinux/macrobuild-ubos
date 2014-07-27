@@ -42,19 +42,23 @@ sub run {
             # in case you were wondering, here's the filtering that says which packages we want
             while( my( $packageName, $packageInfo ) = each %{$upConfig->packages} ) {
                 my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
-                my @packageFileLocalCandidates   = map { s!.*/!!; } <$dir/$packageName-[0-9]*.$arch.pkg.*>;
-                
-                my $bestLocalCandidate = undef;
-                if( @packageFileLocalCandidates ) {
-                    # we have one or more versions
-                    @packageFileLocalCandidates = sortByPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
-                    $bestLocalCandidate         = $packageFileLocalCandidates[-1];
+                if( $packageFileInPackageDatabase ) {
+                    my @packageFileLocalCandidates   = map { s!.*/!!; } <$dir/$packageName-[0-9]*.$arch.pkg.*>;
+                    
+                    my $bestLocalCandidate = undef;
+                    if( @packageFileLocalCandidates ) {
+                        # we have one or more versions
+                        @packageFileLocalCandidates = sortByPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
+                        $bestLocalCandidate         = $packageFileLocalCandidates[-1];
+                    } else {
+                        # nothing local
+                    }
+                    if( !$bestLocalCandidate || $bestLocalCandidate != $packageFileInPackageDatabase ) {
+                        my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
+                        $toDownload->{$repoName}->{$packageName} = $url;
+                    }
                 } else {
-                    # nothing local
-                }
-                if( !$bestLocalCandidate || $bestLocalCandidate != $packageFileInPackageDatabase ) {
-                    my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
-                    $toDownload->{$repoName}->{$packageName} = $url;
+                    warn( 'Failed to find package file for package', $packageName, 'in database for repo', $repoName );
                 }
             }
         }

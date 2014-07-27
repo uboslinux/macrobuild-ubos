@@ -27,7 +27,8 @@ sub run {
     }
     my $toDownload = $in->{'packages-to-download'};
     
-    my $downloaded = {};
+    my $downloaded  = {};
+    my $haveAlready = {};
     if( %$toDownload ) {
         while( my( $repoName, $repoDownloadData ) = each %$toDownload ) {
             my $repoDownloadDir = $run->{settings}->replaceVariables( $self->{downloaddir} ) . "/$repoName";
@@ -39,6 +40,8 @@ sub run {
                 my $fullLocalName = "$repoDownloadDir/$localName";
                 if( -e $fullLocalName ) {
                     info( "Skipping download, exists already:", $fullLocalName );
+                    $haveAlready->{$repoName}->{$packageName} = $fullLocalName;
+
                 } else {
                     info( "Downloading:", $fullLocalName, "from", $packageUrl );
 
@@ -55,7 +58,8 @@ sub run {
     }
 
     $run->taskEnded( $self, {
-            'new-packages' => $downloaded
+            'new-packages' => $downloaded,
+            'old-packages' => $haveAlready
     } );
     if( %$downloaded ) {
         return 0;
