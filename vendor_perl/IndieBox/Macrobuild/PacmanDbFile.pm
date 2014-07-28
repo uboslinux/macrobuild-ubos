@@ -73,8 +73,7 @@ sub addPackages {
     
     my $packagesString = join( ' ', @packages );
 
-    if( IndieBox::Utils::myexec( "repo-add -q -n '" . $self->{filename} . "' $packagesString" )) {
-        # -n: do not re-add packages that exist already. will still print warning
+    if( IndieBox::Utils::myexec( "repo-add -q '" . $self->{filename} . "' $packagesString" )) {
         Macrobuild::Logging::error( "Something went wrong when repo-add" );
         return -1;
     }
