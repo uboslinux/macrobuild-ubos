@@ -1,5 +1,10 @@
 # 
-# Create a boot image
+# Create a boot image. Depending on parameters, this Task can:
+# * install on a single partition, or on separate / and /var partitions
+#   ($self->{imagesize} and $self->{rootpartsize})
+# * use ext4 or btrfs filesystems ($self->{fs})
+# * produce an image file, or a VirtualBox-VMDK file with virtualbox-guest
+#   modules installed ($self->{type})
 #
 
 use strict;
@@ -8,7 +13,7 @@ use warnings;
 package IndieBox::Macrobuild::BasicTasks::CreateBootImage;
 
 use base qw( Macrobuild::Task );
-use fields qw( repodir image imagesize rootpartsize fs );
+use fields qw( repodir image imagesize rootpartsize fs type );
 
 # imagesize: the size of the .img file to create
 # rootpartsize: the size of the partition in the image for /, the rest is for /var. Also
@@ -19,7 +24,16 @@ use IndieBox::Utils;
 use Macrobuild::Logging;
 use Macrobuild::Utils;
 
-my @basePackages = ( 'base', 'indiebox-admin', 'indiebox-networking' );
+my $dataByType = {
+    'img'      => {
+        'packages' => [ 'base', 'indiebox-admin', 'indiebox-networking' ],
+        'repos' => [ 'os', 'hl' ]
+    },
+    'vbox.img' => {
+        'packages' => [ 'base', 'indiebox-admin', 'indiebox-networking', 'virtualbox-guest' ],
+        'repos' => [ 'os', 'hl', 'virt' ]
+    }
+};
 
 ##
 # Run this task.
@@ -32,6 +46,10 @@ sub run {
     my $updatedPackages = $in->{'updated-packages'};
     my $arch            = $run->getSettings->getVariable( 'arch' );
 
+    unless( defined( $dataByType->{$self->{type}} )) {
+        error( 'Invalid parameter type:', $self->{type} );
+        return -1;
+    }
     my @images;
     my $error = 0;
     if( !defined( $updatedPackages ) || @$updatedPackages ) {
@@ -77,6 +95,7 @@ p
 1
 
 +$rootpartsize
+a
 n
 p
 2
@@ -91,6 +110,7 @@ p
 1
 
 
+a
 w
 END
     }
@@ -150,13 +170,19 @@ END
 #
 # Pacman config file for creating images
 #
-[os]
-Server = file://$repodir
 END
+        foreach my $repo ( @{$dataByType->{$self->{type}}->{repos}} ) {
+            print $pacstrapPacmanConfig <<END; # Note what is and isn't escaped here
+
+[$repo]
+Server = file://$repodir/$arch/$repo
+END
+print "pacman server: Server = file://$repodir/$arch/$repo\n";
+        }
         close $pacstrapPacmanConfig;
 
         # pacstrap
-        $error ||= indiePacstrap( $mountedRootPart, $repodir, $pacstrapPacmanConfig->filename );
+        $error ||= $self->indiePacstrap( $mountedRootPart, $repodir, $pacstrapPacmanConfig->filename );
 
         # hostname
         my $hostname = File::Temp->new( UNLINK => 1 );
@@ -257,23 +283,21 @@ END
 
         # Production pacman file
         my $productionPacmanConfig = File::Temp->new( UNLINK => 1 );
-        print $productionPacmanConfig <<END; # Note what is and isn't escaped here
+        print $productionPacmanConfig <<END;
 #
 # Pacman config file for Indie Box
 #
 #
 [options]
 Architecture = $arch
-
-[os]
-Server = http://depot.indiebox.net/dev/\$arch/os
-
-[hl]
-Server = http://depot.indiebox.net/dev/\$arch/hl
-
-# [tools]
-# Server = http://depot.indiebox.net/dev/\$arch/tools
 END
+        foreach my $repo ( @{$dataByType->{$self->{type}}->{repos}} ) {
+            print $productionPacmanConfig <<END; # Note what is and isn't escaped here
+
+[$repo]
+Server = http://depot.indiebox.net/dev/\$arch/$repo
+END
+        }
         close $productionPacmanConfig;
         IndieBox::Utils::myexec( "sudo install -m644 " . $productionPacmanConfig->filename . " $mountedRootPart/etc/pacman.conf" );
         
@@ -344,6 +368,7 @@ OSRELEASE
 
 ## Our version of pacstrap, see https://projects.archlinux.org/arch-install-scripts.git/tree/pacstrap.in
 sub indiePacstrap {
+    my $self      = shift;
     my $targetDir = shift;
     my $repRoot   = shift;
     my $config    = shift;
@@ -376,7 +401,7 @@ END
             . " '--config=$config'"
             . " --cachedir '$targetDir/var/cache/pacman/pkg'"
             . " --noconfirm"
-            . ' ' . join( ' ', @basePackages );
+            . ' ' . join( ' ', @{$dataByType->{$self->{type}}->{packages}} );
 
     my $out;
     my $err;

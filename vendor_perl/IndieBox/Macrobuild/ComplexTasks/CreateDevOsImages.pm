@@ -29,44 +29,35 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'tasks' => [
-            new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
-                    'name'         => 'Create 1-partition boot disk',
-                    'repodir'      => '${repodir}/${arch}/os',
-                    'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part.img',
-                    'imagesize'    => '3G',
-                    'rootpartsize' => 'all',
-                    'fs'           => 'btrfs' ),
-            new IndieBox::Macrobuild::BasicTasks::BootImageToVmdk()
-        ] );
-        
-#        new Macrobuild::CompositeTasks::SplitJoin( 
-#        'parallelTasks' => {
-#            '2-partition-boot-disk' => new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
-#                    'name'         => 'Create 2-partition boot disk',
-#                    'repodir'      => '${repodir}/${arch}/os',
-#                    'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-2part.img',
-#                    'imagesize'    => '3G',
-#                    'rootpartsize' => '1G',
-#                    'fs'           => 'btrfs' ),
-#            '1-partition-boot-disk' => new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
-#                    'name'         => 'Create 1-partition boot disk',
-#                    'repodir'      => '${repodir}/${arch}/os',
-#                    'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part.img',
-#                    'imagesize'    => '3G',
-#                    'rootpartsize' => 'all',
-#                    'fs'           => 'btrfs' )
-#        },
-#        'joinTask' => new Macrobuild::CompositeTasks::Sequential(
-#            'tasks' => [
-#                new Macrobuild::CompositeTasks::MergeValuesTask(
-#                        'name'         => 'Merge images list',
-#                        'keys'         => [ '2-partition-boot-disk', '1-partition-boot-disk' ] ),
-#                new IndieBox::Macrobuild::BasicTasks::BootImageToVmdk()
-#            ]
-#        )
-#    );
+    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin( 
+        'parallelTasks' => {
+            'img' => new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
+                'name'         => 'Create 1-partition boot disk image',
+                'repodir'      => '${repodir}',
+                'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part.img',
+                'imagesize'    => '3G',
+                'rootpartsize' => 'all',
+                'fs'           => 'btrfs',
+                'type'         => 'img'
+            ),
+            'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
+                'tasks' => [
+                    new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
+                        'name'         => 'Create 1-partition boot disk for VirtualBox',
+                        'repodir'      => '${repodir}',
+                        'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part.vbox.img',
+                        'imagesize'    => '3G',
+                        'rootpartsize' => 'all',
+                        'fs'           => 'btrfs',
+                        'type'         => 'vbox.img' ),
+                    new IndieBox::Macrobuild::BasicTasks::BootImageToVmdk()
+                ]
+            )
+        },
+        'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
+                'name'         => 'Merge images list',
+                'keys'         => [ 'img', 'vbox.img' ] )
+    );
 
     return $self;
 }
