@@ -406,7 +406,7 @@ END
     my $out;
     my $err;
     if( IndieBox::Utils::myexec( $pacmanCmd, undef, \$out, \$err )) {
-        error( "pacstrap failed:", $err );
+        error( "pacstrap failed:", $err, "\nconfiguration was:\n", IndieBox::Utils::slurp( $config ) );
     }
 
     info( "Unmounting special devices" );
