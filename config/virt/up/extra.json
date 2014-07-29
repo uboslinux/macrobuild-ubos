@@ -8,6 +8,7 @@
         "freetype2" : {},
         "kbproto" : {},
         "libdrm" : {},
+        "libepoxy" : {},
         "libevdev" : {},
         "libfontenc" : {},
         "libice" : {},
