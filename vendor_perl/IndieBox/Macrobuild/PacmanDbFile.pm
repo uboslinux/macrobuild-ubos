@@ -73,7 +73,7 @@ sub addPackages {
     
     my $packagesString = join( ' ', @packages );
 
-    if( IndieBox::Utils::myexec( "repo-add -q '" . $self->{filename} . "' $packagesString" )) {
+    if( IndieBox::Utils::myexec( "repo-add '" . $self->{filename} . "' $packagesString" )) {
         Macrobuild::Logging::error( "Something went wrong when repo-add" );
         return -1;
     }

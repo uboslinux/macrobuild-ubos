@@ -1,11 +1,11 @@
 # 
-# Creates dev os images
+# Creates all dev os images
 #
 
 use strict;
 use warnings;
 
-package IndieBox::Macrobuild::BuildTasks::CreateDevOsImages;
+package IndieBox::Macrobuild::BuildTasks::CreateAllDevOsImages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;

@@ -27,11 +27,13 @@ use Macrobuild::Utils;
 my $dataByType = {
     'img'      => {
         'packages' => [ 'base', 'indiebox-admin', 'indiebox-networking' ],
-        'repos' => [ 'os', 'hl' ]
+        'repos'    => [ 'os', 'hl' ],
+        'services' => []
     },
     'vbox.img' => {
         'packages' => [ 'base', 'indiebox-admin', 'indiebox-networking', 'virtualbox-guest' ],
-        'repos' => [ 'os', 'hl', 'virt' ]
+        'repos' => [ 'os', 'hl', 'virt' ],
+        'services' => [ 'vboxservice' ]
     }
 };
 
@@ -81,7 +83,7 @@ sub run {
         if( IndieBox::Utils::myexec( "dd if=/dev/zero 'of=$image' bs=1 count=0 seek=$imagesize", undef, \$out, \$err )) {
              # sparse
              error( "dd failed:", $err );
-             $error = 1;
+             ++$error;
         }
 
         info( "Formatting image:", $image );
@@ -124,12 +126,14 @@ END
 
         if( IndieBox::Utils::myexec( "sudo losetup --show -f '$image'", undef, \$imageLoopDevice, \$err )) {
             error( "losetup error:", $err );
+            ++$error;
         }
         $imageLoopDevice =~ s!^\s+!!;
         $imageLoopDevice =~ s!\s+$!!;
 
         if( IndieBox::Utils::myexec( "sudo kpartx -a '$imageLoopDevice'", undef, undef, \$err )) {
             error( "xpartx error:", $err );
+            ++$error;
         }
 
         $imageLoopDevice =~ m!^/dev/(.*)$!;
@@ -147,10 +151,12 @@ END
 
         if( IndieBox::Utils::myexec( "sudo mkfs.$fs '$rootLoopDevice'", undef, \$out, \$err )) {
             error( "mkfs.$fs error on /:", $err );
+            ++$error;
         }
         if( $separateVar ) {
             if( IndieBox::Utils::myexec( "sudo mkfs.$fs '$varLoopDevice'", undef, \$out, \$err )) {
                 error( "mkfs.$fs error on /var:", $err );
+                ++$error;
             }
         }
 
@@ -177,12 +183,11 @@ END
 [$repo]
 Server = file://$repodir/$arch/$repo
 END
-print "pacman server: Server = file://$repodir/$arch/$repo\n";
         }
         close $pacstrapPacmanConfig;
 
         # pacstrap
-        $error ||= $self->indiePacstrap( $mountedRootPart, $repodir, $pacstrapPacmanConfig->filename );
+        $error += $self->indiePacstrap( $mountedRootPart, $repodir, $pacstrapPacmanConfig->filename );
 
         # hostname
         my $hostname = File::Temp->new( UNLINK => 1 );
@@ -254,7 +259,7 @@ END
 
         if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' mkinitcpio -p linux", undef, \$out, \$err ) ) {
             error( "Generating ramdisk failed:", $err );
-            $error = 1;
+            ++$error;
         }
 
         # Boot loader
@@ -268,17 +273,31 @@ END
                 . " grub";
         if( IndieBox::Utils::myexec( $pacmanCmd, undef, \$out, \$err )) {
             error( "pacman failed", $err );
-            $error = 1;
+            ++$error;
         }
         if( IndieBox::Utils::myexec( "sudo grub-install '--boot-directory=$mountedRootPart/boot' --recheck '$image'", undef, \$out, \$err )) {
             error( "grub-install failed", $err );
-            $error = 1;
+            ++$error;
         }
 
         # Grub config file -- this seems to be the easiest
         if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' grub-mkconfig -o /boot/grub/grub.cfg", undef, \$out, \$err )) {
             error( "grub-mkconfig failed", $err );
-            $error = 1;
+            ++$error;
+        }
+        
+        # Depmod so modules can be found
+        if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' depmod -a" )) {
+            error( "depmod -a failed" );
+            ++$error;
+        }
+        
+        # Services
+        if( @{$dataByType->{$self->{type}}->{services}} ) {
+            if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' systemctl enable " . join( ' ', @{$dataByType->{$self->{type}}->{services}} ), undef, \$out, \$err )) {
+                error( "systemctl enable failed", $err );
+                ++$error;
+            }
         }
 
         # Production pacman file
@@ -306,7 +325,7 @@ END
         IndieBox::Utils::myexec( "sudo perl -pi -e 's/^#.*en_US\.UTF-8.*\$/en_US.UTF-8 UTF-8/g' '$mountedRootPart/etc/locale.gen'" );
         if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' locale-gen", undef, \$out, \$err )) {
             error( "locale-gen failed", $err );
-            $error = 1;
+            ++$error;
         }
 
         # version

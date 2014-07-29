@@ -45,7 +45,7 @@ sub new {
                     new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
                         'name'         => 'Create 1-partition boot disk for VirtualBox',
                         'repodir'      => '${repodir}',
-                        'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part.vbox.img',
+                        'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part-vbox.img',
                         'imagesize'    => '3G',
                         'rootpartsize' => 'all',
                         'fs'           => 'btrfs',
