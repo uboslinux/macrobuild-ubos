@@ -26,14 +26,14 @@ use Macrobuild::Utils;
 
 my $dataByType = {
     'img'      => {
-        'packages' => [ 'base', 'indiebox-admin', 'indiebox-networking' ],
+        'packages' => [ 'base', 'openssh', 'indiebox-admin', 'indiebox-networking' ],
         'repos'    => [ 'os', 'hl' ],
-        'services' => []
+        'services' => [ 'ssh' ]
     },
     'vbox.img' => {
-        'packages' => [ 'base', 'indiebox-admin', 'indiebox-networking', 'virtualbox-guest' ],
+        'packages' => [ 'base', 'openssh', 'indiebox-admin', 'indiebox-networking', 'virtualbox-guest' ],
         'repos' => [ 'os', 'hl', 'virt' ],
-        'services' => [ 'vboxservice' ]
+        'services' => [ 'vboxservice', 'sshd' ]
     }
 };
 
@@ -218,8 +218,8 @@ END
 #
 # <file system> <dir>	<type>	<options>	<dump>	<pass>
 
-UUID=$rootUuid     /        ext4     rw,relatime,data=ordered 0 1
-UUID=$varUuid      /var     ext4     rw,relatime,data=ordered 1 1
+UUID=$rootUuid     /        $fs     rw,relatime 0 1
+UUID=$varUuid      /var     $fs     rw,relatime 1 1
 FSTAB
         } else {
             print $fstab <<FSTAB;
@@ -228,7 +228,7 @@ FSTAB
 #
 # <file system> <dir>	<type>	<options>	<dump>	<pass>
 
-UUID=$rootUuid     /        ext4     rw,relatime,data=ordered 0 1
+UUID=$rootUuid     /        $fs     rw,relatime,data 0 1
 FSTAB
         }
         close $fstab;
@@ -279,25 +279,27 @@ END
             error( "grub-install failed", $err );
             ++$error;
         }
+        
+        # Create a script that can be passed to arch-chroot:
+        # 1. grub configuration
+        # 2. Depmod so modules can be found. This needs to use the image's kernel version,
+        #    not the currently running one
+        # 3. Enable services
+        
+        my $chrootScript = <<'END';
+set -e
 
-        # Grub config file -- this seems to be the easiest
-        if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' grub-mkconfig -o /boot/grub/grub.cfg", undef, \$out, \$err )) {
-            error( "grub-mkconfig failed", $err );
-            ++$error;
-        }
-        
-        # Depmod so modules can be found
-        if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' depmod -a" )) {
-            error( "depmod -a failed" );
-            ++$error;
-        }
-        
-        # Services
+grub-mkconfig -o /boot/grub/grub.cfg
+
+for v in $(ls -1 /lib/modules | grep -v extramodules); do depmod -a $v; done
+
+END
         if( @{$dataByType->{$self->{type}}->{services}} ) {
-            if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart' systemctl enable " . join( ' ', @{$dataByType->{$self->{type}}->{services}} ), undef, \$out, \$err )) {
-                error( "systemctl enable failed", $err );
-                ++$error;
-            }
+            $chrootScript .= 'systemctl enable ' . join( ' ', @{$dataByType->{$self->{type}}->{services}} ) . "\n\n";
+        }
+
+        if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart'", $chrootScript, \$out, \$err )) {
+            error( "chroot script failed", $err );
         }
 
         # Production pacman file
