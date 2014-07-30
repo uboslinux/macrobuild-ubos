@@ -1,5 +1,5 @@
 pkgname=macrobuild-indiebox
-pkgver=0.15
+pkgver=0.16
 pkgrel=1
 pkgdesc="Indie Box tasks for macrobuild"
 arch=('any')
@@ -16,4 +16,7 @@ package() {
         mkdir -p $pkgdir/usr/lib/perl5/vendor_perl/IndieBox/$d
         install -m644 $startdir/vendor_perl/IndieBox/$d/*.pm $pkgdir/usr/lib/perl5/vendor_perl/IndieBox/$d
     done
+
+    mkdir -p -m755 $pkgdir/etc/$pkgname/keys
+    install -m644 $startdir/keys/indiebox-admin.pub $pkgdir/etc/$pkgname/keys
 }
