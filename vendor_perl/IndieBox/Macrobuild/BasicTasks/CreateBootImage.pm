@@ -5,7 +5,8 @@
 # * use ext4 or btrfs filesystems ($self->{fs})
 # * produce an image file, or a VirtualBox-VMDK file with virtualbox-guest
 #   modules installed ($self->{type})
-#
+# If there is a variable called adminSshKeyFile, this will create an
+# indiebox-admin user with the ssh public key from that file.
 
 use strict;
 use warnings;
@@ -297,6 +298,29 @@ END
         if( @{$dataByType->{$self->{type}}->{services}} ) {
             $chrootScript .= 'systemctl enable ' . join( ' ', @{$dataByType->{$self->{type}}->{services}} ) . "\n\n";
         }
+        my $adminSshKeyFile = $run->getSettings->getVariable( 'adminSshKeyFile' );
+        if( $adminSshKeyFile ) {
+            my $adminSshKey = IndieBox::Utils::slurpFile( $adminSshKeyFile );
+            $chrootScript .= <<END;
+useradd -m indiebox-admin
+mkdir -m700 ~indiebox-admin/.ssh
+cat > ~indiebox-admin/.ssh/authorized_keys <<KEY
+$adminSshKey
+KEY
+chmod 600 ~indiebox-admin/.ssh/authorized_keys
+chown indiebox-admin:indiebox-admin ~indiebox-admin/.ssh{,/authorized_keys}
+
+cat > /etc/sudoers.d/indiebox-admin <<SUDO
+# indiebox-admin needs to be able to perform basic admin tasks
+indiebox-admin ALL=NOPASSWD: \
+        /usr/bin/indiebox-admin *
+SUDO
+chmod 600 /etc/sudoers.d/indiebox-admin
+chown root:root /etc/sudoers.d/indiebox-admin
+END
+        }
+
+        debug( "chroot script:", $chrootScript );
 
         if( IndieBox::Utils::myexec( "sudo arch-chroot '$mountedRootPart'", $chrootScript, \$out, \$err )) {
             error( "chroot script failed", $err );
