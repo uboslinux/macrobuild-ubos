@@ -312,7 +312,7 @@ chown indiebox-admin:indiebox-admin ~indiebox-admin/.ssh{,/authorized_keys}
 
 cat > /etc/sudoers.d/indiebox-admin <<SUDO
 # indiebox-admin needs to be able to perform basic admin tasks
-indiebox-admin ALL=NOPASSWD: \
+indiebox-admin ALL=NOPASSWD: \\
         /usr/bin/indiebox-admin *
 SUDO
 chmod 600 /etc/sudoers.d/indiebox-admin

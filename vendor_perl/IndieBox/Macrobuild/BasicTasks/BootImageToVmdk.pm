@@ -43,6 +43,7 @@ sub run {
             $meGroup =~ s!\s+!!g;
 
             IndieBox::Utils::myexec( "sudo chown $meUser:$meGroup '$vmdk'" ); 
+            IndieBox::Utils::myexec( "sudo chmod 644 '$vmdk'" ); 
             push @$vmdkimages, $vmdk;
         } else {
             error( "VBoxManage convertfromraw failed", $bootimage, $err );
