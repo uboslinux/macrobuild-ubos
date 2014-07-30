@@ -27,14 +27,14 @@ use Macrobuild::Utils;
 
 my $dataByType = {
     'img'      => {
-        'packages' => [ 'base', 'openssh', 'indiebox-admin', 'indiebox-networking' ],
+        'packages' => [ 'base', 'openssh', 'btrfs-progs', 'indiebox-admin', 'indiebox-networking' ],
         'repos'    => [ 'os', 'hl' ],
-        'services' => [ 'ssh' ]
+        'services' => [ 'indiebox-admin', 'ssh' ]
     },
     'vbox.img' => {
-        'packages' => [ 'base', 'openssh', 'indiebox-admin', 'indiebox-networking', 'virtualbox-guest' ],
+        'packages' => [ 'base', 'openssh', 'btrfs-progs', 'indiebox-admin', 'indiebox-networking', 'virtualbox-guest' ],
         'repos' => [ 'os', 'hl', 'virt' ],
-        'services' => [ 'vboxservice', 'sshd' ]
+        'services' => [ 'indiebox-admin', 'vboxservice', 'sshd' ]
     }
 };
 
@@ -451,8 +451,10 @@ END
     my $out;
     my $err;
     if( IndieBox::Utils::myexec( $pacmanCmd, undef, \$out, \$err )) {
-        error( "pacstrap failed:", $err, "\nconfiguration was:\n", IndieBox::Utils::slurpFile( $config ) );
+        error( "pacman failed:", $err, "\nconfiguration was:\n", IndieBox::Utils::slurpFile( $config ) );
     }
+
+    debug( "Pacman output:", $out );
 
     info( "Unmounting special devices" );
 
