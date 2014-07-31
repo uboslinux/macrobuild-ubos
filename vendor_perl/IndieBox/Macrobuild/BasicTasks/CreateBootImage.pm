@@ -7,7 +7,7 @@
 #   modules installed ($self->{type})
 # If there is a variable called adminSshKeyFile, this will create an
 # indiebox-admin user with the ssh public key from that file.
-
+# If adminHasRoot is given, indiebox-admin will have sudo access to bash
 use strict;
 use warnings;
 
@@ -49,6 +49,10 @@ sub run {
     my $updatedPackages = $in->{'updated-packages'};
     my $arch            = $run->getSettings->getVariable( 'arch' );
 
+    unless( exists( $self->{type} )) {
+        error( 'Missing parameter type' );
+        return -1;
+    }
     unless( defined( $dataByType->{$self->{type}} )) {
         error( 'Invalid parameter type:', $self->{type} );
         return -1;
@@ -309,12 +313,28 @@ $adminSshKey
 KEY
 chmod 600 ~indiebox-admin/.ssh/authorized_keys
 chown indiebox-admin:indiebox-admin ~indiebox-admin/.ssh{,/authorized_keys}
+END
 
+            if( $run->getSettings->getVariable( 'adminHasRoot' )) {
+                # to help with debugging
+                $chrootScript .= <<END;
+cat > /etc/sudoers.d/indiebox-admin <<SUDO
+# indiebox-admin needs to be able to perform basic admin tasks
+indiebox-admin ALL=NOPASSWD: \\
+        /usr/bin/indiebox-admin * \\
+        /usr/bin/sudo *
+SUDO
+END
+            } else {
+                $chrootScript .= <<END;
 cat > /etc/sudoers.d/indiebox-admin <<SUDO
 # indiebox-admin needs to be able to perform basic admin tasks
 indiebox-admin ALL=NOPASSWD: \\
         /usr/bin/indiebox-admin *
 SUDO
+END
+            }
+            $chrootScript .= <<END;
 chmod 600 /etc/sudoers.d/indiebox-admin
 chown root:root /etc/sudoers.d/indiebox-admin
 END
