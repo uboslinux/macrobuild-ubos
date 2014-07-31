@@ -320,17 +320,14 @@ END
                 $chrootScript .= <<END;
 cat > /etc/sudoers.d/indiebox-admin <<SUDO
 # indiebox-admin needs to be able to perform basic admin tasks
-indiebox-admin ALL=NOPASSWD: \\
-        /usr/bin/indiebox-admin * \\
-        /usr/bin/sudo *
+indiebox-admin ALL=NOPASSWD: /usr/bin/indiebox-admin *, /usr/bin/sudo *
 SUDO
 END
             } else {
                 $chrootScript .= <<END;
 cat > /etc/sudoers.d/indiebox-admin <<SUDO
 # indiebox-admin needs to be able to perform basic admin tasks
-indiebox-admin ALL=NOPASSWD: \\
-        /usr/bin/indiebox-admin *
+indiebox-admin ALL=NOPASSWD: /usr/bin/indiebox-admin *
 SUDO
 END
             }
