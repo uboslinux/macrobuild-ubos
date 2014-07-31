@@ -233,7 +233,7 @@ FSTAB
 #
 # <file system> <dir>	<type>	<options>	<dump>	<pass>
 
-UUID=$rootUuid     /        $fs     rw,relatime,data 0 1
+UUID=$rootUuid     /        $fs     rw,relatime 0 1
 FSTAB
         }
         close $fstab;
@@ -289,7 +289,8 @@ END
         # 1. grub configuration
         # 2. Depmod so modules can be found. This needs to use the image's kernel version,
         #    not the currently running one
-        # 3. Enable services
+        # 3. Default "run-level" (multi-user, not graphical)
+        # 4. Enable services
         
         my $chrootScript = <<'END';
 set -e
@@ -298,7 +299,13 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 for v in $(ls -1 /lib/modules | grep -v extramodules); do depmod -a $v; done
 
+systemctl set-default multi-user.target
 END
+
+        # "run-level". we want multi-user, but not graphical
+        
+
+
         if( @{$dataByType->{$self->{type}}->{services}} ) {
             $chrootScript .= 'systemctl enable ' . join( ' ', @{$dataByType->{$self->{type}}->{services}} ) . "\n\n";
         }
