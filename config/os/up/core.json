@@ -30,6 +30,7 @@
         "linux" : {},
         "logrotate" : {},
         "lvm2" : {},
+        "lzo" : {},
         "man-db" : {},
         "man-pages" : {},
         "mdadm" : {},
