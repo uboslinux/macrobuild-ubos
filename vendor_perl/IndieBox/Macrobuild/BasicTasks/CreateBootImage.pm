@@ -18,7 +18,7 @@ use warnings;
 package IndieBox::Macrobuild::BasicTasks::CreateBootImage;
 
 use base qw( Macrobuild::Task );
-use fields qw( repodir image imagesize rootpartsize fs type );
+use fields qw( repodir image imagesize rootpartsize fs type linkLatest );
 
 # imagesize: the size of the .img file to create
 # rootpartsize: the size of the partition in the image for /, the rest is for /var. Also
@@ -433,8 +433,10 @@ OSRELEASE
                 'bootimages'   => [ $image ],
                 'failedimages' => []
         } );
-        my $linkLatest = $run->getSettings->getVariable( 'linkLatest' );
+        my $linkLatest = $self->{linkLatest};
         if( $linkLatest ) {
+            $linkLatest = $run->replaceVariables( $linkLatest );
+
             if( -l $linkLatest ) {
                 IndieBox::Utils::deleteFiles( $linkLatest );
 
