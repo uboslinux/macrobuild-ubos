@@ -77,7 +77,7 @@ print "*** Bootimage $bootimage\n";
             }
             if( $foundLinkLatest ) {
                 $foundLinkLatest = File::Spec->rel2abs( $foundLinkLatest );      
-print "*** foundLinkLatest $foundLinkLatest\n";
+
                 # look for the string that changed, and make the same change
                 my $start = 0;
                 my $end   = 0;
@@ -93,16 +93,12 @@ print "*** foundLinkLatest $foundLinkLatest\n";
                         last;
                     }
                 }
-print "*** start $start, end $end\n";
 
                 my $from = substr( $bootimage,       $start, length( $bootimage )-$start-$end );
                 my $to   = substr( $foundLinkLatest, $start, length( $foundLinkLatest )-$start-$end );
                 
-print "*** from $from, to $to\n";
-
                 my $vmdkLinkLatest = $vmdk;
                 $vmdkLinkLatest =~ s!\Q$from\E!$to!;
-print "*** vmdkLinkLatest $vmdkLinkLatest\n";
 
                 IndieBox::Utils::symlink( $vmdk, $vmdkLinkLatest );
             }
