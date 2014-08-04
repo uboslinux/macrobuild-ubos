@@ -5,9 +5,13 @@
 # * use ext4 or btrfs filesystems ($self->{fs})
 # * produce an image file, or a VirtualBox-VMDK file with virtualbox-guest
 #   modules installed ($self->{type})
-# If there is a variable called adminSshKeyFile, this will create an
-# indiebox-admin user with the ssh public key from that file.
-# If adminHasRoot is given, indiebox-admin will have sudo access to bash
+# Also:
+# * If there is a variable called adminSshKeyFile, this will create an
+#   indiebox-admin user with the ssh public key from that file.
+# * If adminHasRoot is given, indiebox-admin will have sudo access to bash
+# * If linkLatest is given and the Task was successful, a symlink with the
+#   name $linkLatest will be updated to point to the created image.
+# 
 use strict;
 use warnings;
 
@@ -57,11 +61,11 @@ sub run {
         error( 'Invalid parameter type:', $self->{type} );
         return -1;
     }
-    my @images;
+    my $image;
     my $error = 0;
     if( !defined( $updatedPackages ) || @$updatedPackages ) {
         my $repodir  = File::Spec->rel2abs( $run->replaceVariables( $self->{repodir} ));
-        my $image    = File::Spec->rel2abs( $run->replaceVariables( $self->{image}   ));
+        $image       = File::Spec->rel2abs( $run->replaceVariables( $self->{image}   ));
 
         Macrobuild::Utils::ensureDirectories( $repodir );
         Macrobuild::Utils::ensureParentDirectoriesOf( $image );
@@ -414,21 +418,43 @@ OSRELEASE
         IndieBox::Utils::myexec( "sudo kpartx -d '$imageLoopDevice'" );
         IndieBox::Utils::myexec( "sudo losetup -d '$imageLoopDevice'" );
         IndieBox::Utils::rmdir( $mountedRootPart );
-
-        unless( $error ) {
-            push @images, $image;
-        }
     }
 
-    $run->taskEnded( $self, {
-            'bootimages' => \@images
-    } );
-
     if( $error ) {
+        $run->taskEnded( $self, {
+                'bootimages'   => [],
+                'failedimages' => [ $image ]
+        } );
+
         return -1;
-    } elsif( @images ) {
+
+    } elsif( $image ) {
+        $run->taskEnded( $self, {
+                'bootimages'   => [ $image ],
+                'failedimages' => []
+        } );
+        my $linkLatest = $run->getSettings->getVariable( 'linkLatest' );
+        if( $linkLatest ) {
+            if( -l $linkLatest ) {
+                IndieBox::Utils::deleteFiles( $linkLatest );
+
+            } elsif( -e $linkLatest ) {
+                warn( "linkLatest $linkLatest exists, but isn't a symlink. Not updating" );
+                $linkLatest = undef;
+            }
+            if( $linkLatest ) {
+                IndieBox::Utils::symlink( $image, $linkLatest );
+            }
+        }
+
         return 0;
+
     } else {
+        $run->taskEnded( $self, {
+                'bootimages'   => [],
+                'failedimages' => []
+        } );
+
         return 1;
     }
 }

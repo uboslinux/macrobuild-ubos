@@ -36,7 +36,8 @@ sub new {
                 'imagesize'    => '3G',
                 'rootpartsize' => 'all',
                 'fs'           => 'btrfs',
-                'type'         => 'vbox.img' ),
+                'type'         => 'vbox.img',
+                'linkLatest'   => '${imagedir}/${arch}/images/indiebox_dev_${arch}_LATEST-1part-vbox.img' ),
             new IndieBox::Macrobuild::BasicTasks::BootImageToVmdk(),
             new Macrobuild::BasicTasks::Report(
                     'name'        => 'Report build activity for creaaating dev os virtualbox vmdk image',

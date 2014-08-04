@@ -38,7 +38,8 @@ sub new {
                 'imagesize'    => '3G',
                 'rootpartsize' => 'all',
                 'fs'           => 'btrfs',
-                'type'         => 'img'
+                'type'         => 'img',
+                'linkLatest'   => '${imagedir}/${arch}/images/indiebox_dev_${arch}_LATEST-1part-vbox.img'
             ),
             'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                 'tasks' => [
@@ -49,7 +50,8 @@ sub new {
                         'imagesize'    => '3G',
                         'rootpartsize' => 'all',
                         'fs'           => 'btrfs',
-                        'type'         => 'vbox.img' ),
+                        'type'         => 'vbox.img',
+                        'linkLatest'   => '${imagedir}/${arch}/images/indiebox_dev_${arch}_LATEST-1part-vbox.img' ),
                     new IndieBox::Macrobuild::BasicTasks::BootImageToVmdk()
                 ]
             )
