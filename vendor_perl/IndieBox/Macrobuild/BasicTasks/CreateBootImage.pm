@@ -438,7 +438,7 @@ OSRELEASE
             $linkLatest = $run->replaceVariables( $linkLatest );
 
             if( -l $linkLatest ) {
-                IndieBox::Utils::deleteFiles( $linkLatest );
+                IndieBox::Utils::deleteFile( $linkLatest );
 
             } elsif( -e $linkLatest ) {
                 warn( "linkLatest $linkLatest exists, but isn't a symlink. Not updating" );
