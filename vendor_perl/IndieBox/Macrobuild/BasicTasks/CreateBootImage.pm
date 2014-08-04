@@ -423,16 +423,13 @@ OSRELEASE
     if( $error ) {
         $run->taskEnded( $self, {
                 'bootimages'   => [],
-                'failedimages' => [ $image ]
+                'failedimages' => [ $image ],
+                'linkLatests'  => []
         } );
 
         return -1;
 
     } elsif( $image ) {
-        $run->taskEnded( $self, {
-                'bootimages'   => [ $image ],
-                'failedimages' => []
-        } );
         my $linkLatest = $self->{linkLatest};
         if( $linkLatest ) {
             $linkLatest = $run->replaceVariables( $linkLatest );
@@ -449,12 +446,19 @@ OSRELEASE
             }
         }
 
+        $run->taskEnded( $self, {
+                'bootimages'   => [ $image ],
+                'failedimages' => [],
+                'linkLatests'  => [ $linkLatest ]
+        } );
+
         return 0;
 
     } else {
         $run->taskEnded( $self, {
                 'bootimages'   => [],
-                'failedimages' => []
+                'failedimages' => [],
+                'linkLatests'  => []
         } );
 
         return 1;

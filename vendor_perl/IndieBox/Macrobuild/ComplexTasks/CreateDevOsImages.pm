@@ -39,7 +39,7 @@ sub new {
                 'rootpartsize' => 'all',
                 'fs'           => 'btrfs',
                 'type'         => 'img',
-                'linkLatest'   => '${imagedir}/${arch}/images/indiebox_dev_${arch}_LATEST-1part-vbox.img'
+                'linkLatest'   => '${imagedir}/${arch}/images/indiebox_dev_${arch}_LATEST-1part.img'
             ),
             'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                 'tasks' => [

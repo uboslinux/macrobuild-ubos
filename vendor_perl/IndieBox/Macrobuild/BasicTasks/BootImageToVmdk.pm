@@ -10,6 +10,7 @@ package IndieBox::Macrobuild::BasicTasks::BootImageToVmdk;
 use base qw( Macrobuild::Task );
 use fields qw();
 
+use File::Spec;
 use Macrobuild::Logging;
 
 ##
@@ -47,14 +48,80 @@ sub run {
             push @$vmdkimages, $vmdk;
         } else {
             error( "VBoxManage convertfromraw failed", $bootimage, $err );
+            push @$vmdkimages, undef; # keep the same length
         }
+    }
+    
+    if( defined( $in->{'linkLatests'} )) {
+        # symlink the VMDKs whose images were symlinked
+
+        for( my $i=0 ; $i < @$bootimages ; ++$i ) {
+            my $bootimage = $bootimages->[$i];
+            my $vmdk      = $vmdkimages->[$i];
+print "*** Bootimage $bootimage\n";
+
+            unless( $vmdk ) {
+                next;
+            }
+
+            my( $bootImageDev, $bootImageInode ) = ( stat $bootimage )[ 0, 1 ];
+
+            my $foundLinkLatest = undef;
+            foreach my $linkLatest ( @{$in->{'linkLatests'}} ) {
+                my( $linkLatestDev, $linkLatestInode ) = ( stat $linkLatest )[ 0, 1 ];
+            
+                if( $linkLatestDev == $bootImageDev && $linkLatestInode == $bootImageInode ) {
+                    $foundLinkLatest = $linkLatest;
+                    last;
+                }
+            }
+            if( $foundLinkLatest ) {
+                $foundLinkLatest = File::Spec->rel2abs( $foundLinkLatest );      
+print "*** foundLinkLatest $foundLinkLatest\n";
+                # look for the string that changed, and make the same change
+                my $start = 0;
+                my $end   = 0;
+                my $max   = min( length( $bootimage ), length( $foundLinkLatest ));
+                
+                for( ; $start < $max; ++$start ) {
+                    if( substr( $bootimage, $start, 1 ) ne substr( $foundLinkLatest, $start, 1 )) {
+                        last;
+                    }
+                }
+                for( ; $end < $max; ++$end ) {
+                    if( substr( $bootimage, -$end-1, 1 ) ne substr( $foundLinkLatest, -$end-1, 1 )) {
+                        last;
+                    }
+                }
+print "*** start $start, end $end\n";
+
+                my $from = substr( $bootimage,       $start, length( $bootimage )-$start-$end );
+                my $to   = substr( $foundLinkLatest, $start, length( $foundLinkLatest )-$start-$end );
+                
+print "*** from $from, to $to\n";
+
+                my $vmdkLinkLatest = $vmdk;
+                $vmdkLinkLatest =~ s!\Q$from\E!$to!;
+print "*** vmdkLinkLatest $vmdkLinkLatest\n";
+
+                IndieBox::Utils::symlink( $vmdk, $vmdkLinkLatest );
+            }
+        }
+        
     }
 
     $run->taskEnded( $self, {
             'vmdkimages' => $vmdkimages
     } );
 
-    return 0;
+    return $ret;
+}
+
+sub min {
+    my $a = shift;
+    my $b = shift;
+    
+    return ( $a < $b ) ? $a : $b;
 }
 
 1;
