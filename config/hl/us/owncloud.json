@@ -5,5 +5,9 @@
 
     "directories" : [
         "owncloud"
+    ],
+
+    "webapptests" : [
+        "owncloud/tests/OwnCloud1Test.pm"
     ]
 }

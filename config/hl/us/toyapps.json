@@ -6,5 +6,9 @@
     "directories" : [
         "helloworld",
         "gladiwashere"
+    ],
+
+    "webapptests" : [
+        "gladiwashere/tests/GladIWasHere1Test.pm"
     ]
 }
