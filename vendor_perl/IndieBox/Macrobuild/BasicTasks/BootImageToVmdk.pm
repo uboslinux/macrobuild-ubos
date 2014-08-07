@@ -58,7 +58,6 @@ sub run {
         for( my $i=0 ; $i < @$bootimages ; ++$i ) {
             my $bootimage = $bootimages->[$i];
             my $vmdk      = $vmdkimages->[$i];
-print "*** Bootimage $bootimage\n";
 
             unless( $vmdk ) {
                 next;
