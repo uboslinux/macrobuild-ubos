@@ -7,7 +7,8 @@ use warnings;
 
 package IndieBox::Macrobuild::DownloadUsConfig;
 
-use fields qw( name url directories );
+use base qw( IndieBox::Macrobuild::AbstractUsConfig );
+use fields;
 
 use IndieBox::Utils;
 use Macrobuild::Logging;
@@ -17,25 +18,14 @@ use Macrobuild::Logging;
 sub new {
     my $self        = shift;
     my $name        = shift;
-    my $url         = shift;
-    my $directories = shift;
-
+    my $configJson  = shift;
+    
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    $self->{name}        = $name;
-    $self->{url}         = $url;
-    $self->{directories} = $directories;
+    $self->SUPER::new( $name, $configJson );
 
     return $self;
-}
-
-##
-# Get the name
-sub name {
-    my $self = shift;
-
-    return $self->{name};
 }
 
 ##
@@ -44,22 +34,6 @@ sub type {
 	my $self = shift;
 	
 	return 'download';
-}
-
-##
-# Get the url
-sub url {
-    my $self = shift;
-
-    return $self->{url};
-}
-
-##
-# Get the list of directories
-sub directories {
-    my $self = shift;
-
-    return $self->{directories};
 }
 
 1;

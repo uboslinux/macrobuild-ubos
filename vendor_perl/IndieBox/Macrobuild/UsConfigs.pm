@@ -72,9 +72,7 @@ sub configs {
 				}
 				$ret->{$shortSourceName} = new IndieBox::Macrobuild::GitUsConfig(
 						$shortSourceName,
-						$usConfigJson->{url},
-						$usConfigJson->{branch},
-						$usConfigJson->{directories} );
+						$usConfigJson );
 				
 			} elsif( $usConfigJson->{type} eq 'download' ) {
 				foreach my $entry ( 'url' ) {
@@ -85,8 +83,7 @@ sub configs {
 				}
 				$ret->{$shortSourceName} = new IndieBox::Macrobuild::DownloadUsConfig(
 						$shortSourceName,
-						$usConfigJson->{url},
-                        $usConfigJson->{directories} );
+						$usConfigJson );
 			} else {
 				warn( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
 				next;
