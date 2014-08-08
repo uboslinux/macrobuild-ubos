@@ -20,9 +20,10 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
-    my $in         = $run->taskStarting( $self );
-    my $bootimages = $in->{'bootimages'};
-    my $vmdkimages = [];
+    my $in              = $run->taskStarting( $self );
+    my $bootimages      = $in->{'bootimages'};
+    my $vmdkimages      = [];
+    my $vmdkLinkLatests = [];
 
     my $ret;
     foreach my $bootimage ( @$bootimages ) {
@@ -99,14 +100,24 @@ sub run {
                 my $vmdkLinkLatest = $vmdk;
                 $vmdkLinkLatest =~ s!\Q$from\E!$to!;
 
-                IndieBox::Utils::symlink( $vmdk, $vmdkLinkLatest );
+                if( -l $vmdkLinkLatest ) {
+                    IndieBox::Utils::deleteFile( $vmdkLinkLatest );
+
+                } elsif( -e $vmdkLinkLatest ) {
+                    warn( "vmdkLinkLatest $vmdkLinkLatest exists, but isn't a symlink. Not updating" );
+                    $vmdkLinkLatest = undef;
+                }
+                if( $vmdkLinkLatest ) {
+                    IndieBox::Utils::symlink( $vmdk, $vmdkLinkLatest );
+                }
             }
         }
         
     }
 
     $run->taskEnded( $self, {
-            'vmdkimages' => $vmdkimages
+            'vmdkimages'      => $vmdkimages,
+            'vmdkLinkLatests' => $vmdkLinkLatests
     } );
 
     return $ret;
