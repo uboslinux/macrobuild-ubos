@@ -7,7 +7,6 @@
         "apr-util" : {},
         "ca-certificates-java" : {},
         "eclipse-ecj" : {},
-        "ffmpeg" : {},
         "freetype2" : {},
         "graphite" : {},
         "harfbuzz" : {},
