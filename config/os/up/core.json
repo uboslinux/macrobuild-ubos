@@ -6,7 +6,7 @@
         "archlinux-keyring" : {},
         "attr" : {},
         "bash" : {},
-        "btrfs-progs" : {}
+        "btrfs-progs" : {},
         "bzip2" : {},
         "ca-certificates" : {},
         "coreutils" : {},
