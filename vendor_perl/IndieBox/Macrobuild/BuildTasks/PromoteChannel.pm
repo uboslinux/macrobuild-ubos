@@ -10,12 +10,12 @@ package IndieBox::Macrobuild::BuildTasks::PromoteChannel;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
+use IndieBox::Macrobuild::BasicTasks::PromoteRepository;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use Macrobuild::Logging;
-use IndieBox::Macrobuild::BasicTasks::PromoteRepository;
 
 ##
 # Constructor
@@ -37,8 +37,8 @@ sub new {
 
     my $promoteTasks = {};
     map { $promoteTasks->{"promote-$_"} = new IndieBox::Macrobuild::BasicTasks::PromoteRepository(
-        'fromRepository' => '${fromChannel}/' . $_,
-        'toRepository'   => '${toChannel}/'   . $_ ) } @repos;
+        'fromRepository' => '${fromChannel}/${arch}/' . $_,
+        'toRepository'   => '${toChannel}/${arch}/'   . $_ ) } @repos;
     my @promoteTaskNames = keys %$promoteTasks;
     
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
