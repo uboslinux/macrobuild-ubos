@@ -28,7 +28,7 @@ sub run {
     my $testplan = $run->getSettings->getVariable( 'testplan' );
 
     my $testCmd  = 'webapptest run';
-    $testCmd    .= ' -v';
+    $testCmd    .= ' -v -v'; # for now
 
     if( defined( $scaffold )) {
         $testCmd .= ' --scaffold ' . $scaffold;
