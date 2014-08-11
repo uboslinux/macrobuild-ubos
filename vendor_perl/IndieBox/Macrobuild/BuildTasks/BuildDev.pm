@@ -43,7 +43,6 @@ sub new {
                 'upconfigs'   => $repoUpConfigs->{$_},
                 'usconfigs'   => $repoUsConfigs->{$_},
                 'repository'  => $_ ) } @repos;
-        
     my @buildTaskNames = keys %$buildTasks;
     
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin( 
