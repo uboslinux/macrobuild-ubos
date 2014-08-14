@@ -43,7 +43,7 @@ sub configs {
 
         my @files = <$realDir/*.json>;
         unless( @files ) {
-            Macrobuild::Logging::warn( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
+            Macrobuild::Logging::debug( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
             return undef;
         }
 
