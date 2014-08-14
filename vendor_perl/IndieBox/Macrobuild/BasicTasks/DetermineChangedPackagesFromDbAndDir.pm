@@ -10,6 +10,7 @@ package IndieBox::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir;
 use base qw( Macrobuild::Task );
 use fields qw( dir upconfigs );
 
+use IndieBox::Macrobuild::PackageUtils;
 use Macrobuild::Logging;
 
 ##
@@ -43,13 +44,12 @@ sub run {
             while( my( $packageName, $packageInfo ) = each %{$upConfig->packages} ) {
                 my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
                 if( $packageFileInPackageDatabase ) {
-                    my @packageFileLocalCandidates   = map { s!.*/!!; } <$dir/$packageName-[0-9]*.$arch.pkg.*>;
+                    my @packageFileLocalCandidates = IndieBox::Macrobuild::PackageUtils::packagesInDirectory( $packageName, $dir, $arch );
                     
                     my $bestLocalCandidate = undef;
                     if( @packageFileLocalCandidates ) {
                         # we have one or more versions
-                        @packageFileLocalCandidates = sortByPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
-                        $bestLocalCandidate         = $packageFileLocalCandidates[-1];
+                        $bestLocalCandidate = IndieBox::BasicTasks::PackageUtils::mostRecentPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
                     } else {
                         # nothing local
                     }
@@ -74,17 +74,6 @@ sub run {
     }
 }
 
-##
-# Sort package files by version
-sub sortByPackageVersion {
-    my @names = shift;
-
-    my $out;
-    IndieBox::Utils::myexec( "pacsort " . join( " ", @names ), undef, \$out );
-
-    my @ret = split "\n", $out;
-    return @ret;
-}
 
 1;
 

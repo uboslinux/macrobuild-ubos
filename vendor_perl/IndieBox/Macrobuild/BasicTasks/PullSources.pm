@@ -199,17 +199,5 @@ sub _pullByDownload {
 	}
 }
 
-##
-# Sort package files by version
-sub sortByPackageVersion {
-    my @names = shift;
-
-    my $out;
-    IndieBox::Utils::myexec( "pacsort " . join( " ", @names ), undef, \$out );
-
-    my @ret = split "\n", $out;
-    return @ret;
-}
-
 1;
 
