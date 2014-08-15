@@ -42,12 +42,12 @@ sub new {
         fatal( 'Invalid url field in usConfig', $file );
     }
 
-#    unless( defined( $self->{packages} )) {
-#        fatal( 'No packages field defined in usConfig', $file );
-#    }
-#    unless( ref( $self->{packages} ) eq 'HASH' ) {
-#        fatal( 'Packages field must be hash in usConfig', $file );
-#    }
+    unless( defined( $self->{packages} )) {
+        fatal( 'No packages field defined in usConfig', $file );
+    }
+    unless( ref( $self->{packages} ) eq 'HASH' ) {
+        fatal( 'Packages field must be hash in usConfig', $file );
+    }
 
     return $self;
 }

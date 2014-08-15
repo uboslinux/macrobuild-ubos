@@ -1,5 +1,9 @@
 {
     "url"    : "https://github.com/indiebox/macrobuild-indiebox",
     "type"   : "git",
-    "branch" : "master"
+    "branch" : "master",
+    
+    "packages" : {
+        "." : {}
+    }
 }

@@ -40,7 +40,7 @@ sub run {
         my $inThisRepo = {};
         foreach my $subdir ( @$repoInfo ) {
             my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
-            if( $subdir ) {
+            if( $subdir && $subdir ne '.' ) {
                 $dir .= "/$subdir";
             }
 
