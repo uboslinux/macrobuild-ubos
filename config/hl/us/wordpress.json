@@ -3,10 +3,10 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "wordpress",
-        "wordpress-plugin-semantic-linkbacks",
-        "wordpress-plugin-social",
-        "wordpress-plugin-webmention"
-    ]
+    "packages" : {
+        "wordpress" : {},
+        "wordpress-plugin-semantic-linkbacks" : {},
+        "wordpress-plugin-social" : {},
+        "wordpress-plugin-webmention" : {}
+    }
 }

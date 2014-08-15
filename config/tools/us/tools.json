@@ -3,8 +3,8 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "webapptest",
-        "pacsane"
-    ]
+    "packages" : {
+        "webapptest" : {},
+        "pacsane" : {}
+    }
 }

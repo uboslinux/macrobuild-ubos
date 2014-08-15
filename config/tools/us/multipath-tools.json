@@ -3,9 +3,9 @@
 
     "type" : "download",
 
-    "directories" : [
-        "multipath-tools"
-    ]
+    "packages" : {
+        "multipath-tools" : {}
+    }
 }
 
 

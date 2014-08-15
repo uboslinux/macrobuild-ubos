@@ -7,7 +7,7 @@ use warnings;
 
 package IndieBox::Macrobuild::AbstractUsConfig;
 
-use fields qw( name url directories webapptests );
+use fields qw( name url packages webapptests );
 
 use IndieBox::Utils;
 use Macrobuild::Logging;
@@ -24,7 +24,7 @@ sub new {
     }
     $self->{name}        = $name;
     $self->{url}         = $configJson->{url};
-    $self->{directories} = $configJson->{directories};
+    $self->{packages}    = $configJson->{packages};
     $self->{webapptests} = $configJson->{webapptests};
 
     return $self;
@@ -55,11 +55,11 @@ sub url {
 }
 
 ##
-# Get the list of directories
-sub directories {
+# Get the list of packages
+sub packages {
     my $self = shift;
 
-    return $self->{directories};
+    return $self->{packages};
 }
 
 ##

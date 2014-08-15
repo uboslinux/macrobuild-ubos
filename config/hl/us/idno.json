@@ -3,9 +3,9 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "idno"
-    ],
+    "packages" : {
+        "idno" : {}
+    },
 
     "webapptests" : [
         "idno/tests/IdnoTest1.pm"

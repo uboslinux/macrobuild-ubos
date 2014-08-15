@@ -3,10 +3,10 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "helloworld",
-        "gladiwashere"
-    ],
+    "packages" : {
+        "helloworld" : {},
+        "gladiwashere" : {}
+    },
 
     "webapptests" : [
         "gladiwashere/tests/GladIWasHere1Test.pm"

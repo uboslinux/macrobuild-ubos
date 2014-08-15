@@ -3,8 +3,8 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "mediawiki",
-        "mediawiki-ext-confirmaccount"
-    ]
+    "packages" : {
+        "mediawiki" : {},
+        "mediawiki-ext-confirmaccount" : {}
+    }
 }

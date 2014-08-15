@@ -3,10 +3,10 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "jenkins",
-        "jenkins-plugin-git",
-        "jenkins-plugin-git-client",
-        "jenkins-plugin-scm-api"
-    ]
+    "packages" : {
+        "jenkins" : {},
+        "jenkins-plugin-git" : {},
+        "jenkins-plugin-git-client" : {},
+        "jenkins-plugin-scm-api" : {}
+    }
 }

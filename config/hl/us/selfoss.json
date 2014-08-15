@@ -3,9 +3,9 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "selfoss"
-    ],
+    "packages" : {
+        "selfoss" : {}
+    },
 
     "webapptests" : [
         "selfoss/tests/Selfoss1Test.pm"

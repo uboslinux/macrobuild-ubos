@@ -3,9 +3,9 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "owncloud"
-    ],
+    "packages" : {
+        "owncloud" : {}
+    },
 
     "webapptests" : [
         "owncloud/tests/OwnCloud1Test.pm"

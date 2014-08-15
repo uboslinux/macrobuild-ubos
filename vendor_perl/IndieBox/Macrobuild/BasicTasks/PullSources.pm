@@ -68,10 +68,10 @@ sub _pullFromGit {
 	my $dirsNotUpdated = shift;
 	my $run            = shift;
 	
-	my $name        = $usConfig->name;
-	my $url         = $usConfig->url;
-	my $branch      = $usConfig->branch;
-	my $directories = $usConfig->directories;
+	my $name     = $usConfig->name;
+	my $url      = $usConfig->url;
+	my $branch   = $usConfig->branch;
+	my $packages = $usConfig->packages; # same name as directories
 
 	my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
 	if( -d $sourceSourceDir ) {
@@ -88,12 +88,12 @@ sub _pullFromGit {
 			# Determine which of the directories had changes in them
 			my @updated;
 			my @notUpdated;
-            if( $directories ) {
+            if( $packages ) {
                 # This naive approach to parsing does not seem to work under all circumstances, e.g.
                 # git might say:
                 # foo/two => bar/three
                 # so we rebuild everything even if only one directory has changed
-                # foreach my $dir ( @$directories ) {
+                # foreach my $dir ( keys %$packages ) {
                 #     if( $out =~ m!^\s\Q$dir\E/! ) {
                 #         # git pull output seems to put a space at the beginning of any line that indicates a change
                 #         # we look for anything below $dir, i.e. $dir plus appended slash
@@ -104,9 +104,9 @@ sub _pullFromGit {
                 #     }
                 # }
                 if( $out =~ m!Already up-to-date! ) {
-                    push @notUpdated, @$directories;
+                    push @notUpdated, keys %$packages;
                 } else {
-                    push @updated, @$directories;
+                    push @updated, keys %$packages;
                 }
             } else {
                 if( $out =~ m!Already up-to-date! ) {
@@ -141,8 +141,8 @@ sub _pullFromGit {
 		my $err;
 		if( IndieBox::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
 			error( "Failed to clone via", $gitCmd );
-		} elsif( $directories ) {
-			$dirsUpdated->{$name} = $directories; # all of them
+		} elsif( $packages ) {
+			$dirsUpdated->{$name} = keys %$packages; # all of them
 		} else {
 			$dirsUpdated->{$name} = [ '' ];
 		}

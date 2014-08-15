@@ -3,8 +3,8 @@
     "type"   : "git",
     "branch" : "master",
 
-    "directories" : [
-        "indiebox-admin",
-        "indiebox-networking"
-    ]
+    "packages" : {
+        "indiebox-admin" : {},
+        "indiebox-networking" : {}
+    }
 }
