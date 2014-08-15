@@ -13,7 +13,7 @@
         "icu" : {},
         "java-commons-daemon" : {},
         "java-jsvc" : {},
-        "java7-openjdk" : {},
+        "jre7-openjdk" : {},
         "jre7-openjdk-headless" : {},
         "lcms2" : {},
         "libaio" : {},
