@@ -1,11 +1,11 @@
 # 
-# Creates and uploads dev os images
+# Creates and uploads all images
 #
 
 use strict;
 use warnings;
 
-package IndieBox::Macrobuild::BuildTasks::CreateAndUploadDevOsImages;
+package IndieBox::Macrobuild::BuildTasks::CreateAndUploadImages;
 
 use base qw( MacrobCompositeTasksuild::CompositeTasks::Delegating );
 use fields;
@@ -14,7 +14,7 @@ use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::Logging;
 use IndieBox::Macrobuild::BasicTasks::Upload;
-use IndieBox::Macrobuild::ComplexTasks::CreateDevOsImages;
+use IndieBox::Macrobuild::ComplexTasks::CreateImages;
 
 ##
 # Constructor
@@ -30,12 +30,12 @@ sub new {
 
     $self->{delegate} = new Macrobuild::ComplexTasks::Sequential(
         'tasks' => [
-            new IndieBox::Macrobuild::ComplexTasks::CreateDevOsImages(),
+            new IndieBox::Macrobuild::ComplexTasks::CreateImages(),
             new IndieBox::Macrobuild::BasicTasks::Upload(
                 'from'        => '${imagedir}/${arch}/images',
                 'to'          => 'buildmaster@depot.indiebox.net:/var/lib/cldstr-archdepot/a00000000000000000000000000000003/${arch}/images' ),
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report build activity for os',
+                'name'        => 'Report build activity for creating and uploading ${channel} images',
                 'fields'      => [ 'bootimages', 'vmdkimages' ] )
         ]
     );

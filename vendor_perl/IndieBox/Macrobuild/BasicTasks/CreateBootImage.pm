@@ -18,7 +18,7 @@ use warnings;
 package IndieBox::Macrobuild::BasicTasks::CreateBootImage;
 
 use base qw( Macrobuild::Task );
-use fields qw( repodir image imagesize rootpartsize fs type linkLatest );
+use fields qw( repodir channel image imagesize rootpartsize fs type linkLatest );
 
 # imagesize: the size of the .img file to create
 # rootpartsize: the size of the partition in the image for /, the rest is for /var. Also
@@ -33,7 +33,7 @@ my $dataByType = {
     'img'      => {
         'packages' => [ 'base', 'openssh', 'btrfs-progs', 'indiebox-admin', 'indiebox-networking' ],
         'repos'    => [ 'os', 'hl' ],
-        'services' => [ 'indiebox-admin', 'ssh' ]
+        'services' => [ 'indiebox-admin', 'sshd' ]
     },
     'vbox.img' => {
         'packages' => [ 'base', 'openssh', 'btrfs-progs', 'indiebox-admin', 'indiebox-networking', 'virtualbox-guest' ],
@@ -57,10 +57,16 @@ sub run {
         error( 'Missing parameter type' );
         return -1;
     }
+    unless( exists( $self->{channel} )) {
+        error( 'Missing parameter channel' );
+        return -1;
+    }
     unless( defined( $dataByType->{$self->{type}} )) {
         error( 'Invalid parameter type:', $self->{type} );
         return -1;
     }
+    my $channel = $run->replaceVariables( $self->{channel} );
+
     my $image;
     my $error = 0;
     if( !defined( $updatedPackages ) || @$updatedPackages ) {
@@ -368,7 +374,7 @@ END
             print $productionPacmanConfig <<END; # Note what is and isn't escaped here
 
 [$repo]
-Server = http://depot.indiebox.net/dev/\$arch/$repo
+Server = http://depot.indiebox.net/$channel/\$arch/$repo
 END
         }
         close $productionPacmanConfig;
@@ -393,6 +399,9 @@ END
 |                                          |
 |        Let's bring our data home.        |
 |                                          |
+ISSUE
+        printf $issue "|%42s|\n", "channel: $channel";
+        print $issue <<ISSUE;
 +------------------------------------------+
 
 ISSUE

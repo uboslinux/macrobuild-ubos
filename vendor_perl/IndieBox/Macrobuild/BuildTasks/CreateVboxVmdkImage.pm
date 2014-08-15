@@ -1,16 +1,15 @@
 # 
-# Creates the virtualbox vmdk dev os image
+# Creates the virtualbox vmdk image
 #
 
 use strict;
 use warnings;
 
-package IndieBox::Macrobuild::BuildTasks::CreateDevOsVboxVmdkImage;
+package IndieBox::Macrobuild::BuildTasks::CreateVboxVmdkImage;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
-use IndieBox::Macrobuild::ComplexTasks::CreateDevOsImages;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::Logging;
@@ -31,17 +30,18 @@ sub new {
         'tasks' => [
             new IndieBox::Macrobuild::BasicTasks::CreateBootImage(
                 'name'         => 'Create 1-partition boot disk for VirtualBox',
-                'repodir'      => '${repodir}',
-                'image'        => '${imagedir}/${arch}/images/indiebox_dev_${arch}_${tstamp}-1part-vbox.img',
+                'repodir'      => '${repodir}/${channel}',
+                'channel'      => '${channel}',
+                'image'        => '${imagedir}/${arch}/images/indiebox_${channel}_${arch}_${tstamp}-1part-vbox.img',
                 'imagesize'    => '3G',
                 'rootpartsize' => 'all',
                 'fs'           => 'btrfs',
                 'type'         => 'vbox.img',
-                'linkLatest'   => '${imagedir}/${arch}/images/indiebox_dev_${arch}_LATEST-1part-vbox.img' ),
+                'linkLatest'   => '${imagedir}/${arch}/images/indiebox_${channel}_${arch}_LATEST-1part-vbox.img' ),
             new IndieBox::Macrobuild::BasicTasks::BootImageToVmdk(),
             new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report build activity for creaaating dev os virtualbox vmdk image',
-                    'fields'      => [ 'bootimages', 'vmdkimages' ] )
+                'name'         => 'Report build activity for creating ${channel} virtualbox vmdk image',
+                'fields'       => [ 'bootimages', 'vmdkimages' ] )
         ]
     );
 

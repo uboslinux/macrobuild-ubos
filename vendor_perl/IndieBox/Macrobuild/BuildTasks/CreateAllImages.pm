@@ -1,16 +1,16 @@
 # 
-# Creates all dev os images
+# Creates all images
 #
 
 use strict;
 use warnings;
 
-package IndieBox::Macrobuild::BuildTasks::CreateAllDevOsImages;
+package IndieBox::Macrobuild::BuildTasks::CreateAllImages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
-use IndieBox::Macrobuild::ComplexTasks::CreateDevOsImages;
+use IndieBox::Macrobuild::ComplexTasks::CreateImages;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::Logging;
@@ -28,12 +28,12 @@ sub new {
     $self->SUPER::new( @args );
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => [
-                    new IndieBox::Macrobuild::ComplexTasks::CreateDevOsImages(),
-                    new Macrobuild::BasicTasks::Report(
-                            'name'        => 'Report build activity for os',
-                            'fields'      => [ 'bootimages', 'vmdkimages' ] )
-            ]
+        'tasks' => [
+            new IndieBox::Macrobuild::ComplexTasks::CreateImages(),
+            new Macrobuild::BasicTasks::Report(
+                'name'        => 'Report build activity for creating ${channel} images',
+                'fields'      => [ 'bootimages', 'vmdkimages' ] )
+        ]
     );
 
     return $self;
