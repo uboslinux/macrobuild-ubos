@@ -77,7 +77,6 @@
         "logrotate" : {},
         "lvm2" : {},
         "lzo" : {},
-        "lzo2" : {},
         "man-db" : {},
         "man-pages" : {},
         "mdadm" : {},
