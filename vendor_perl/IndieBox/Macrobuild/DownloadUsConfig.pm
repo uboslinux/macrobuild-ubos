@@ -19,11 +19,12 @@ sub new {
     my $self        = shift;
     my $name        = shift;
     my $configJson  = shift;
+    my $file        = shift;
     
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    $self->SUPER::new( $name, $configJson );
+    $self->SUPER::new( $name, $configJson, $file );
 
     return $self;
 }

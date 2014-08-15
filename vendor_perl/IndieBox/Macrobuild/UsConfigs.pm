@@ -64,26 +64,16 @@ sub configs {
 				warn( "No type given in $file, skipping." );
 				next;
 			} elsif( $usConfigJson->{type} eq 'git' ) {
-				foreach my $entry ( 'url', 'branch' ) {
-					unless( defined( $usConfigJson->{$entry} )) {
-						warn( "No $entry given in $file, skipping." );
-						next CONFIGFILES;
-					}
-				}
 				$ret->{$shortSourceName} = new IndieBox::Macrobuild::GitUsConfig(
 						$shortSourceName,
-						$usConfigJson );
+						$usConfigJson,
+                        $file );
 				
 			} elsif( $usConfigJson->{type} eq 'download' ) {
-				foreach my $entry ( 'url' ) {
-					unless( defined( $usConfigJson->{$entry} )) {
-						warn( "No $entry given in $file, skipping." );
-						next CONFIGFILES;
-					}
-				}
 				$ret->{$shortSourceName} = new IndieBox::Macrobuild::DownloadUsConfig(
 						$shortSourceName,
-						$usConfigJson );
+						$usConfigJson,
+                        $file );
 			} else {
 				warn( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
 				next;

@@ -7,7 +7,7 @@ use warnings;
 
 package IndieBox::Macrobuild::AbstractUsConfig;
 
-use fields qw( name url packages webapptests );
+use fields qw( name url file packages webapptests );
 
 use IndieBox::Utils;
 use Macrobuild::Logging;
@@ -15,17 +15,39 @@ use Macrobuild::Logging;
 ##
 # Constructor
 sub new {
-    my $self        = shift;
-    my $name        = shift;
-    my $configJson  = shift;
+    my $self       = shift;
+    my $name       = shift;
+    my $configJson = shift;
+    my $file       = shift;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
     $self->{name}        = $name;
     $self->{url}         = $configJson->{url};
+    $self->{file}        = $configJson->{file};
     $self->{packages}    = $configJson->{packages};
     $self->{webapptests} = $configJson->{webapptests};
+
+    unless( defined( $name )) {
+        fatal( 'No name provided for usConfig', $file );
+    }
+    unless( $name =~ m!^[-_a-z]+$! ) {
+        fatal( 'Invalid name for usConfig', $file );
+    }
+    unless( defined( $self->{url} )) {
+        fatal( 'No url field defined in usConfig', $file );
+    }
+    unless( $self->{url} =~ m!^[a-z]+://.*$! ) {
+        fatal( 'Invalid url field in usConfig', $file );
+    }
+
+    unless( defined( $self->{packages} )) {
+        fatal( 'No packages field defined in usConfig', $file );
+    }
+    unless( ref( $self->{packages} ) eq 'HASH' ) {
+        fatal( 'Packages field must be hash in usConfig', $file );
+    }
 
     return $self;
 }
