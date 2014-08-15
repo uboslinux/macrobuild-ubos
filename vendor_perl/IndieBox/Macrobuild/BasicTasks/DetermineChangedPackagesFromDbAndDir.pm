@@ -32,6 +32,8 @@ sub run {
         my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
         while( my( $repoName, $upConfig ) = each %$upConfigs ) {
 
+            debug( 'Determining changed packages in repo', $repoName );
+            
             my $packageDatabase = $packageDatabases->{$repoName};
             unless( $packageDatabase ) {
                 # wasn't updated, nothing to do
@@ -43,6 +45,8 @@ sub run {
             # in case you were wondering, here's the filtering that says which packages we want
             while( my( $packageName, $packageInfo ) = each %{$upConfig->packages} ) {
                 my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
+                debug( 'Considering package', $packageName, ' in updated package database version', $packageFileInPackageDatabase );
+                
                 if( $packageFileInPackageDatabase ) {
                     my @packageFileLocalCandidates = IndieBox::Macrobuild::PackageUtils::packagesInDirectory( $packageName, $dir, $arch );
                     
@@ -53,7 +57,7 @@ sub run {
                     } else {
                         # nothing local
                     }
-                    if( !$bestLocalCandidate || $bestLocalCandidate != $packageFileInPackageDatabase ) {
+                    if( !$bestLocalCandidate || $bestLocalCandidate ne $packageFileInPackageDatabase ) {
                         my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
                         $toDownload->{$repoName}->{$packageName} = $url;
                     }
