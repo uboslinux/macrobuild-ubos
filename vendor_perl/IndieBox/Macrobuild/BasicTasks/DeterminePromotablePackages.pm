@@ -30,14 +30,16 @@ sub run {
     my $toRepository   = $run->replaceVariables( $self->{toRepository} );
 
     my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
+    my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
     my $arch      = $run->getVariable( 'arch' );
     
     my $newPackages = {};
     my $oldPackages = {};
+    
     while( my( $repoName, $upConfig ) = each %$upConfigs ) {
         while( my( $packageName, $packageInfo ) = each %{$upConfig->packages} ) {
 
-            my @candidatePackages = IndieBox::Macrobuild::PackageUtils::packagesInDirectory( $packageName, $fromRepository, $arch );
+            my @candidatePackages = IndieBox::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromRepository, $arch );
             my $toPromote;
             if( exists( $packageInfo->{$toChannel}->{version} )) {
                 if( exists( $packageInfo->{$toChannel}->{release} )) {

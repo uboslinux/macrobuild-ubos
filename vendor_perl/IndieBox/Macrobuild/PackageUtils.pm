@@ -12,13 +12,13 @@ use IndieBox::Utils;
 use Macrobuild::Logging;
 
 ##
-# Return all packages in all versions for package $packageName in the
+# Return all package files in all versions for package $packageName in the
 # provided directory for a certain arch
 # $packageName: the package name
 # $dir: the directory
 # $arch: the arch
 # return: package file names, without path 
-sub packagesInDirectory {
+sub packageVersionsInDirectory {
     my $packageName = shift;
     my $dir         = shift;
     my $arch        = shift;
@@ -37,10 +37,7 @@ sub packagesInDirectory {
 sub sortByPackageVersion {
     my @names = @_;
 
-print "In:\n    " . join( "\n    ", @names ) . "\n";
     my @ret = sort comparePackageFileNamesByVersion @names;
-print "Out:\n    " . join( "\n    ", @ret ) . "\n";
-
     return @ret;
 }
 

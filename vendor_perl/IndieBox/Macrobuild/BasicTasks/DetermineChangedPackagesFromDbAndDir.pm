@@ -48,7 +48,7 @@ sub run {
                 debug( 'Considering package', $packageName, ' in updated package database version', $packageFileInPackageDatabase );
                 
                 if( $packageFileInPackageDatabase ) {
-                    my @packageFileLocalCandidates = IndieBox::Macrobuild::PackageUtils::packagesInDirectory( $packageName, $dir, $arch );
+                    my @packageFileLocalCandidates = IndieBox::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $dir, $arch );
                     
                     my $bestLocalCandidate = undef;
                     if( @packageFileLocalCandidates ) {
