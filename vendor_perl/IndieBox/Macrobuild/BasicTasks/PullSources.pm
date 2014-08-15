@@ -83,7 +83,10 @@ sub _pullFromGit {
 		if( $out =~ m!^origin\s+\Q$url\E\s+\(fetch\)! ) {
 			$out = undef;
 			$gitCmd = "git checkout '$branch' ; git pull";
-			IndieBox::Utils::myexec( "( cd '$sourceSourceDir'; $gitCmd )", undef, \$out, \$err ); # just swallow
+			IndieBox::Utils::myexec( "( cd '$sourceSourceDir'; $gitCmd )", undef, \$out, \$err );
+            if( $err =~ m!^error!m ) {
+                error( 'Error when attempting to pull git repository:', $url, 'into', $sourceSourceDir, "\n$err" );
+            }
 
 			# Determine which of the directories had changes in them
 			my @updated;
