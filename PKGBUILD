@@ -1,12 +1,12 @@
 pkgname=macrobuild-indiebox
-pkgver=0.36
+pkgver=0.37
 pkgrel=1
 pkgdesc="Indie Box tasks for macrobuild"
 arch=('any')
 url="http://ubos.indiebox.net/"
 license=('GPL')
 groups=()
-depends=( 'macrobuild' 'virtualbox' 'parted' 'util-linux' 'btrfs-progs' 'arch-install-scripts' 'grub' 'curl'  'git' 'rsync' 'perl-http-date' 'multipath-tools' )
+depends=( 'macrobuild' 'indiebox-admin' 'virtualbox' 'parted' 'util-linux' 'btrfs-progs' 'arch-install-scripts' 'grub' 'curl'  'git' 'rsync' 'perl-http-date' 'multipath-tools' )
 backup=()
 source=()
 options=('!strip')

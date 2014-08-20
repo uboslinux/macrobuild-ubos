@@ -139,7 +139,8 @@ sub _pullFromGit {
 		if( IndieBox::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
 			error( "Failed to clone via", $gitCmd );
 		} elsif( $packages ) {
-			$dirsUpdated->{$name} = keys %$packages; # all of them
+            my @keyArray = keys %$packages; # all of them
+			$dirsUpdated->{$name} = \@keyArray;
 		} else {
 			$dirsUpdated->{$name} = [ '' ];
 		}
