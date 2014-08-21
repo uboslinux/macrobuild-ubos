@@ -22,7 +22,12 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $packageDatabases = $in->{'updated-package-databases'};
+    my $packageDatabases = $in->{'all-package-databases'};
+            # This one does not work:
+            #     $in->{'updated-package-databases'};
+            # because several repositories access the same upstream repository, and on the
+            # second access, it says "not changed" although it might have in the first
+            # access during the same build. As a result, some packages won't be updated.
     my $dir              = $run->{settings}->replaceVariables( $self->{dir} );
 
     my $toDownload = {};
