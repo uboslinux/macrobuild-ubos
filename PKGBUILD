@@ -1,22 +1,35 @@
-pkgname=macrobuild-indiebox
-pkgver=0.38
+developer="http://indiecomputing.com/"
+url="http://ubos.net/"
+maintainer=$developer
+pkgname=macrobuild-ubos
+pkgver=0.39
 pkgrel=1
-pkgdesc="Indie Box tasks for macrobuild"
+pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
-url="http://ubos.indiebox.net/"
 license=('GPL')
-groups=()
-depends=( 'macrobuild' 'indiebox-admin' 'virtualbox' 'parted' 'util-linux' 'btrfs-progs' 'arch-install-scripts' 'grub' 'curl'  'git' 'rsync' 'perl-http-date' 'multipath-tools' )
-backup=()
-source=()
+depends=(
+        'macrobuild'
+        'ubos-perl-utils'
+        'virtualbox'
+        'parted'
+        'util-linux'
+        'btrfs-progs'
+        'arch-install-scripts'
+        'grub'
+        'curl'
+        'git'
+        'rsync'
+        'perl-http-date'
+        'multipath-tools'
+)
 options=('!strip')
 
 package() {
     for d in Macrobuild Macrobuild/BasicTasks Macrobuild/BuildTasks Macrobuild/ComplexTasks; do
-        mkdir -p $pkgdir/usr/lib/perl5/vendor_perl/IndieBox/$d
-        install -m644 $startdir/vendor_perl/IndieBox/$d/*.pm $pkgdir/usr/lib/perl5/vendor_perl/IndieBox/$d
+        mkdir -p $pkgdir/usr/lib/perl5/vendor_perl/UBOS/$d
+        install -m644 $startdir/vendor_perl/UBOS/$d/*.pm $pkgdir/usr/lib/perl5/vendor_perl/UBOS/$d
     done
 
     mkdir -p -m755 $pkgdir/etc/$pkgname/keys
-    install -m644 $startdir/keys/indiebox-admin.pub $pkgdir/etc/$pkgname/keys
+    install -m644 $startdir/keys/ubos-admin.pub $pkgdir/etc/$pkgname/keys
 }

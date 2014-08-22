@@ -3,6 +3,7 @@
 
     "packages" : {
         "mod_wsgi2" : {},
+        "perl-cgi" : {},
         "perl-lchown" : {},
         "perl-json" : {}
     }

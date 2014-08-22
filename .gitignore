@@ -1,5 +1,5 @@
-macrobuild-indiebox-*.pkg.tar.xz
-macrobuild-indiebox-*.pkg.tar.xz.sig
+macrobuild-ubos-*.pkg.tar.xz
+macrobuild-ubos-*.pkg.tar.xz.sig
 build/
 images/
 repository/
