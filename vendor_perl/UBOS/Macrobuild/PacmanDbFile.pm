@@ -72,7 +72,7 @@ sub addPackages {
     my $dbSignKey = shift;
     my $packages  = shift;
     
-    my $cmd = 'repo-add';
+    my $cmd = 'repo-add --quiet';
     if( defined( $dbSignKey )) {
 		$cmd .= ' --sign --key ' . $dbSignKey;
 	}
