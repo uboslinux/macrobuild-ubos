@@ -73,7 +73,6 @@ sub configs {
             my $lastModified = (stat( $file ))[9];
             $ret->{$shortRepoName} = new UBOS::Macrobuild::UpConfig( $shortRepoName, $lastModified, $directory, $packages );
         }
-        return $ret;
     }
     return $ret;
 }

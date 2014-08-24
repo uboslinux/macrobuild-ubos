@@ -41,6 +41,9 @@ sub run {
                 $localFileName =~ s!.*/!!;
 
                 UBOS::Utils::myexec( "cp '$fileName' '$destDir/'" );
+                if( -e "$fileName.sig" ) {
+                    UBOS::Utils::myexec( "cp '$fileName'.sig '$destDir/'" );
+				}
 
                 $staged->{$packageName} = "$destDir/$localFileName";
                 debug( "Staged:", $staged->{$packageName} );

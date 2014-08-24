@@ -30,9 +30,10 @@ sub run {
 
     my @updated = ();
     if( %$staged ) {
-        my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->{settings}->replaceVariables( $self->{dbfile} ));
+        my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->replaceVariables( $self->{dbfile} ));
+        my @packageNames = values %$staged;
 
-        if( $dbFile->addPackages( values %$staged ) == -1 ) {
+        if( $dbFile->addPackages( $run->getSettings()->getVariable( 'dbSignKey', undef ), \@packageNames ) == -1 ) {
             return -1;
         }
         @updated = values %$staged;

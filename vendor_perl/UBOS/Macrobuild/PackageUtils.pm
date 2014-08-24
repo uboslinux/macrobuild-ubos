@@ -60,6 +60,26 @@ sub mostRecentPackageVersion {
 }
 
 ##
+# Find the most recent version of a package file in a directory
+# $dir: directory
+# $packageName: name of the package
+# return: most recent file name, not qualified with dir, or undef;
+sub mostRecentPackageInDir {
+	my $dir         = shift;
+	my $packageName = shift;
+
+    my $dh;
+    unless( opendir( $dh, $dir )) {
+		UBOS::Logging::warn( 'Cannot read directory', $dir );
+		return undef;
+	}
+	my @packages = grep { /^$packageName-.*\.pkg\.tar\.xz$/ } readdir( $dh );
+	closedir $dh;
+
+    return mostRecentPackageVersion( @packages );
+}
+
+##
 # Find the most recent version of a package file that is not later
 # than the provided limit. This can be made more efficient.
 # $limit: the latest version to be acceptable, in form of a hash that at least contains

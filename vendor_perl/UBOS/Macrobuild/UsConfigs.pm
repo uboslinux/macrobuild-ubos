@@ -78,8 +78,6 @@ sub configs {
 				warn( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
 				next;
 			}
-				
-
         }
     }
     return $ret;

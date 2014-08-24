@@ -34,6 +34,8 @@ sub run {
     my $dirsUpdated    = $run->replaceVariables( $in->{'dirs-updated'} );
     my $dirsNotUpdated = $run->replaceVariables( $in->{'dirs-not-updated'} );
     
+    my $packageSignKey = $run->getSettings()->getVariable( 'packageSignKey', undef );
+    
     my $built      = {};
     my $notRebuilt = {};
     while( my( $repoName, $repoInfo ) = each %$dirsUpdated ) {
@@ -47,7 +49,7 @@ sub run {
             my $packageName = _determinePackageName( $dir );
             info( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
             
-            if( $self->_buildPackage( $dir, $packageName, $inThisRepo ) == -1 ) {
+            if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
 				return -1;
 			}
         }
@@ -69,16 +71,14 @@ sub run {
             if( -e "$dir/$failedstamp" ) {
 				info( "build failed last time: makepkg in", $dir );
 
-				if( $self->_buildPackage( $dir, $packageName, $inThisRepo ) == -1 ) {
+				if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
 					return -1;
 				}
 			} else {
-				my $out;
-				UBOS::Utils::myexec( "ls -1 $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
-				$out =~ s!^\s+!!;
-				$out =~ s!\s+$!!;
-					
-				$notRebuilt->{$repoName}->{$packageName} = $out;
+				my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
+				if( $mostRecent ) {
+                    $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
+                } 
 			}
         }
         if( %$inThisRepo ) {
@@ -100,14 +100,20 @@ sub run {
 
 ##
 sub _buildPackage {
-	my $self        = shift;
-	my $dir         = shift;
-	my $packageName = shift;
-	my $builtRepo   = shift;
+	my $self           = shift;
+	my $dir            = shift;
+	my $packageName    = shift;
+	my $builtRepo      = shift;
+	my $packageSignKey = shift;
 
 	my $err;
 	UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
-	if( UBOS::Utils::myexec( "cd $dir; makepkg -c -f -d", undef, undef, \$err )) { # writes to stderr, don't complain about dependencies
+	my $cmd = "cd $dir; makepkg -c -f -d";
+	if( $packageSignKey ) {
+		$cmd .= ' --sign --key ' . $packageSignKey;
+	}
+
+	if( UBOS::Utils::myexec( $cmd, undef, undef, \$err )) { # writes to stderr, don't complain about dependencies
 		error( "makepkg in $dir failed", $err );
 
 		if( $self->{stopOnError} ) {
@@ -115,12 +121,7 @@ sub _buildPackage {
 		}
 
 	} elsif( $err =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
-		my $out;
-		UBOS::Utils::myexec( "ls -1 $dir/$packageName-*.pkg.tar.xz | pacsort | tail -1", undef, \$out );
-		$out =~ s!^\s+!!;
-		$out =~ s!\s+$!!;
-			
-		$builtRepo->{$packageName} = $out;
+		$builtRepo->{$packageName} = "$dir/" . UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
 
 		if( -e "$dir/$failedstamp" ) {
 			UBOS::Utils::deleteFile( "$dir/$failedstamp" );

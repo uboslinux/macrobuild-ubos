@@ -68,13 +68,19 @@ sub containedPackages {
 
 ##
 sub addPackages {
-    my $self     = shift;
-    my @packages = @_;
+    my $self      = shift;
+    my $dbSignKey = shift;
+    my $packages  = shift;
     
-    my $packagesString = join( ' ', @packages );
+    my $cmd = 'repo-add';
+    if( defined( $dbSignKey )) {
+		$cmd .= ' --sign --key ' . $dbSignKey;
+	}
+	$cmd .= " '" . $self->{filename} . "'";
+	$cmd .= ' ' . join( ' ', @$packages );
 
-    if( UBOS::Utils::myexec( "repo-add '" . $self->{filename} . "' $packagesString" )) {
-        Macrobuild::Logging::error( "Something went wrong when repo-add" );
+    if( UBOS::Utils::myexec( $cmd )) {
+        Macrobuild::Logging::error( "Something went wrong when executing: $cmd" );
         return -1;
     }
     return 0;
