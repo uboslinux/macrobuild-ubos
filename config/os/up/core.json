@@ -114,6 +114,7 @@
         "systemd-sysvcompat" : {},
         "tar" : {},
         "texinfo" : {},
+        "thin-provisioning-tools" : {},
         "tzdata" : {},
         "usbutils" : {},
         "util-linux" : {},
