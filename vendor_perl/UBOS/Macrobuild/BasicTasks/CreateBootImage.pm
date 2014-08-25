@@ -33,12 +33,12 @@ my $dataByType = {
     'img'      => {
         'packages' => [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking' ],
         'repos'    => [ 'os', 'hl' ],
-        'services' => [ 'ubos-admin', 'sshd' ]
+        'services' => [ 'ubos-admin', 'ubos-networking', 'sshd' ]
     },
     'vbox.img' => {
         'packages' => [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'virtualbox-guest' ],
         'repos' => [ 'os', 'hl', 'virt' ],
-        'services' => [ 'ubos-admin', 'vboxservice', 'sshd' ]
+        'services' => [ 'vboxservice', 'ubos-admin', 'ubos-networking', 'sshd' ]
     }
 };
 
@@ -396,12 +396,12 @@ END
 
 +------------------------------------------+
 |                                          |
-|             Welcome to UBOS!             |
+|             Welcome to UBOS              |
 |                                          |
 |                 ubos.net                 |
 |                                          |
 ISSUE
-        printf $issue "|%42s|\n", "channel: $channel";
+        printf $issue "|%42s|\n", "channel: $channel ";
         print $issue <<ISSUE;
 +------------------------------------------+
 
