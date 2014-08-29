@@ -388,6 +388,12 @@ END
             error( "locale-gen failed", $err );
             ++$error;
         }
+        my $locale = File::Temp->new( UNLINK => 1 );
+        print $locale <<LOCALE;
+LANG=en_US.utf8
+LOCALE
+        close $locale;
+        UBOS::Utils::myexec( "sudo install -m644 " . $locale->filename . " $mountedRootPart/etc/locale.conf" );
 
         # version
         info( "OS version info" );
