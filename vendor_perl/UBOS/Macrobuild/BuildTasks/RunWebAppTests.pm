@@ -38,7 +38,7 @@ sub new {
                     'sourcedir'   => '${builddir}/ups' ),
             new Macrobuild::BasicTasks::Report(
                     'name'        => 'Report webapptest results',
-                    'fields'      => [ 'tests-failed' ] ) # no need to hear about the tests that passed
+                    'fields'      => [ 'tests-passed', 'tests-failed' ] )
         ]
     );
 

@@ -33,7 +33,10 @@ sub run {
     my $dirsNotUpdated = {};
 
     my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
-    foreach my $usConfig ( values %$usConfigs ) {
+    
+    foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
+        my $usConfig = $usConfigs->{$repoName}; 
+
         Macrobuild::Logging::info( "Now processing upstream source config file", $usConfig->name );
 
         my $type = $usConfig->type;

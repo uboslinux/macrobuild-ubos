@@ -35,7 +35,8 @@ sub run {
         my $arch = $run->getVariable( 'arch' );
 
         my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
-        while( my( $repoName, $upConfig ) = each %$upConfigs ) {
+        foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
+            my $upConfig = $upConfigs->{$repoName}; 
 
             debug( 'Determining changed packages in repo', $repoName );
             
@@ -48,7 +49,9 @@ sub run {
             my $packagesInDatabase = $packageDatabase->containedPackages(); # returns name => filename
 
             # in case you were wondering, here's the filtering that says which packages we want
-            while( my( $packageName, $packageInfo ) = each %{$upConfig->packages} ) {
+            foreach my $packageName ( sort keys %{$upConfig->packages} ) { # make predictable sequence
+                my $packageInfo = $upConfig->packages->{$packageName};
+
                 my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
                 debug( 'Considering package', $packageName, ' in updated package database version', $packageFileInPackageDatabase );
                 

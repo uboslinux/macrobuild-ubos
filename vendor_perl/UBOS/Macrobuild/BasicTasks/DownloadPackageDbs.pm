@@ -29,7 +29,10 @@ sub run {
     my $allPackageDatabases     = {};
     my $updatedPackageDatabases = {};
     my $upConfigs               = $self->{upconfigs}->configs( $run->{settings} );
-    foreach my $upConfig ( values %$upConfigs ) {
+
+    foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
+        my $upConfig = $upConfigs->{$repoName}; 
+
         Macrobuild::Logging::debug( "Now processing upstream config file", $upConfig->name );
 
         my $name      = $upConfig->name;

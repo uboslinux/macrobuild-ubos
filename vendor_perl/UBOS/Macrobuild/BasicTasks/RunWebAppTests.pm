@@ -41,7 +41,9 @@ sub run {
     my $testsFailed = {};
 
     my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
-    foreach my $usConfig ( values %$usConfigs ) {
+    foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
+        my $usConfig = $usConfigs->{$repoName}; 
+
         my $name = $usConfig->name;
         Macrobuild::Logging::info( "Now processing upstream source config file", $name );
 
