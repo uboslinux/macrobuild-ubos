@@ -426,12 +426,6 @@ OSRELEASE
         close $osRelease;
         UBOS::Utils::myexec( "sudo install -m644 " . $osRelease->filename . " $mountedRootPart/etc/os-release" );
 
-        # Initialize pacman keys
-        if( UBOS::Utils::myexec( "sudo arch-chroot '$mountedRootPart' pacman-key --init", undef, \$out, \$err )) {
-            error( "pacman-key --init failed", $err );
-            ++$error;
-        }
-        
         # Clean up
         if( $separateVar ) {
             UBOS::Utils::myexec( "sudo umount '$mountedRootPart/var'" );
