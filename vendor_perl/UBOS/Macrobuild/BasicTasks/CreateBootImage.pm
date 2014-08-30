@@ -36,9 +36,9 @@ my $dataByType = {
         'services' => [ 'ubos-admin', 'ubos-networking', 'sshd' ]
     },
     'vbox.img' => {
-        'packages' => [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'virtualbox-guest' ],
+        'packages' => [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'virtualbox-guest', 'rng-tools' ],
         'repos' => [ 'os', 'hl', 'virt' ],
-        'services' => [ 'vboxservice', 'ubos-admin', 'ubos-networking', 'sshd' ]
+        'services' => [ 'vboxservice', 'ubos-admin', 'ubos-networking', 'sshd', 'rngd' ]
     }
 };
 
