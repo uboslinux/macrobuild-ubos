@@ -23,14 +23,17 @@ sub run {
 
     my $from = $run->replaceVariables( $self->{from} );
     my $to   = $run->replaceVariables( $self->{to} );
+    my $uploadKey = $run->getVariable( 'uploadSshKey' );
 
     # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
-    my $rsyncCmd = 
-            'sudo'
-            . ' rsync -rtlvH --delete-after --delay-updates --safe-links --max-delete=1000'
-            . ' -e ssh'
-            . " $from/*"
-            . " '$to'";
+    my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --safe-links --max-delete=1000';
+    if( $uploadKey ) {
+        $rsyncCmd = " -e ' ssh -i $rsyncKey'";
+    } else {
+        $rsyncCmd = ' -e ssh';
+    }
+    $rsyncCmd .= " $from/*"
+               . " '$to'";
     info( "Rsync command:", $rsyncCmd );
     my $ret = UBOS::Utils::myexec( $rsyncCmd );
 
