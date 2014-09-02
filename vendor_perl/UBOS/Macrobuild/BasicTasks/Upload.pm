@@ -28,9 +28,9 @@ sub run {
     # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
     my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --safe-links --max-delete=1000';
     if( $uploadKey ) {
-        $rsyncCmd = . " -e 'ssh -i $uploadKey'";
+        $rsyncCmd .= " -e 'ssh -i $uploadKey'";
     } else {
-        $rsyncCmd = . ' -e ssh';
+        $rsyncCmd .= ' -e ssh';
     }
     $rsyncCmd .= " $from/*"
                . " '$to'";
