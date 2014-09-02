@@ -21,14 +21,14 @@ sub run {
 
     $run->taskStarting( $self ); # input ignored
 
-    my $from = $run->replaceVariables( $self->{from} );
-    my $to   = $run->replaceVariables( $self->{to} );
+    my $from      = $run->replaceVariables( $self->{from} );
+    my $to        = $run->replaceVariables( $self->{to} );
     my $uploadKey = $run->getVariable( 'uploadSshKey' );
 
     # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
     my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --safe-links --max-delete=1000';
     if( $uploadKey ) {
-        $rsyncCmd = " -e ' ssh -i $rsyncKey'";
+        $rsyncCmd = " -e ' ssh -i $uploadKey'";
     } else {
         $rsyncCmd = ' -e ssh';
     }
