@@ -41,7 +41,6 @@
         "php-xcache" : {},
         "python2" : {},
         "sqlite" : {},
-        "tomcat7" : {},
-        "vim" : {}
-    }
+        "tomcat7" : {}
+        }
 }
