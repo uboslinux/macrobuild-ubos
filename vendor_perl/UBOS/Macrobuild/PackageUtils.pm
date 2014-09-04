@@ -22,9 +22,10 @@ sub packageVersionsInDirectory {
     my $packageName = shift;
     my $dir         = shift;
     my $arch        = shift;
-    
-    my @files1 = <$dir/$packageName-[0-9]*-$arch.pkg.*>;
-    my @files2 = <$dir/$packageName-[0-9]*-any.pkg.*>;
+
+    # make sure we don't accidentially get .sig files    
+    my @files1 = <$dir/$packageName-[0-9]*-$arch.pkg.tar.xz>;
+    my @files2 = <$dir/$packageName-[0-9]*-any.pkg.tar.xz>;
     my @ret = map { s!.*/!!; $_; } ( @files1, @files2 );
 
     return @ret;
