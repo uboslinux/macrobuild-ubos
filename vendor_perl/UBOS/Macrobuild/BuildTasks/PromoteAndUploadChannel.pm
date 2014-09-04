@@ -54,8 +54,8 @@ sub new {
     
     my $uploadTasks = {};
     map { $uploadTasks->{"upload-$_"} = new UBOS::Macrobuild::BasicTasks::Upload(
-        'from'        => '${repodir}/${fromChannel}/${arch}/'  . $_,
-        'to'          => '${uploadDest}/${toChannel}/${arch}/' . $_ ) } @repos;
+        'from'        => '${repodir}/${toChannel}/${arch}/' . $_,
+        'to'          => '${uploadDest}//${arch}/'          . $_ ) } @repos;
     my @uploadTaskNames = keys %$uploadTasks;
             
     my @mergeKeys = ( '', @promoteTaskNames, @uploadTaskNames );
