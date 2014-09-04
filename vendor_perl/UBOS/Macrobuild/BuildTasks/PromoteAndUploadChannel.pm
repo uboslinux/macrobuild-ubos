@@ -10,13 +10,16 @@ package UBOS::Macrobuild::BuildTasks::PromoteAndUploadChannel;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
-use UBOS::Macrobuild::BasicTasks::PromoteRepository;
 use UBOS::Macrobuild::BasicTasks::Upload;
+use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
+use UBOS::Macrobuild::UpConfigs;
+use UBOS::Macrobuild::UsConfigs;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use Macrobuild::Logging;
+
 
 ##
 # Constructor
@@ -36,10 +39,17 @@ sub new {
         'tools',
         'virt' );
 
+    my $repoUpConfigs = {};
+    my $repoUsConfigs = {};
+    
+    map { $repoUpConfigs->{$_} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $_ . '/up' ) } @repos;
+    map { $repoUsConfigs->{$_} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $_ . '/us' ) } @repos;
+
     my $promoteTasks = {};
-    map { $promoteTasks->{"promote-$_"} = new UBOS::Macrobuild::BasicTasks::PromoteRepository(
-        'fromRepository' => '${fromChannel}/${arch}/' . $_,
-        'toRepository'   => '${toChannel}/${arch}/'   . $_ ) } @repos;
+    map { $promoteTasks->{"promote-$_"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
+            'upconfigs'      => $repoUpConfigs->{$_},
+            'usconfigs'      => $repoUsConfigs->{$_},
+            'repository'     => $_ ) } @repos;
     my @promoteTaskNames = keys %$promoteTasks;
     
     my $uploadTasks = {};
