@@ -71,7 +71,7 @@ sub mostRecentPackageInDir {
 
     my $dh;
     unless( opendir( $dh, $dir )) {
-		UBOS::Logging::warn( 'Cannot read directory', $dir );
+		Macrobuild::Logging::warn( 'Cannot read directory', $dir );
 		return undef;
 	}
 	my @packages = grep { /^$packageName-.*\.pkg\.tar\.xz$/ } readdir( $dh );
