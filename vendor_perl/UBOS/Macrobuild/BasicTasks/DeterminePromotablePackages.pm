@@ -12,9 +12,9 @@ use base qw( Macrobuild::Task );
 use fields qw( upconfigs usconfigs fromRepository toRepository );
 
 use File::Spec;
+use UBOS::Logging;
 use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
-use Macrobuild::Logging;
 
 ##
 # Run this task.

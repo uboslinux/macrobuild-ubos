@@ -10,8 +10,8 @@ package UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 use base qw( Macrobuild::Task );
 use fields qw( dbfile );
 
+use UBOS::Logging;
 use UBOS::Macrobuild::PacmanDbFile;
-use Macrobuild::Logging;
 
 ##
 # Run this task.

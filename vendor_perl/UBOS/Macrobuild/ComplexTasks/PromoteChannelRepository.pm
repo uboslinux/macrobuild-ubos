@@ -11,12 +11,12 @@ package UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields qw( upconfigs usconfigs repository );
 
+use Macrobuild::CompositeTasks::Sequential;
+use Macrobuild::CompositeTasks::SplitJoin;
+use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages;
 use UBOS::Macrobuild::BasicTasks::Stage;
 use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
-use Macrobuild::CompositeTasks::Sequential;
-use Macrobuild::CompositeTasks::SplitJoin;
-use Macrobuild::Logging;
 
 ##
 # Constructor

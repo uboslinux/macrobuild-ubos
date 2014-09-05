@@ -10,8 +10,8 @@ package UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir;
 use base qw( Macrobuild::Task );
 use fields qw( dir upconfigs );
 
+use UBOS::Logging;
 use UBOS::Macrobuild::PackageUtils;
-use Macrobuild::Logging;
 
 ##
 # Run this task.

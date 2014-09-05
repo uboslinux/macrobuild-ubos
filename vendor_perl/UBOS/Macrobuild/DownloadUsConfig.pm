@@ -10,8 +10,8 @@ package UBOS::Macrobuild::DownloadUsConfig;
 use base qw( UBOS::Macrobuild::AbstractUsConfig );
 use fields;
 
+use UBOS::Logging;
 use UBOS::Utils;
-use Macrobuild::Logging;
 
 ##
 # Constructor

@@ -8,8 +8,8 @@ use warnings;
 
 package UBOS::Macrobuild::PackageUtils;
 
+use UBOS::Logging;
 use UBOS::Utils;
-use Macrobuild::Logging;
 
 ##
 # Return all package files in all versions for package $packageName in the

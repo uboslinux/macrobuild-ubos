@@ -9,8 +9,8 @@ package UBOS::Macrobuild::UpConfig;
 
 use fields qw( name lastModified directory packages );
 
+use UBOS::Logging;
 use UBOS::Utils;
-use Macrobuild::Logging;
 
 ##
 # Constructor

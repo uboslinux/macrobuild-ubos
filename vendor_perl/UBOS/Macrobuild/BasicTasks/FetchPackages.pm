@@ -10,7 +10,7 @@ package UBOS::Macrobuild::BasicTasks::FetchPackages;
 use base qw( Macrobuild::Task );
 use fields qw( downloaddir );
 
-use Macrobuild::Logging;
+use UBOS::Logging;
 
 ##
 # Run this task.

@@ -112,7 +112,6 @@ sub run {
                 }
             }
         }
-        
     }
 
     $run->taskEnded( $self, {

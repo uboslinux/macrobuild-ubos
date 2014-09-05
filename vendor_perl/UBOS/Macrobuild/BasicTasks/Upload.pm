@@ -10,7 +10,7 @@ package UBOS::Macrobuild::BasicTasks::Upload;
 use base qw( Macrobuild::Task );
 use fields qw( from to );
 
-use Macrobuild::Logging;
+use UBOS::Logging;
 
 ##
 # Run this task.

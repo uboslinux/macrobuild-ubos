@@ -10,14 +10,14 @@ package UBOS::Macrobuild::BuildTasks::PromoteChannel;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
-use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
-use UBOS::Macrobuild::UpConfigs;
-use UBOS::Macrobuild::UsConfigs;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
-use Macrobuild::Logging;
+use UBOS::Logging;
+use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
+use UBOS::Macrobuild::UpConfigs;
+use UBOS::Macrobuild::UsConfigs;
 
 ##
 # Constructor

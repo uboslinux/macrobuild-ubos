@@ -9,11 +9,11 @@ package UBOS::Macrobuild::BuildTasks::RunWebAppTests;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
-use UBOS::Macrobuild::BasicTasks::RunWebAppTests;
-use UBOS::Macrobuild::UsConfigs;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
-use Macrobuild::Logging;
+use UBOS::Logging;
+use UBOS::Macrobuild::BasicTasks::RunWebAppTests;
+use UBOS::Macrobuild::UsConfigs;
 
 ##
 # Constructor

@@ -11,9 +11,9 @@ use base qw( Macrobuild::Task );
 use fields qw( upconfigs downloaddir );
 
 use HTTP::Date;
+use UBOS::Logging;
 use UBOS::Macrobuild::PacmanDbFile;
 use UBOS::Macrobuild::UpConfig;
-use Macrobuild::Logging;
 use Macrobuild::Utils;
 use Time::Local;
 

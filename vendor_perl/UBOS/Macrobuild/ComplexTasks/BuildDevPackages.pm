@@ -10,6 +10,11 @@ package UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields qw( upconfigs usconfigs repository );
 
+use Macrobuild::BasicTasks::Report;
+use Macrobuild::CompositeTasks::MergeValuesTask;
+use Macrobuild::CompositeTasks::Sequential;
+use Macrobuild::CompositeTasks::SplitJoin;
+use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::BuildPackages;
 use UBOS::Macrobuild::BasicTasks::DownloadPackageDbs;
 use UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir;
@@ -19,11 +24,6 @@ use UBOS::Macrobuild::BasicTasks::Stage;
 use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValuesTask;
-use Macrobuild::CompositeTasks::Sequential;
-use Macrobuild::CompositeTasks::SplitJoin;
-use Macrobuild::Logging;
 
 ##
 # Constructor

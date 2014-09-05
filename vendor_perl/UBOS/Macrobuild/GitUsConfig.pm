@@ -10,8 +10,8 @@ package UBOS::Macrobuild::GitUsConfig;
 use base qw( UBOS::Macrobuild::AbstractUsConfig );
 use fields qw( branch );
 
+use UBOS::Logging;
 use UBOS::Utils;
-use Macrobuild::Logging;
 
 ##
 # Constructor

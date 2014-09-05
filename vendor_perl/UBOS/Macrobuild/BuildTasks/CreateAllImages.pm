@@ -10,10 +10,11 @@ package UBOS::Macrobuild::BuildTasks::CreateAllImages;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
-use UBOS::Macrobuild::ComplexTasks::CreateImages;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::Logging;
+use UBOS::Logging;
+use UBOS::Macrobuild::ComplexTasks::CreateImages;
 
 ##
 # Constructor

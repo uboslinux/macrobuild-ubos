@@ -12,8 +12,8 @@ package UBOS::Macrobuild::BasicTasks::RunWebAppTests;
 use base qw( Macrobuild::Task );
 use fields qw( usconfigs sourcedir );
 
-use Macrobuild::Logging;
 use Macrobuild::Utils;
+use UBOS::Logging;
 
 ##
 # Run this task.

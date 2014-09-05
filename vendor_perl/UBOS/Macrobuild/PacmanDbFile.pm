@@ -9,7 +9,7 @@ use warnings;
 package UBOS::Macrobuild::PacmanDbFile;
 
 use Archive::Tar;
-use Macrobuild::Logging;
+use UBOS::Logging;
 use UBOS::Utils;
 
 use fields qw( filename containedPackages );

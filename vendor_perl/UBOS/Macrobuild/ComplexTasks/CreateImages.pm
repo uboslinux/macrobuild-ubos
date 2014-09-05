@@ -10,12 +10,12 @@ package UBOS::Macrobuild::ComplexTasks::CreateImages;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
-use UBOS::Macrobuild::BasicTasks::BootImageToVmdk;
-use UBOS::Macrobuild::BasicTasks::CreateBootImage;
 use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
-use Macrobuild::Logging;
+use UBOS::Logging;
+use UBOS::Macrobuild::BasicTasks::BootImageToVmdk;
+use UBOS::Macrobuild::BasicTasks::CreateBootImage;
 
 ##
 # Constructor

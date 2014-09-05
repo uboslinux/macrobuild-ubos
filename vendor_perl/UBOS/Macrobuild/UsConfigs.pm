@@ -9,10 +9,10 @@ package UBOS::Macrobuild::UsConfigs;
 
 use fields qw( dir settingsConfigsMap );
 
+use UBOS::Logging;
 use UBOS::Macrobuild::DownloadUsConfig;
 use UBOS::Macrobuild::GitUsConfig;
 use UBOS::Utils;
-use Macrobuild::Logging;
 
 ##
 # Constructor.

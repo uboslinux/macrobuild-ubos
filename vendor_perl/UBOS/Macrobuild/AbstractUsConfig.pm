@@ -9,8 +9,8 @@ package UBOS::Macrobuild::AbstractUsConfig;
 
 use fields qw( name url file packages webapptests );
 
+use UBOS::Logging;
 use UBOS::Utils;
-use Macrobuild::Logging;
 
 ##
 # Constructor

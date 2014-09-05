@@ -12,7 +12,7 @@ use fields;
 
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
-use Macrobuild::Logging;
+use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::BootImageToVmdk;
 use UBOS::Macrobuild::BasicTasks::CreateBootImage;
 

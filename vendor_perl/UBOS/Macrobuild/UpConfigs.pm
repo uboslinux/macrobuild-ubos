@@ -9,9 +9,9 @@ package UBOS::Macrobuild::UpConfigs;
 
 use fields qw( dir settingsConfigsMap );
 
+use UBOS::Logging;
 use UBOS::Macrobuild::UpConfig;
 use UBOS::Utils;
-use Macrobuild::Logging;
 
 ##
 # Constructor.

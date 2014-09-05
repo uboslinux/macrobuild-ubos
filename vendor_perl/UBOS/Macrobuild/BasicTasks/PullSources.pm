@@ -10,8 +10,8 @@ package UBOS::Macrobuild::BasicTasks::PullSources;
 use base qw( Macrobuild::Task );
 use fields qw( usconfigs sourcedir );
 
-use Macrobuild::Logging;
 use Macrobuild::Utils;
+use UBOS::Logging;
 
 my $failedstamp = ".build-in-progress-or-failed";
 my %knownExtensions = (

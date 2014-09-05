@@ -25,8 +25,8 @@ use fields qw( repodir channel image imagesize rootpartsize fs type linkLatest )
 #               understands special value 'all', in which case there is no separate /var partition
 
 use File::Spec;
+use UBOS::Logging;
 use UBOS::Utils;
-use Macrobuild::Logging;
 use Macrobuild::Utils;
 
 my $dataByType = {

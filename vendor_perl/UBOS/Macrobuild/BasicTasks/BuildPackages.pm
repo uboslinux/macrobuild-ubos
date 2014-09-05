@@ -10,7 +10,7 @@ package UBOS::Macrobuild::BasicTasks::BuildPackages;
 use base qw( Macrobuild::Task );
 use fields qw( sourcedir );
 
-use Macrobuild::Logging;
+use UBOS::Logging;
 
 my $failedstamp = ".build-in-progress-or-failed";
 

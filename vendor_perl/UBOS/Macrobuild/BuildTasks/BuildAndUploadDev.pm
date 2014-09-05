@@ -7,17 +7,16 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::BuildAndUploadDev;
 
-use UBOS::Macrobuild::BasicTasks::Upload;
-use UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
+use base qw( Macrobuild::CompositeTasks::Delegating );
+use fields;
+
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::BasicTasks::ReportViaMosquitto;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
-
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
-
-use Macrobuild::Logging;
+use UBOS::Logging;
+use UBOS::Macrobuild::BasicTasks::Upload;
+use UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
 
 ##
 # Constructor

@@ -10,8 +10,8 @@ package UBOS::Macrobuild::BasicTasks::Stage;
 use base qw( Macrobuild::Task );
 use fields qw( stagedir );
 
-use Macrobuild::Logging;
 use Macrobuild::Utils;
+use UBOS::Logging;
 
 ##
 # Run this task.
