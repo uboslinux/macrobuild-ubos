@@ -37,7 +37,7 @@ sub run {
     foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
         my $usConfig = $usConfigs->{$repoName}; 
 
-        Macrobuild::Logging::info( "Now processing upstream source config file", $usConfig->name );
+        info( "Now processing upstream source config file", $usConfig->name );
 
         my $type = $usConfig->type;
         if( $type eq 'git' ) {
@@ -47,7 +47,7 @@ sub run {
 			$self->_pullByDownload( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
 
 		} else { 
-			warn( "Skipping", $usConfig->name, "type", $type, "not known" );
+			warning( "Skipping", $usConfig->name, "type", $type, "not known" );
 		}
     }
 
@@ -171,7 +171,7 @@ sub _pullByDownload {
 		}
 	}
 	unless( $ext ) {
-		warn( "Unknown extension in url", $url, "skipping" );
+		warning( "Unknown extension in url", $url, "skipping" );
 		return undef;
 	}
 	

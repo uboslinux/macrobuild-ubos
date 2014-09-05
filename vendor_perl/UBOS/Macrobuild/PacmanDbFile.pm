@@ -80,7 +80,7 @@ sub addPackages {
 	$cmd .= ' ' . join( ' ', @$packages );
 
     if( UBOS::Utils::myexec( $cmd )) {
-        Macrobuild::Logging::error( "Something went wrong when executing: $cmd" );
+        error( "Something went wrong when executing: $cmd" );
         return -1;
     }
     return 0;

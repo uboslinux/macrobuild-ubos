@@ -70,7 +70,7 @@ sub run {
                         $toDownload->{$repoName}->{$packageName} = $url;
                     }
                 } else {
-                    warn( 'Failed to find package file for package', $packageName, 'in database for repo', $repoName );
+                    warning( 'Failed to find package file for package', $packageName, 'in database for repo', $repoName );
                 }
             }
         }

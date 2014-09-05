@@ -44,7 +44,7 @@ sub configs {
 
         my @files = <$realDir/*.json>;
         unless( @files ) {
-            Macrobuild::Logging::debug( "No config files found in upstream sources config dir:", $self->{dir}, 'expanded to', $realDir );
+            debug( "No config files found in upstream sources config dir:", $self->{dir}, 'expanded to', $realDir );
             return undef;
         }
 
@@ -53,7 +53,7 @@ sub configs {
 
         CONFIGFILES:
         foreach my $file ( @files ) {
-            Macrobuild::Logging::info( "Now reading upstream sources config file", $file );
+            info( "Now reading upstream sources config file", $file );
             my $shortSourceName = $file;
             $shortSourceName =~ s!.*/!!;
             $shortSourceName =~ s!\.json$!!;
@@ -61,7 +61,7 @@ sub configs {
             my $usConfigJson = UBOS::Utils::readJsonFromFile( $file );
 
 			if( ! $usConfigJson->{type} ) {
-				warn( "No type given in $file, skipping." );
+				warning( "No type given in $file, skipping." );
 				next;
 			} elsif( $usConfigJson->{type} eq 'git' ) {
 				$ret->{$shortSourceName} = new UBOS::Macrobuild::GitUsConfig(
@@ -75,7 +75,7 @@ sub configs {
 						$usConfigJson,
                         $file );
 			} else {
-				warn( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
+				warning( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
 				next;
 			}
         }

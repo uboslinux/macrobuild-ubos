@@ -11,7 +11,7 @@ use base qw( Macrobuild::Task );
 use fields qw();
 
 use File::Spec;
-use Macrobuild::Logging;
+use UBOS::Logging;
 
 ##
 # Run this task.
@@ -104,7 +104,7 @@ sub run {
                     UBOS::Utils::deleteFile( $vmdkLinkLatest );
 
                 } elsif( -e $vmdkLinkLatest ) {
-                    warn( "vmdkLinkLatest $vmdkLinkLatest exists, but isn't a symlink. Not updating" );
+                    warning( "vmdkLinkLatest $vmdkLinkLatest exists, but isn't a symlink. Not updating" );
                     $vmdkLinkLatest = undef;
                 }
                 if( $vmdkLinkLatest ) {

@@ -454,7 +454,7 @@ OSRELEASE
                 UBOS::Utils::deleteFile( $linkLatest );
 
             } elsif( -e $linkLatest ) {
-                warn( "linkLatest $linkLatest exists, but isn't a symlink. Not updating" );
+                warning( "linkLatest $linkLatest exists, but isn't a symlink. Not updating" );
                 $linkLatest = undef;
             }
             if( $linkLatest ) {
@@ -491,7 +491,7 @@ sub ubosPacstrap {
     my $config    = shift;
 
     unless( -d $targetDir ) {
-        Macrobuild::Logging::fatal( 'targetDir does not exist', $targetDir );
+        fatal( 'targetDir does not exist', $targetDir );
     }
 
     info( "Now pacstrap, mounting special devices" );

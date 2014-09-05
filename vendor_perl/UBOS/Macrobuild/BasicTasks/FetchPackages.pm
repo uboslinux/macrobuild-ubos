@@ -49,11 +49,11 @@ sub run {
                         $downloaded->{$repoName}->{$packageName} = $fullLocalName;
                         
                         if( UBOS::Utils::myexec( "curl -s -L -o '$fullLocalName.sig' '$packageUrl.sig'" )) {
-                            UBOS::Utils::warn( "Failed to download signature for $packageUrl" );
+                            warning( "Failed to download signature for $packageUrl" );
 						}
 
                     } else {
-                        UBOS::Utils::error( "Failed to download $packageUrl" );
+                        error( "Failed to download $packageUrl" );
                         return -1;
                     } 
                 }

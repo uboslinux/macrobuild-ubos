@@ -33,7 +33,7 @@ sub run {
     foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
         my $upConfig = $upConfigs->{$repoName}; 
 
-        Macrobuild::Logging::debug( "Now processing upstream config file", $upConfig->name );
+        debug( "Now processing upstream config file", $upConfig->name );
 
         my $name      = $upConfig->name;
         my $directory = $upConfig->directory;

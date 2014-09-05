@@ -45,7 +45,7 @@ sub run {
         my $usConfig = $usConfigs->{$repoName}; 
 
         my $name = $usConfig->name;
-        Macrobuild::Logging::info( "Now processing upstream source config file", $name );
+        info( "Now processing upstream source config file", $name );
 
         my $webapptests = $usConfig->webapptests;
         if( defined( $webapptests ) && @$webapptests ) {

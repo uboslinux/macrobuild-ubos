@@ -43,7 +43,7 @@ sub configs {
 
         my @files = <$realDir/*.json>;
         unless( @files ) {
-            Macrobuild::Logging::debug( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
+            debug( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
             return undef;
         }
 
@@ -51,7 +51,7 @@ sub configs {
         $self->{settingsConfigsMap}->{$settings->getName} = $ret;
 
         foreach my $file ( @files ) {
-            Macrobuild::Logging::info( "Now reading upstream packages config file", $file );
+            info( "Now reading upstream packages config file", $file );
             my $shortRepoName = $file;
             $shortRepoName =~ s!.*/!!;
             $shortRepoName =~ s!\.json$!!;
@@ -61,13 +61,13 @@ sub configs {
             my $packages     = $upConfigJson->{packages};
 
             unless( defined( $directory )) {
-                warn( "No directory given in $file, skipping." );
+                warning( "No directory given in $file, skipping." );
                 next;
             }
             $directory = $settings->replaceVariables( $directory );
 
             unless( !defined( $directory ) || ( $directory =~ m!^/! && -d $directory ) || $directory =~ m!^https?://! ) {
-                warn( "No or invalid directory given in $file, skipping: ", $directory );
+                warning( "No or invalid directory given in $file, skipping: ", $directory );
                 next;
             }
             my $lastModified = (stat( $file ))[9];
