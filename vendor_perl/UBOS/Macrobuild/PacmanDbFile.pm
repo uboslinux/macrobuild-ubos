@@ -72,14 +72,24 @@ sub addPackages {
     my $dbSignKey = shift;
     my $packages  = shift;
     
-    my $cmd = 'repo-add --quiet';
+    my $cmd = 'repo-add';
+    unless( UBOS::Logging::isDebugActive() ) {
+        $cmd .= ' --quiet';
+    }
     if( defined( $dbSignKey )) {
 		$cmd .= ' --sign --key ' . $dbSignKey;
 	}
 	$cmd .= " '" . $self->{filename} . "'";
 	$cmd .= ' ' . join( ' ', @$packages );
 
-    if( UBOS::Utils::myexec( $cmd )) {
+    my $result;
+    if( UBOS::Logging::isInfoActive() ) {
+        $result = UBOS::Utils::myexec( $cmd );
+    } else {
+        my $out;
+        $result = UBOS::Utils::myexec( $cmd, undef, \$out );
+    }
+    if( $result ) {
         error( "Something went wrong when executing: $cmd" );
         return -1;
     }

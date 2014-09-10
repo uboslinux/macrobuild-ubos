@@ -7,7 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::CreateAndUploadImages;
 
-use base qw( MacrobCompositeTasksuild::CompositeTasks::Delegating );
+use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
