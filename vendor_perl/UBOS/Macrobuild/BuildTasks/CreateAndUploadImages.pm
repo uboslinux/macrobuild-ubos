@@ -28,7 +28,7 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    $self->{delegate} = new Macrobuild::ComplexTasks::Sequential(
+    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
             new UBOS::Macrobuild::ComplexTasks::CreateImages(),
             new UBOS::Macrobuild::BasicTasks::Upload(
