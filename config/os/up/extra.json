@@ -7,6 +7,7 @@
         "apr-util" : {},
         "ca-certificates-java" : {},
         "eclipse-ecj" : {},
+        "fontconfig" : {},
         "freetype2" : {},
         "gd" : {},
         "graphite" : {},
@@ -16,15 +17,25 @@
         "java-jsvc" : {},
         "jre7-openjdk" : {},
         "jre7-openjdk-headless" : {},
+        "kbproto" : {},
         "lcms2" : {},
         "libaio" : {},
+        "libice" : {},
         "libjpeg-turbo" : {},
         "libmariadbclient" : {},
         "libpng" : {},
+        "libsm" : {},
         "libtiff" : {},
         "libunistring" : {},
         "libvpx" : {},
+        "libx11" : {},
+        "libxau" : {},
+        "libxcb" : {},
+        "libxdmcp" : {},
+        "libxext" : {},
         "libxml2" : {},
+        "libxpm" : {},
+        "libxt" : {},
         "libzip" : {},
         "mariadb" : {},
         "mariadb-clients" : {},
@@ -43,6 +54,10 @@
         "php-xcache" : {},
         "python2" : {},
         "sqlite" : {},
-        "tomcat7" : {}
-        }
+        "tomcat7" : {},
+        "xcb-proto" : {},
+        "xextproto" : {},
+        "xproto" : {}
+   }
 }
+
