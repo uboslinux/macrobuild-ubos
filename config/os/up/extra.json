@@ -8,6 +8,7 @@
         "ca-certificates-java" : {},
         "eclipse-ecj" : {},
         "freetype2" : {},
+        "gd" : {},
         "graphite" : {},
         "harfbuzz" : {},
         "icu" : {},
