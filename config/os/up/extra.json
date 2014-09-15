@@ -24,6 +24,7 @@
         "libunistring" : {},
         "libvpx" : {},
         "libxml2" : {},
+        "libzip" : {},
         "mariadb" : {},
         "mariadb-clients" : {},
         "nspr" : {},
