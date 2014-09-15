@@ -162,6 +162,9 @@ END
             debug( "loop device for var:",  $varLoopDevice );
         }
 
+        # This sometimes seems to be slow, let's wait a bit
+        sleep( 3 );
+
         # Add file systems
         info( "Formatting file systems in", $fs );
 
