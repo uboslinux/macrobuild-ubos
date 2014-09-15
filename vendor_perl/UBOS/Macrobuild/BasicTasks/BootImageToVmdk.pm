@@ -12,6 +12,7 @@ use fields qw();
 
 use File::Spec;
 use UBOS::Logging;
+use UBOS::Macrobuild::FileUtils;
 
 ##
 # Run this task.
@@ -108,7 +109,8 @@ sub run {
                     $vmdkLinkLatest = undef;
                 }
                 if( $vmdkLinkLatest ) {
-                    UBOS::Utils::symlink( $vmdk, $vmdkLinkLatest );
+                    my $relVmdk = UBOS::Macrobuild::FileUtils::relPath( $vmdk, $vmdkLinkLatest );
+                    UBOS::Utils::symlink( $relVmdk, $vmdkLinkLatest );
                 }
             }
         }

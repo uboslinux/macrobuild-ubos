@@ -26,6 +26,7 @@ use fields qw( repodir channel image imagesize rootpartsize fs type linkLatest )
 
 use File::Spec;
 use UBOS::Logging;
+use UBOS::Macrobuild::FileUtils;
 use UBOS::Utils;
 use Macrobuild::Utils;
 
@@ -458,7 +459,8 @@ OSRELEASE
                 $linkLatest = undef;
             }
             if( $linkLatest ) {
-                UBOS::Utils::symlink( $image, $linkLatest );
+                my $relImage = UBOS::Macrobuild::FileUtils::relPath( $image, $linkLatest);
+                UBOS::Utils::symlink( $relImage, $linkLatest );
             }
         }
 
