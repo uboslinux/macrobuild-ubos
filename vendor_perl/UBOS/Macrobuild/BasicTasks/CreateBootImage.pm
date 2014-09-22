@@ -431,6 +431,9 @@ OSRELEASE
         UBOS::Utils::myexec( "sudo install -m644 " . $osRelease->filename . " $mountedRootPart/etc/os-release" );
 
         # Clean up
+        if( -e "$mountedRootPart/root/.bash_history" ) {
+            UBOS::Utils::deleteFile( "$mountedRootPart/root/.bash_history" );
+        }
         if( $separateVar ) {
             UBOS::Utils::myexec( "sudo umount '$mountedRootPart/var'" );
         }
