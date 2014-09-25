@@ -2,6 +2,8 @@
     "directory" : "${archUpstreamSite}/extra/os/${arch}",
 
     "packages" : {
+        "damageproto" : {},
+        "elfutils" : {},
         "fixesproto" : {},
         "fontsproto" : {},
         "freetype2" : {},
@@ -10,6 +12,7 @@
         "libevdev" : {},
         "libfontenc" : {},
         "libpciaccess" : {},
+        "libxdamage" : {},
         "libxfixes" : {},
         "libxfont" : {},
         "libxkbfile" : {},
@@ -17,13 +20,19 @@
         "libxrandr" : {},
         "libxrender" : {},
         "libxshmfence" : {},
+        "libxxf86vm" : {},
+        "llvm-libs" : {},
+        "mesa" : {},
+        "mesa-libgl" : {},
         "mtdev" : {},
         "pixman" : {},
         "randrproto" : {},
         "renderproto" : {},
+        "wayland" : {},
         "xcb-proto" : {},
         "xextproto" : {},
         "xf86-input-evdev" : {},
+        "xf86vidmodeproto" : {},
         "xkeyboard-config" : {},
         "xorg-bdftopcf" : {},
         "xorg-font-util" : {},
@@ -41,3 +50,4 @@
         "xproto" : {}
     }
 }
+
