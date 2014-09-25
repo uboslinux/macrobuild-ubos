@@ -7,7 +7,6 @@
         "apr-util" : {},
         "ca-certificates-java" : {},
         "ca-certificates-mozilla" : {},
-        "ca-certificates-utils" : {},
         "eclipse-ecj" : {},
         "fontconfig" : {},
         "freetype2" : {},
