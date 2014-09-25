@@ -69,7 +69,7 @@ sub run {
             info( "dir not updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
 
             if( -e "$dir/$failedstamp" ) {
-				info( "build failed last time: makepkg in", $dir );
+				info( "build failed last time, trying again: makepkg in", $dir );
 
 				if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
 					return -1;

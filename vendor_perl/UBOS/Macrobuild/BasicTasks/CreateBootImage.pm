@@ -374,6 +374,11 @@ END
 #
 [options]
 Architecture = $arch
+
+SigLevel           = Required TrustedOnly
+LocalFileSigLevel  = Required TrustedOnly
+RemoteFileSigLevel = Required TrustedOnly
+
 END
         foreach my $repo ( @{$dataByType->{$self->{type}}->{repos}} ) {
             print $productionPacmanConfig <<END; # Note what is and isn't escaped here
