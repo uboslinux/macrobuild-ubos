@@ -195,6 +195,12 @@ END
 #
 # Pacman config file for creating images
 #
+
+[options]
+SigLevel           = Required TrustedOnly
+LocalFileSigLevel  = Required TrustedOnly
+RemoteFileSigLevel = Required TrustedOnly
+
 END
         foreach my $repo ( @{$dataByType->{$self->{type}}->{repos}} ) {
             print $pacstrapPacmanConfig <<END; # Note what is and isn't escaped here
