@@ -39,15 +39,17 @@ sub new {
 
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
-    
-    map { $repoUpConfigs->{$_} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $_ . '/up' ) } @repos;
-    map { $repoUsConfigs->{$_} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $_ . '/us' ) } @repos;
-
     my $promoteTasks = {};
-    map { $promoteTasks->{"promote-$_"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
-            'upconfigs'      => $repoUpConfigs->{$_},
-            'usconfigs'      => $repoUsConfigs->{$_},
-            'repository'     => $_ ) } @repos;
+
+    foreach my $repo ( @repos ) {
+        $repoUpConfigs->{$repo} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $repo . '/up' );
+        $repoUsConfigs->{$repo} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $repo . '/us' );
+
+        $promoteTasks->{"promote-$repo"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
+            'upconfigs'  => $repoUpConfigs->{$repo},
+            'usconfigs'  => $repoUsConfigs->{$repo},
+            'repository' => $repo );
+    }
     my @promoteTaskNames = keys %$promoteTasks;
     
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(

@@ -20,7 +20,6 @@ use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
 
-
 ##
 # Constructor
 sub new {
@@ -41,22 +40,24 @@ sub new {
 
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
-    
-    map { $repoUpConfigs->{$_} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $_ . '/up' ) } @repos;
-    map { $repoUsConfigs->{$_} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $_ . '/us' ) } @repos;
-
     my $promoteTasks = {};
-    map { $promoteTasks->{"promote-$_"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
-            'upconfigs'      => $repoUpConfigs->{$_},
-            'usconfigs'      => $repoUsConfigs->{$_},
-            'repository'     => $_ ) } @repos;
-    my @promoteTaskNames = keys %$promoteTasks;
-    
     my $uploadTasks = {};
-    map { $uploadTasks->{"upload-$_"} = new UBOS::Macrobuild::BasicTasks::Upload(
-        'from'        => '${repodir}/${toChannel}/${arch}/' . $_,
-        'to'          => '${uploadDest}//${arch}/'          . $_ ) } @repos;
-    my @uploadTaskNames = keys %$uploadTasks;
+    
+    foreach my $repo ( @repos ) {
+        $repoUpConfigs->{$repo} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $repo . '/up' );
+        $repoUsConfigs->{$repo} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $repo . '/us' );
+
+        $promoteTasks->{"promote-$repo"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
+            'upconfigs'  => $repoUpConfigs->{$repo},
+            'usconfigs'  => $repoUsConfigs->{$repo},
+            'repository' => $repo );
+
+        $uploadTasks->{"upload-$repo"} = new UBOS::Macrobuild::BasicTasks::Upload(
+            'from' => '${repodir}/${toChannel}/${arch}/' . $repo,
+            'to'   => '${uploadDest}/${arch}/'           . $repo );
+    }
+    my @promoteTaskNames = keys %$promoteTasks;
+    my @uploadTaskNames  = keys %$uploadTasks;
             
     my @mergeKeys = ( '', @promoteTaskNames, @uploadTaskNames );
 
