@@ -1,9 +1,0 @@
-{
-    "directory" : "${archUpstreamSite}/core/os/${arch}",
-
-    "packages" : {
-        "expat" : {},
-        "libgcrypt" : {},
-        "libgpg-error" : {}
-    }
-}

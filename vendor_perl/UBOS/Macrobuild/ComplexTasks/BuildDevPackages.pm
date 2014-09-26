@@ -37,9 +37,11 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin( 
+    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
+            'name' => 'Fetch upstream packages, build UBOS packages, then merge and update package database',
             'parallelTasks' => {
                 'fetch-upstream-packages' => new Macrobuild::CompositeTasks::Sequential(
+                    'name' => 'Fetch upstream packages for ' . $self->{repository},
                     'tasks' => [
                         new UBOS::Macrobuild::BasicTasks::DownloadPackageDbs(
                                 'name'        => 'Download package database files from Arch',
@@ -50,7 +52,7 @@ sub new {
                                 'upconfigs'   => $self->{upconfigs},
                                 'dir'         => '${builddir}/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::FetchPackages(
-                                'name'        => 'Fetching packages downloaded from Arch for repository',
+                                'name'        => 'Fetching packages downloaded from Arch',
                                 'downloaddir' => '${builddir}/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
@@ -58,6 +60,7 @@ sub new {
                     ]
                 ),
                 'build-ubos-packages' => new Macrobuild::CompositeTasks::Sequential(
+                    'name'  => 'Build UBOS packages',
                     'tasks' => [
                         new UBOS::Macrobuild::BasicTasks::PullSources(
                                 'name'        => 'Pull the sources that need to be built',

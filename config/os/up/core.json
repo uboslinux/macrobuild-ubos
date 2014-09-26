@@ -70,6 +70,7 @@
         "libssh2" : {},
         "libsystemd" : {},
         "libtirpc" : {},
+        "libunistring" : {},
         "libusb" : {},
         "libutil-linux" : {},
         "licenses" : {},

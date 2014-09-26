@@ -113,7 +113,8 @@ sub _buildPackage {
 		$cmd .= ' --sign --key ' . $packageSignKey;
 	}
 
-	if( UBOS::Utils::myexec( $cmd, undef, undef, \$err )) { # writes to stderr, don't complain about dependencies
+    my $out;
+	if( UBOS::Utils::myexec( $cmd, undef, \$out, \$err )) { # writes to stderr, don't complain about dependencies
 		error( "makepkg in $dir failed", $err );
 
 		if( $self->{stopOnError} ) {

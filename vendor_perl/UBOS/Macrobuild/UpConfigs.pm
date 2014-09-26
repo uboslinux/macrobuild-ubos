@@ -77,4 +77,47 @@ sub configs {
     return $ret;
 }
 
+##
+# Check that there is no overlap in the the ups
+# $ups: hash of name to UpConfig
+# $settings: settings object
+# will exit with fatal if there is overlap
+sub checkNoOverlap {
+    my $ups      = shift;
+    my $settings = shift;
+
+    my $all = {};
+    while( my( $name, $upConfigs ) = each %$ups ) {
+        my $configs = $upConfigs->configs( $settings );
+        while( my( $configName, $upConfig ) = each %$configs ) {
+            $all->{"$name/$configName"} = $upConfig;
+        }
+    }
+    my @names = sort keys %$all;
+    for( my $i=0 ; $i<@names-1 ; ++$i ) {
+        my $iUp  = $all->{$names[$i]};
+        my $iDir = $iUp->directory();
+        
+        my @iPackages = keys %{$iUp->packages()};
+
+        for( my $j= $i+1 ; $j<@names ; ++$j ) {
+            my $jUp  = $all->{$names[$j]};
+            my $jDir = $jUp->directory();
+
+            if( $iDir ne $jDir ) {
+                next;
+            }
+            my @jPackages = keys %{$jUp->packages()};
+
+            foreach my $iPackage ( @iPackages ) {
+                foreach my $jPackage ( @jPackages ) {
+                    if( $iPackage eq $jPackage ) {
+                        fatal( 'Package overlap:', $iPackage, 'is listed in UpConfigs', $names[$i], 'and', $names[$j] );
+                    }
+                }
+            }
+        }
+    }
+}
+
 1;

@@ -53,7 +53,7 @@ sub run {
                 my $packageInfo = $upConfig->packages->{$packageName};
 
                 my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
-                debug( 'Considering package', $packageName, ' in updated package database version', $packageFileInPackageDatabase );
+                debug( 'Considering package', $packageName, 'in updated package database version', $packageFileInPackageDatabase );
                 
                 if( $packageFileInPackageDatabase ) {
                     my @packageFileLocalCandidates = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $dir, $arch );

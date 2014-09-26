@@ -47,15 +47,20 @@ sub run {
 
                     unless( UBOS::Utils::myexec( "curl -s -L -o '$fullLocalName' '$packageUrl'" )) {
                         $downloaded->{$repoName}->{$packageName} = $fullLocalName;
-                        
-                        if( UBOS::Utils::myexec( "curl -s -L -o '$fullLocalName.sig' '$packageUrl.sig'" )) {
-                            warning( "Failed to download signature for $packageUrl" );
-						}
-
                     } else {
                         error( "Failed to download $packageUrl" );
                         return -1;
-                    } 
+                    }
+                }
+                if( -e "$fullLocalName.sig" ) {
+                    info( "Skipping download, exists already:", "$fullLocalName.sig" );
+
+                } else {
+                    info( "Downloading:", "$fullLocalName.sig", "from", $packageUrl );
+
+                    if( UBOS::Utils::myexec( "curl -s -L -o '$fullLocalName.sig' '$packageUrl.sig'" )) {
+                        warning( "Failed to download signature for $packageUrl" );
+                    }
                 }
             }
         }

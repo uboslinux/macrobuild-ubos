@@ -13,6 +13,7 @@ use fields;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
+use UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps;
 use UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
 
 ##
@@ -34,18 +35,25 @@ sub new {
         'virt' );
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
-    
-    map { $repoUpConfigs->{$_} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $_ . '/up' ) } @repos;
-    map { $repoUsConfigs->{$_} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $_ . '/us' ) } @repos;
-
     my $buildTasks = {};
-    map { $buildTasks->{"build-$_"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
-                'upconfigs'   => $repoUpConfigs->{$_},
-                'usconfigs'   => $repoUsConfigs->{$_},
-                'repository'  => $_ ) } @repos;
+
+    foreach my $repo ( @repos ) {
+        $repoUpConfigs->{$repo} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $repo . '/up' );
+        $repoUsConfigs->{$repo} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $repo . '/us' );
+
+        $buildTasks->{"build-$repo"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
+                'name'       => 'Build dev packages in ' . $repo,
+                'upconfigs'  => $repoUpConfigs->{$repo},
+                'usconfigs'  => $repoUsConfigs->{$repo},
+                'repository' => $repo );
+    }
     my @buildTaskNames = keys %$buildTasks;
     
-    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin( 
+    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
+        'name'          => 'Build dev repos ' . join( ', ', @repos ) . ', then merge update lists and report',
+        'splitTask'     => new UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps(
+            'repoUpConfigs' => $repoUpConfigs,
+            'repoUsConfigs' => $repoUsConfigs ),
         'parallelTasks' => $buildTasks,
         'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [

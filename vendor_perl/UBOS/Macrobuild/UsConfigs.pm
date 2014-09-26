@@ -83,4 +83,52 @@ sub configs {
     return $ret;
 }
 
+##
+# Check that there is no overlap in the the uSs
+# $uss: hash of name to UsConfig
+# $settings: settings object
+# will exit with fatal if there is overlap
+sub checkNoOverlap {
+    my $uss      = shift;
+    my $settings = shift;
+
+    my $all = {};
+    while( my( $name, $usConfigs ) = each %$uss ) {
+        my $configs = $usConfigs->configs( $settings );
+        while( my( $configName, $usConfig ) = each %$configs ) {
+            $all->{"$name/$configName"} = $usConfig;
+        }
+    }
+
+    my @names = sort keys %$all;
+    for( my $i=0 ; $i<@names-1 ; ++$i ) {
+        my $iUs = $all->{$names[$i]};
+        
+        my @iPackages = keys %{$iUs->packages()};
+
+        for( my $j= $i+1 ; $j<@names ; ++$j ) {
+            my $jUs = $all->{$names[$j]};
+
+            if( ref( $iUs ) ne ref( $jUs )) {
+                # e.g. Github vs Download
+                next;
+            }
+            if( $iUs->url() ne $jUs->url() ) {
+                next;
+            }
+            
+            my @jPackages = keys %{$jUs->packages()};
+
+            foreach my $iPackage ( @iPackages ) {
+                foreach my $jPackage ( @jPackages ) {
+                    if( $iPackage eq $jPackage ) {
+                        fatal( 'Package overlap:', $iPackage, 'is listed in UsConfigs', $names[$i], 'and', $names[$j] );
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 1;
