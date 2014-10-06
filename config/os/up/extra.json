@@ -43,6 +43,7 @@
         "nss" : {},
         "ntp" : {},
         "perl-archive-zip" : {},
+        "perl-config-simple" : {},
         "perl-dbi" : {},
         "perl-dbd-mysql" : {},
         "perl-digest-sha1" : {},
