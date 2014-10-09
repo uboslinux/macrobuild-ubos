@@ -38,7 +38,9 @@ sub run {
     
     my $built      = {};
     my $notRebuilt = {};
-    while( my( $repoName, $repoInfo ) = each %$dirsUpdated ) {
+    foreach my $repoName ( sort keys  %$dirsUpdated ) {
+        my $repoInfo = $dirsUpdated->{$repoName};
+
         my $inThisRepo = {};
         foreach my $subdir ( @$repoInfo ) {
             my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
@@ -57,7 +59,9 @@ sub run {
             $built->{$repoName} = $inThisRepo;
         }
     }
-    while( my( $repoName, $repoInfo ) = each %$dirsNotUpdated ) {
+    foreach my $repoName ( sort keys %$dirsNotUpdated ) {
+        my $repoInfo = $dirsNotUpdated->{$repoName};
+
         my $inThisRepo = {};
         foreach my $subdir ( @$repoInfo ) {
             my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";

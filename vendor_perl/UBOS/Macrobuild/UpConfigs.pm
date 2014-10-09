@@ -87,9 +87,13 @@ sub checkNoOverlap {
     my $settings = shift;
 
     my $all = {};
-    while( my( $name, $upConfigs ) = each %$ups ) {
+    foreach my $name ( keys %$ups ) {
+        my $upConfigs = $ups->{$name};
+
         my $configs = $upConfigs->configs( $settings );
-        while( my( $configName, $upConfig ) = each %$configs ) {
+        foreach my $configName ( keys %$configs ) {
+            my $upConfig = $configs->{$configName};
+
             $all->{"$name/$configName"} = $upConfig;
         }
     }

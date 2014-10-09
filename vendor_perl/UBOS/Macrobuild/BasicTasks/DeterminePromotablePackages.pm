@@ -67,7 +67,9 @@ sub run {
     # usconfig uses very similar code to upconfig
     foreach my $usConfig ( values %$usConfigs ) {
         my $repoName = $usConfig->name;
-        while( my( $packageName, $packageInfo ) = each %{$usConfig->packages} ) {
+
+        foreach my $packageName ( sort keys %{$usConfig->packages} ) {
+            my $packageInfo = $usConfig->packages->{$packageName};
 
             my @candidatePackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromRepository, $arch );
             my $toPromote;

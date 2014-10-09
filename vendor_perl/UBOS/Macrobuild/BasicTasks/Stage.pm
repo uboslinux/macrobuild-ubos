@@ -35,8 +35,12 @@ sub run {
     Macrobuild::Utils::ensureDirectories( $destDir );
 
     if( %$newPackages ) {
-        while( my( $repoName, $repoData ) = each %$newPackages ) {
-            while( my( $packageName, $fileName ) = each %$repoData ) {
+        foreach my $repoName ( sort keys %$newPackages ) {
+            my $repoData = $newPackages->{$repoName};
+
+            foreach my $packageName ( sort keys %$repoData ) {
+                my $fileName = $repoData->{$packageName};
+
                 my $localFileName = $fileName;
                 $localFileName =~ s!.*/!!;
 
@@ -51,8 +55,12 @@ sub run {
         }
     }
     if( defined( $oldPackages ) && %$oldPackages ) {
-        while( my( $repoName, $repoData ) = each %$oldPackages ) {
-            while( my( $packageName, $fileName ) = each %$repoData ) {
+        foreach my $repoName ( sort keys %$oldPackages ) {
+            my $repoData = $oldPackages->{$repoName};
+
+            foreach my $packageName ( sort keys %$repoData ) {
+                my $fileName = $repoData->{$packageName};
+
                 my $localFileName = $fileName;
                 $localFileName =~ s!.*/!!;
 

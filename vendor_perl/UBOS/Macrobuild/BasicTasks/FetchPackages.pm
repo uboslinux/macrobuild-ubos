@@ -30,10 +30,14 @@ sub run {
     my $downloaded  = {};
     my $haveAlready = {};
     if( %$toDownload ) {
-        while( my( $repoName, $repoDownloadData ) = each %$toDownload ) {
+        foreach my $repoName ( sort keys %$toDownload ) {
+            my $repoDownloadData = $toDownload->{$repoName};
+
             my $repoDownloadDir = $run->{settings}->replaceVariables( $self->{downloaddir} ) . "/$repoName";
             
-            while( my( $packageName, $packageUrl ) = each %$repoDownloadData ) {
+            foreach my $packageName ( sort keys %$repoDownloadData ) {
+                my $packageUrl = $repoDownloadData->{$packageName};
+
                 my $localName = $packageUrl;
                 $localName =~ s!(.*/)!!;
                 
