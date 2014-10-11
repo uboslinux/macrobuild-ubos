@@ -16,6 +16,7 @@
         "icu" : {},
         "java-commons-daemon" : {},
         "java-jsvc" : {},
+        "jemalloc" : {},
         "jre7-openjdk" : {},
         "jre7-openjdk-headless" : {},
         "kbproto" : {},
