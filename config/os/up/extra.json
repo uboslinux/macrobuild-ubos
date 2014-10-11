@@ -25,6 +25,7 @@
         "libice" : {},
         "libjpeg-turbo" : {},
         "libmariadbclient" : {},
+        "libomxil-bellagio" : {},
         "libpng" : {},
         "libsm" : {},
         "libtiff" : {},
