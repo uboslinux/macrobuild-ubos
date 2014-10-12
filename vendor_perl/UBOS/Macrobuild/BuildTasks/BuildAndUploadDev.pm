@@ -50,7 +50,7 @@ sub new {
                 'upconfigs'  => $repoUpConfigs->{$repo},
                 'usconfigs'  => $repoUsConfigs->{$repo},
                 'repository' => $repo );
-        $uploadTasks->{"upload-$_"} = new UBOS::Macrobuild::BasicTasks::Upload(
+        $uploadTasks->{"upload-$repo"} = new UBOS::Macrobuild::BasicTasks::Upload(
                 'from'        => '${repodir}/${arch}/'    . $repo,
                 'to'          => '${uploadDest}/${arch}/' . $repo );
     }
