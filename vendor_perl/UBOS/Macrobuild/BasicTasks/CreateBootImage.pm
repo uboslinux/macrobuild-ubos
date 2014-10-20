@@ -4,7 +4,7 @@
 #   ($self->{imagesize} and $self->{rootpartsize})
 # * use ext4 or btrfs filesystems ($self->{fs})
 # * produce an image file, or a VirtualBox-VMDK file with virtualbox-guest
-#   modules installed ($self->{type})
+#   and cloud-init modules installed ($self->{type})
 # Also:
 # * If there is a variable called adminSshKeyFile, this will create an
 #   ubos-admin user with the ssh public key from that file.
@@ -37,9 +37,9 @@ my $dataByType = {
         'services' => [ 'ubos-admin', 'ubos-networking', 'sshd' ]
     },
     'vbox.img' => {
-        'packages' => [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'virtualbox-guest', 'rng-tools' ],
-        'repos' => [ 'os', 'hl', 'virt' ],
-        'services' => [ 'vboxservice', 'ubos-admin', 'ubos-networking', 'sshd', 'rngd' ]
+        'packages' => [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'virtualbox-guest', 'cloud-init', 'rng-tools' ],
+        'repos'    => [ 'os', 'hl', 'virt' ],
+        'services' => [ 'vboxservice', 'ubos-admin', 'ubos-networking', 'sshd', 'rngd', 'cloud-final' ]
     }
 };
 
