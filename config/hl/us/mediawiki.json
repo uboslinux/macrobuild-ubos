@@ -6,5 +6,9 @@
     "packages" : {
         "mediawiki" : {},
         "mediawiki-ext-confirmaccount" : {}
-    }
+    },
+
+    "webapptests" : [
+        "mediawiki/tests/MediawikiTest1.pm"
+    ]
 }

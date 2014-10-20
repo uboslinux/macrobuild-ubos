@@ -38,6 +38,7 @@
         "libxml2" : {},
         "libxpm" : {},
         "libxt" : {},
+        "libyaml" : {},
         "libzip" : {},
         "mariadb" : {},
         "mariadb-clients" : {},
