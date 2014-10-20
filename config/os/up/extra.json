@@ -57,6 +57,7 @@
         "php-intl" : {},
         "php-xcache" : {},
         "python2" : {},
+        "python2-setuptools" : {},
         "sqlite" : {},
         "tomcat7" : {},
         "xcb-proto" : {},
