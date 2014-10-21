@@ -53,7 +53,7 @@ sub configs {
 
         CONFIGFILES:
         foreach my $file ( @files ) {
-            info( "Now reading upstream sources config file", $file );
+            debug( "Now reading upstream sources config file", $file );
             my $shortSourceName = $file;
             $shortSourceName =~ s!.*/!!;
             $shortSourceName =~ s!\.json$!!;

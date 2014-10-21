@@ -45,7 +45,7 @@ sub run {
         my $usConfig = $usConfigs->{$repoName}; 
 
         my $name = $usConfig->name;
-        info( "Now processing upstream source config file", $name );
+        debug( "Now processing upstream source config file", $name );
 
         my $webapptests = $usConfig->webapptests;
         if( defined( $webapptests ) && @$webapptests ) {
@@ -62,17 +62,31 @@ sub run {
                         $file    = $test;
                     }
 
+                    info( "Running test $testDir/$file" );
+
                     my $out;
                     my $err;
-                    if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file, undef, \$out, \$err )) {
-                        $err =~ s!\s+$!!;
-                        # error( 'Test', $test, 'failed:', $err );
-                        # We are not reporting this here, only in the output hash
-                        $testsFailed->{"$name :: $test"} = $err;
+
+                    if( UBOS::Logging::isDebugActive() ) {
+                        if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file, undef, undef, \$err )) {
+                            $err =~ s!\s+$!!;
+                            error( 'Test', $test, 'failed:', $err );
+                            $testsFailed->{"$name :: $test"} = $err;
+                        } else {
+                            $err =~ s!\s+$!!;
+                            $testsPassed->{"$name :: $test"} = $err;
+                        }
+                        
                     } else {
-                        $err =~ s!\s+$!!;
-                        $testsPassed->{"$name :: $test"} = $err;
-                    }
+                        if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file, undef, \$out, \$err )) {
+                            $err =~ s!\s+$!!;
+                            # error( 'Test', $test, 'failed:', $err );
+                            # We are not reporting this here, only in the output hash
+                            $testsFailed->{"$name :: $test"} = $err;
+                        } else {
+                            $err =~ s!\s+$!!;
+                            $testsPassed->{"$name :: $test"} = $err;
+                        }
                 }
             } else {
                 my $msg = "Cannot run webapptests defined in $name. Directory $sourceSourceDir not found.";

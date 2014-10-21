@@ -215,10 +215,7 @@ END
         $error += $self->ubosPacstrap( $mountedRootPart, $repodir, $pacstrapPacmanConfig->filename );
 
         # hostname
-        my $hostname = File::Temp->new( UNLINK => 1 );
-        print $hostname "indiebox\n";
-        close $hostname;
-        UBOS::Utils::myexec( "sudo install -m644 " . $hostname->filename . " $mountedRootPart/etc/hostname" );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/hostname', "indiebox\n", '0644', 'root', 'root' );
         
         # fstab
         info( "Generating fstab" );
@@ -235,9 +232,8 @@ END
             $varUuid  =~ s!\s+$!!g;
         }
 
-        my $fstab = File::Temp->new( UNLINK => 1 );
         if( $separateVar ) {
-            print $fstab <<FSTAB;
+            UBOS::Utils::saveFile( $mountedRootPart . '/etc/fstab', <<FSTAB, '0644', 'root', 'root' );
 #
 # /etc/fstab: static file system information
 #
@@ -247,7 +243,7 @@ UUID=$rootUuid     /        $fs     rw,relatime 0 1
 UUID=$varUuid      /var     $fs     rw,relatime 1 1
 FSTAB
         } else {
-            print $fstab <<FSTAB;
+            UBOS::Utils::saveFile( $mountedRootPart . '/etc/fstab', <<FSTAB, '0644', 'root', 'root' );
 #
 # /etc/fstab: static file system information
 #
@@ -256,15 +252,11 @@ FSTAB
 UUID=$rootUuid     /        $fs     rw,relatime 0 1
 FSTAB
         }
-        close $fstab;
-
-        UBOS::Utils::myexec( "sudo install -m644 -oroot -groot " . $fstab->filename . " '$mountedRootPart/etc/fstab'" );
 
         # Ramdisk
         info( "Generating ramdisk" );
         # The optimized ramdisk doesn't always boot, so we always skip the optimization step
-        my $mkinitcpioConf = File::Temp->new( UNLINK => 1 );
-        print $mkinitcpioConf <<'END';
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/mkinitcpio.d/linux.preset', <<'END', '0644', 'root', 'root' );
 # mkinitcpio preset file for the 'linux' package, modified for UBOS
 #
 # Do not autodetect, as the device booting the image is most likely different
@@ -279,8 +271,6 @@ PRESETS=('default')
 default_image="/boot/initramfs-linux.img"
 default_options="-S autodetect"
 END
-        close $mkinitcpioConf;
-        UBOS::Utils::myexec( "sudo install -m644 " . $mkinitcpioConf->filename . " $mountedRootPart/etc/mkinitcpio.d/linux.preset" );
 
         if( UBOS::Utils::myexec( "sudo arch-chroot '$mountedRootPart' mkinitcpio -p linux", undef, \$out, \$err ) ) {
             error( "Generating ramdisk failed:", $err );
@@ -372,12 +362,12 @@ END
         }
 
         # Production pacman file
-        my $productionPacmanConfig = File::Temp->new( UNLINK => 1 );
-        print $productionPacmanConfig <<END;
+        
+        my $productionPacmanConfig = <<END;
 #
 # Pacman config file for UBOS
 #
-#
+
 [options]
 Architecture = $arch
 
@@ -387,14 +377,13 @@ RemoteFileSigLevel = Required TrustedOnly
 
 END
         foreach my $repo ( @{$dataByType->{$self->{type}}->{repos}} ) {
-            print $productionPacmanConfig <<END; # Note what is and isn't escaped here
+            $productionPacmanConfig .= <<END; # Note what is and isn't escaped here
 
 [$repo]
 Server = http://depot.ubos.net/$channel/\$arch/$repo
 END
         }
-        close $productionPacmanConfig;
-        UBOS::Utils::myexec( "sudo install -m644 " . $productionPacmanConfig->filename . " $mountedRootPart/etc/pacman.conf" );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/pacman.conf', $productionPacmanConfig, '0644', 'root', 'root' );
         
         # Locale
         info( "Locale" );
@@ -403,17 +392,12 @@ END
             error( "locale-gen failed", $err );
             ++$error;
         }
-        my $locale = File::Temp->new( UNLINK => 1 );
-        print $locale <<LOCALE;
-LANG=en_US.utf8
-LOCALE
-        close $locale;
-        UBOS::Utils::myexec( "sudo install -m644 " . $locale->filename . " $mountedRootPart/etc/locale.conf" );
+
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/locale.conf', "LANG=en_US.utf8\n", '0644', 'root', 'root' );
 
         # version
         info( "OS version info" );
-        my $issue = File::Temp->new( UNLINK => 1 );
-        print $issue <<ISSUE;
+        my $issue = <<ISSUE;
 
 +------------------------------------------+
 |                                          |
@@ -422,24 +406,20 @@ LOCALE
 |                 ubos.net                 |
 |                                          |
 ISSUE
-        printf $issue "|%42s|\n", "channel: $channel ";
-        print $issue <<ISSUE;
+        $issue .= sprintf( "|%42s|\n", "channel: $channel " );
+        $issue .= <<ISSUE;
 +------------------------------------------+
 
 ISSUE
-        close $issue;
-        UBOS::Utils::myexec( "sudo install -m644 " . $issue->filename . " $mountedRootPart/etc/issue" );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/issue', $issue, '0644', 'root', 'root' );
 
-        my $osRelease = File::Temp->new( UNLINK => 1 );
-        print $osRelease <<OSRELEASE;
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/os-release', <<OSRELEASE, '0644', 'root', 'root' );
 NAME="UBOS"
 ID=ubos
 ID_LIKE=arch
 PRETTY_NAME="UBOS"
 HOME_URL="http://ubos.net/"
 OSRELEASE
-        close $osRelease;
-        UBOS::Utils::myexec( "sudo install -m644 " . $osRelease->filename . " $mountedRootPart/etc/os-release" );
 
         # Clean up
         if( -e "$mountedRootPart/root/.bash_history" ) {
