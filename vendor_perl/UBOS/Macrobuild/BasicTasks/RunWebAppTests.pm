@@ -87,6 +87,7 @@ sub run {
                             $err =~ s!\s+$!!;
                             $testsPassed->{"$name :: $test"} = $err;
                         }
+                    }
                 }
             } else {
                 my $msg = "Cannot run webapptests defined in $name. Directory $sourceSourceDir not found.";
