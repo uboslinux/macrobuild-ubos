@@ -2,7 +2,7 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
-pkgver=0.67
+pkgver=0.68
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
@@ -29,7 +29,4 @@ package() {
         mkdir -p $pkgdir/usr/lib/perl5/vendor_perl/UBOS/$d
         install -m644 $startdir/vendor_perl/UBOS/$d/*.pm $pkgdir/usr/lib/perl5/vendor_perl/UBOS/$d
     done
-
-    mkdir -p -m755 $pkgdir/etc/$pkgname/keys
-    install -m644 $startdir/keys/ubos-admin.pub $pkgdir/etc/$pkgname/keys
 }
