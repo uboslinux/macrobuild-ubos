@@ -215,7 +215,7 @@ END
         $error += $self->ubosPacstrap( $mountedRootPart, $repodir, $pacstrapPacmanConfig->filename );
 
         # hostname
-        UBOS::Utils::saveFile( $mountedRootPart . '/etc/hostname', "indiebox\n", '0644', 'root', 'root' );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/hostname', "indiebox\n", 0644, 'root', 'root' );
         
         # fstab
         info( "Generating fstab" );
@@ -233,7 +233,7 @@ END
         }
 
         if( $separateVar ) {
-            UBOS::Utils::saveFile( $mountedRootPart . '/etc/fstab', <<FSTAB, '0644', 'root', 'root' );
+            UBOS::Utils::saveFile( $mountedRootPart . '/etc/fstab', <<FSTAB, 0644, 'root', 'root' );
 #
 # /etc/fstab: static file system information
 #
@@ -243,7 +243,7 @@ UUID=$rootUuid     /        $fs     rw,relatime 0 1
 UUID=$varUuid      /var     $fs     rw,relatime 1 1
 FSTAB
         } else {
-            UBOS::Utils::saveFile( $mountedRootPart . '/etc/fstab', <<FSTAB, '0644', 'root', 'root' );
+            UBOS::Utils::saveFile( $mountedRootPart . '/etc/fstab', <<FSTAB, 0644, 'root', 'root' );
 #
 # /etc/fstab: static file system information
 #
@@ -256,7 +256,7 @@ FSTAB
         # Ramdisk
         info( "Generating ramdisk" );
         # The optimized ramdisk doesn't always boot, so we always skip the optimization step
-        UBOS::Utils::saveFile( $mountedRootPart . '/etc/mkinitcpio.d/linux.preset', <<'END', '0644', 'root', 'root' );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/mkinitcpio.d/linux.preset', <<'END', 0644, 'root', 'root' );
 # mkinitcpio preset file for the 'linux' package, modified for UBOS
 #
 # Do not autodetect, as the device booting the image is most likely different
@@ -383,7 +383,7 @@ END
 Server = http://depot.ubos.net/$channel/\$arch/$repo
 END
         }
-        UBOS::Utils::saveFile( $mountedRootPart . '/etc/pacman.conf', $productionPacmanConfig, '0644', 'root', 'root' );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/pacman.conf', $productionPacmanConfig, 0644, 'root', 'root' );
         
         # Locale
         info( "Locale" );
@@ -393,7 +393,7 @@ END
             ++$error;
         }
 
-        UBOS::Utils::saveFile( $mountedRootPart . '/etc/locale.conf', "LANG=en_US.utf8\n", '0644', 'root', 'root' );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/locale.conf', "LANG=en_US.utf8\n", 0644, 'root', 'root' );
 
         # version
         info( "OS version info" );
@@ -411,9 +411,9 @@ ISSUE
 +------------------------------------------+
 
 ISSUE
-        UBOS::Utils::saveFile( $mountedRootPart . '/etc/issue', $issue, '0644', 'root', 'root' );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/issue', $issue, 0644, 'root', 'root' );
 
-        UBOS::Utils::saveFile( $mountedRootPart . '/etc/os-release', <<OSRELEASE, '0644', 'root', 'root' );
+        UBOS::Utils::saveFile( $mountedRootPart . '/etc/os-release', <<OSRELEASE, 0644, 'root', 'root' );
 NAME="UBOS"
 ID=ubos
 ID_LIKE=arch
