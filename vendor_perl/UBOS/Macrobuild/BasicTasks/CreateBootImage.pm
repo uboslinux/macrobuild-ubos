@@ -33,12 +33,12 @@ use Macrobuild::Utils;
 my $dataByType = {
     'img'      => {
         'packages' => [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking' ],
-        'repos'    => [ 'os', 'hl' ],
+        'repos'    => [ 'os', 'hl', 'tools' ],
         'services' => [ 'ubos-admin', 'ubos-networking', 'sshd' ]
     },
     'vbox.img' => {
         'packages' => [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'virtualbox-guest', 'cloud-init', 'rng-tools' ],
-        'repos'    => [ 'os', 'hl', 'virt' ],
+        'repos'    => [ 'os', 'hl', 'tools', 'virt' ],
         'services' => [ 'vboxservice', 'ubos-admin', 'ubos-networking', 'sshd', 'rngd', 'cloud-final' ]
     }
 };
