@@ -38,7 +38,7 @@ sub new {
                     'sourcedir'   => '${builddir}/ups' ),
             new Macrobuild::BasicTasks::Report(
                     'name'        => 'Report webapptest results',
-                    'fields'      => [ 'tests-passed', 'tests-failed' ] )
+                    'fields'      => [ 'tests-sequence', 'tests-passed', 'tests-failed' ] )
         ]
     );
 

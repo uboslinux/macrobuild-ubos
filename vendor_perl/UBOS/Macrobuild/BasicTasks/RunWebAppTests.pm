@@ -35,9 +35,10 @@ sub run {
     if( defined( $testplan )) {
         $testCmd .= ' --testplan ' . $testplan;
     }
-    
-    my $testsPassed = {};
-    my $testsFailed = {};
+
+    my $testsSequence = [];
+    my $testsPassed   = {};
+    my $testsFailed   = {};
 
     my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
     foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
@@ -62,6 +63,8 @@ sub run {
                     }
 
                     info( "Running test $testDir/$file" );
+
+                    push @$testsSequence, "$name :: $test";
 
                     my $out;
                     my $err;
@@ -98,8 +101,9 @@ sub run {
     }
 
     $run->taskEnded( $self, {
-            'tests-passed' => $testsPassed,
-            'tests-failed' => $testsFailed
+            'tests-sequence' => $testsSequence,
+            'tests-passed'   => $testsPassed,
+            'tests-failed'   => $testsFailed
     } );
     
     if( %$testsFailed ) {
