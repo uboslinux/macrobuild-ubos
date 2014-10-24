@@ -102,7 +102,7 @@ sub run {
              ++$error;
         }
 
-        info( "Formatting image:", $image );
+        debug( "Formatting image:", $image );
 
         # Create partition table
         my $fdiskScript;
@@ -138,7 +138,7 @@ END
         UBOS::Utils::myexec( "partprobe '$image'" ); 
         
         # Create loopback devices and figure out what they are
-        info( "Creating loop devices" );
+        debug( "Creating loop devices" );
 
         if( UBOS::Utils::myexec( "sudo losetup --show -f '$image'", undef, \$imageLoopDevice, \$err )) {
             error( "losetup error:", $err );
@@ -166,7 +166,7 @@ END
         sleep( 3 );
 
         # Add file systems
-        info( "Formatting file systems in", $fs );
+        debug( "Formatting file systems in", $fs );
 
         if( UBOS::Utils::myexec( "sudo mkfs.$fs '$rootLoopDevice'", undef, \$out, \$err )) {
             error( "mkfs.$fs error on /:", $err );
@@ -180,7 +180,7 @@ END
         }
 
         # Mount it
-        info( "Mounting file systems" );
+        debug( "Mounting file systems" );
 
         UBOS::Utils::mkdir( $mountedRootPart );
         UBOS::Utils::myexec( "sudo mount '$rootLoopDevice' '$mountedRootPart'" );
@@ -197,11 +197,23 @@ END
 #
 
 [options]
+END
+
+        if( $run->getSettings->getVariable( 'sigRequiredInstall' )) {
+            print $pacstrapPacmanConfig <<END;
 SigLevel           = Required TrustedOnly
 LocalFileSigLevel  = Required TrustedOnly
 RemoteFileSigLevel = Required TrustedOnly
 
 END
+        } else {
+            print $pacstrapPacmanConfig <<END;
+SigLevel           = Optional
+LocalFileSigLevel  = Optional
+RemoteFileSigLevel = Optional
+
+END
+        }
         foreach my $repo ( @{$dataByType->{$self->{type}}->{repos}} ) {
             print $pacstrapPacmanConfig <<END; # Note what is and isn't escaped here
 
@@ -218,7 +230,7 @@ END
         UBOS::Utils::saveFile( $mountedRootPart . '/etc/hostname', "indiebox\n", 0644, 'root', 'root' );
         
         # fstab
-        info( "Generating fstab" );
+        debug( "Generating fstab" );
 
         my $rootUuid;
         my $varUuid;
@@ -254,7 +266,7 @@ FSTAB
         }
 
         # Ramdisk
-        info( "Generating ramdisk" );
+        debug( "Generating ramdisk" );
         # The optimized ramdisk doesn't always boot, so we always skip the optimization step
         UBOS::Utils::saveFile( $mountedRootPart . '/etc/mkinitcpio.d/linux.preset', <<'END', 0644, 'root', 'root' );
 # mkinitcpio preset file for the 'linux' package, modified for UBOS
@@ -278,7 +290,7 @@ END
         }
 
         # Boot loader
-        info( "Installing grub" );
+        debug( "Installing grub" );
         my $pacmanCmd = "sudo pacman"
                 . " -r '$mountedRootPart'"
                 . " -S"
@@ -386,7 +398,7 @@ END
         UBOS::Utils::saveFile( $mountedRootPart . '/etc/pacman.conf', $productionPacmanConfig, 0644, 'root', 'root' );
         
         # Locale
-        info( "Locale" );
+        debug( "Locale" );
         UBOS::Utils::myexec( "sudo perl -pi -e 's/^#.*en_US\.UTF-8.*\$/en_US.UTF-8 UTF-8/g' '$mountedRootPart/etc/locale.gen'" );
         if( UBOS::Utils::myexec( "sudo arch-chroot '$mountedRootPart' locale-gen", undef, \$out, \$err )) {
             error( "locale-gen failed", $err );
@@ -396,7 +408,7 @@ END
         UBOS::Utils::saveFile( $mountedRootPart . '/etc/locale.conf', "LANG=en_US.utf8\n", 0644, 'root', 'root' );
 
         # version
-        info( "OS version info" );
+        debug( "OS version info" );
         my $issue = <<ISSUE;
 
 +------------------------------------------+
@@ -493,7 +505,7 @@ sub ubosPacstrap {
         fatal( 'targetDir does not exist', $targetDir );
     }
 
-    info( "Now pacstrap, mounting special devices" );
+    debug( "Now pacstrap, mounting special devices" );
     my $s1 = <<END;
 sudo mkdir -m 0755 -p $targetDir/var/{cache/pacman/pkg,lib/pacman,log} $targetDir/{dev,run,etc}
 sudo mkdir -m 1777 -p $targetDir/tmp
@@ -510,7 +522,7 @@ END
 
     UBOS::Utils::myexec( $s1 );
 
-    info( "Executing pacman" );
+    debug( "Executing pacman" );
     my $pacmanCmd = "sudo pacman"
             . " -r '$targetDir'"
             . " -Sy"
@@ -527,7 +539,7 @@ END
 
     debug( "Pacman output:", $out );
 
-    info( "Unmounting special devices" );
+    debug( "Unmounting special devices" );
 
     my $s2 = <<END;
 sudo umount $targetDir/tmp

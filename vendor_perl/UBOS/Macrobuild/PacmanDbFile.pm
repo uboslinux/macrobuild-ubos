@@ -43,24 +43,30 @@ sub containedPackages {
     my $self = shift;
 
     unless( $self->{containedPackages} ) {
-        my $tar   = Archive::Tar->new( $self->{filename} );
-        my @files = $tar->get_files;
+        my $tar = Archive::Tar->new( $self->{filename} );
+        if( $tar ) {
+            my @files = $tar->get_files;
 
-        my $ret   = {};
-        foreach my $file ( @files ) {
-            my $path = $file->full_path;
-            if( $path =~ m!^(.*)-([^-]+)-([^-]+)/desc$! ) {
-                my $name    = $1;
-                my $content = $file->get_content;
-    
-                if( $content =~ m!\%FILENAME\%\n(\S+)! ) {
-                    my $packageArchive = $1;
+            my $ret   = {};
+            foreach my $file ( @files ) {
+                my $path = $file->full_path;
+                if( $path =~ m!^(.*)-([^-]+)-([^-]+)/desc$! ) {
+                    my $name    = $1;
+                    my $content = $file->get_content;
+        
+                    if( $content =~ m!\%FILENAME\%\n(\S+)! ) {
+                        my $packageArchive = $1;
 
-                    $ret->{$name} = $packageArchive;
+                        $ret->{$name} = $packageArchive;
+                    }
                 }
             }
+            $self->{containedPackages} = $ret;
+
+        } else {
+            error( 'Failed to read tar file, skipping', $self->{filename} );
+            next;
         }
-        $self->{containedPackages} = $ret;
     }
 
     return $self->{containedPackages};

@@ -56,7 +56,7 @@ sub new {
                                 'downloaddir' => '${builddir}/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/' . $self->{repository} ),
+                                'stagedir'    => '${repodir}/${channel}/${arch}/' . $self->{repository} ),
                     ]
                 ),
                 'build-ubos-packages' => new Macrobuild::CompositeTasks::Sequential(
@@ -72,7 +72,7 @@ sub new {
                                 'stopOnError' => 0 ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/' . $self->{repository} ),
+                                'stagedir'    => '${repodir}/${channel}/${arch}/' . $self->{repository} ),
                     ]                
                 )
             },

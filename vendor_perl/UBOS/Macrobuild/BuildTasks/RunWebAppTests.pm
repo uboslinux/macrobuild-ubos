@@ -11,8 +11,10 @@ use fields;
 
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
+use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::RunWebAppTests;
+use UBOS::Macrobuild::BasicTasks::SaveWebAppTestsResults;
 use UBOS::Macrobuild::UsConfigs;
 
 ##
@@ -36,9 +38,14 @@ sub new {
                     'name'        => 'Run webapptests',
                     'usconfigs'   => $usConfigs,
                     'sourcedir'   => '${builddir}/ups' ),
-            new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report webapptest results',
-                    'fields'      => [ 'tests-sequence', 'tests-passed', 'tests-failed' ] )
+            new Macrobuild::CompositeTasks::SplitJoin(
+                    'parallelTasks' => {
+                            'save-results' => new UBOS::Macrobuild::BasicTasks::SaveWebAppTestsResults(
+                                    'name'        => 'Save app tests results' ),
+                            'report' => new Macrobuild::BasicTasks::Report(
+                                    'name'        => 'Report webapptest results',
+                                    'fields'      => [ 'tests-sequence', 'tests-passed', 'tests-failed' ] )
+                    } )
         ]
     );
 

@@ -43,11 +43,11 @@ sub run {
                 
                 my $fullLocalName = "$repoDownloadDir/$localName";
                 if( -e $fullLocalName ) {
-                    info( "Skipping download, exists already:", $fullLocalName );
+                    debug( "Skipping download, exists already:", $fullLocalName );
                     $haveAlready->{$repoName}->{$packageName} = $fullLocalName;
 
                 } else {
-                    info( "Downloading:", $fullLocalName, "from", $packageUrl );
+                    debug( "Downloading:", $fullLocalName, "from", $packageUrl );
 
                     unless( UBOS::Utils::myexec( "curl -s -L -o '$fullLocalName' '$packageUrl'" )) {
                         $downloaded->{$repoName}->{$packageName} = $fullLocalName;
@@ -57,10 +57,10 @@ sub run {
                     }
                 }
                 if( -e "$fullLocalName.sig" ) {
-                    info( "Skipping download, exists already:", "$fullLocalName.sig" );
+                    debug( "Skipping download, exists already:", "$fullLocalName.sig" );
 
                 } else {
-                    info( "Downloading:", "$fullLocalName.sig", "from", $packageUrl );
+                    debug( "Downloading:", "$fullLocalName.sig", "from", $packageUrl );
 
                     if( UBOS::Utils::myexec( "curl -s -L -o '$fullLocalName.sig' '$packageUrl.sig'" )) {
                         warning( "Failed to download signature for $packageUrl" );

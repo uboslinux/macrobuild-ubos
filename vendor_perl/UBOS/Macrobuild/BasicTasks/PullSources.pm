@@ -37,7 +37,7 @@ sub run {
     foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
         my $usConfig = $usConfigs->{$repoName}; 
 
-        info( "Now processing upstream source config file", $usConfig->name );
+        debug( "Now processing upstream source config file", $usConfig->name );
 
         my $type = $usConfig->type;
         if( $type eq 'git' ) {

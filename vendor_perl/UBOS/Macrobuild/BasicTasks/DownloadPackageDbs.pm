@@ -57,7 +57,7 @@ sub run {
         my $cachedNow = "$upcRepoPackageDb.now"; # don't destroy the previous file if download fails
         my $cmd       = "curl '$directory/$name.db' -L -s -o '$cachedNow'$ifModifiedSinceHeader"; 
 
-        info( "Download command:", $cmd );
+        debug( "Download command:", $cmd );
 
         if( UBOS::Utils::myexec( $cmd )) {
             error( "Downloading failed:", $directory );
@@ -70,7 +70,7 @@ sub run {
         
         $allPackageDatabases->{$name} = new UBOS::Macrobuild::PacmanDbFile( $upcRepoPackageDb );
         if( -e $cachedNow ) {
-            info( "Have downloaded:", $cachedNow );
+            debug( "Have downloaded:", $cachedNow );
             if( -e $upcRepoPackageDb ) {
                 UBOS::Utils::deleteFile( $upcRepoPackageDb );
             }
@@ -80,10 +80,10 @@ sub run {
         } elsif( $upConfig->lastModified > (stat($upcRepoPackageDb ))[9] ) {
             # Configuration has changed since package database was updated
             $updatedPackageDatabases->{$name} = $allPackageDatabases->{$name};
-            info( "Upconfig updated" );
+            debug( "Upconfig updated" );
             
         } else {
-            info( "Skipped download, not updated" );
+            debug( "Skipped download, not updated" );
         }
     }
     $run->taskEnded( $self, {

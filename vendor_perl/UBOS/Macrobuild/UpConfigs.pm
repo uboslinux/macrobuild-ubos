@@ -51,7 +51,7 @@ sub configs {
         $self->{settingsConfigsMap}->{$settings->getName} = $ret;
 
         foreach my $file ( @files ) {
-            info( "Now reading upstream packages config file", $file );
+            debug( "Now reading upstream packages config file", $file );
             my $shortRepoName = $file;
             $shortRepoName =~ s!.*/!!;
             $shortRepoName =~ s!\.json$!!;

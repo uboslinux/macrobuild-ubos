@@ -49,7 +49,7 @@ sub run {
             }
 
             my $packageName = _determinePackageName( $dir );
-            info( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
+            debug( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
             
             if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
 				return -1;
@@ -70,7 +70,7 @@ sub run {
             }
 
             my $packageName = _determinePackageName( $dir );
-            info( "dir not updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
+            debug( "dir not updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
 
             if( -e "$dir/$failedstamp" ) {
 				info( "build failed last time, trying again: makepkg in", $dir );

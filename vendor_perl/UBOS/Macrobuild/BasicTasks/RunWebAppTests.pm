@@ -24,8 +24,9 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $scaffold = $run->getSettings->getVariable( 'scaffold' );
-    my $testplan = $run->getSettings->getVariable( 'testplan' );
+    my $scaffold    = $run->getSettings->getVariable( 'scaffold' );
+    my $testplan    = $run->getSettings->getVariable( 'testplan' );
+    my $testVerbose = $run->getSettings->getVariable( 'testverbose' );
 
     my $testCmd  = 'webapptest run';
 
@@ -34,6 +35,9 @@ sub run {
     }
     if( defined( $testplan )) {
         $testCmd .= ' --testplan ' . $testplan;
+    }
+    if( defined( $testVerbose )) {
+        $testCmd .= " $testVerbose";
     }
 
     my $testsSequence = [];
@@ -64,31 +68,16 @@ sub run {
 
                     info( "Running test $testDir/$file" );
 
-                    push @$testsSequence, "$name :: $test";
+                    push @$testsSequence, "$name::$test";
 
                     my $out;
-                    my $err;
-
-                    if( UBOS::Logging::isInfoActive() ) {
-                        if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file, undef, undef, \$err )) {
-                            $err =~ s!\s+$!!;
-                            error( 'Test', $test, 'failed:', $err );
-                            $testsFailed->{"$name :: $test"} = $err;
-                        } else {
-                            $err =~ s!\s+$!!;
-                            $testsPassed->{"$name :: $test"} = $err;
-                        }
-                        
+                    if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file . " 2>&1", undef, \$out )) {
+                        $out =~ s!\s+$!!;
+                        error( 'Test', $test, 'failed:', $out );
+                        $testsFailed->{"$name::$test"} = $out;
                     } else {
-                        if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file, undef, \$out, \$err )) {
-                            $err =~ s!\s+$!!;
-                            # error( 'Test', $test, 'failed:', $err );
-                            # We are not reporting this here, only in the output hash
-                            $testsFailed->{"$name :: $test"} = $err;
-                        } else {
-                            $err =~ s!\s+$!!;
-                            $testsPassed->{"$name :: $test"} = $err;
-                        }
+                        $out =~ s!\s+$!!;
+                        $testsPassed->{"$name::$test"} = 'Passed.';
                     }
                 }
             } else {

@@ -51,8 +51,8 @@ sub new {
                 'usconfigs'  => $repoUsConfigs->{$repo},
                 'repository' => $repo );
         $uploadTasks->{"upload-$repo"} = new UBOS::Macrobuild::BasicTasks::Upload(
-                'from'        => '${repodir}/${arch}/'    . $repo,
-                'to'          => '${uploadDest}/${arch}/' . $repo );
+                'from'        => '${repodir}/${channel}/${arch}/' . $repo,
+                'to'          => '${uploadDest}/${arch}/'         . $repo );
     }
     my @buildTaskNames  = keys %$buildTasks;
     my @uploadTaskNames = keys %$uploadTasks;
