@@ -69,7 +69,7 @@ sub run {
                     my $out;
                     my $err;
 
-                    if( UBOS::Logging::isDebugActive() ) {
+                    if( UBOS::Logging::isInfoActive() ) {
                         if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file, undef, undef, \$err )) {
                             $err =~ s!\s+$!!;
                             error( 'Test', $test, 'failed:', $err );
