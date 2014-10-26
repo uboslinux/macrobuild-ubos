@@ -119,7 +119,7 @@ sub _buildPackage {
 
     my $out;
 	if( UBOS::Utils::myexec( $cmd, undef, \$out, \$err )) { # writes to stderr, don't complain about dependencies
-		error( "makepkg in $dir failed", $err, " -- env was:\n", join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
+		error( "makepkg in $dir failed", $err, " -- env was:\n" . join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
 
 		if( $self->{stopOnError} ) {
 			return -1;

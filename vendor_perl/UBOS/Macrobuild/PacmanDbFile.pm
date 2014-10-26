@@ -96,7 +96,7 @@ sub addPackages {
         $result = UBOS::Utils::myexec( $cmd, undef, \$out );
     }
     if( $result ) {
-        error( 'Something went wrong when executing:', $cmd, " -- env was:\n", join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
+        error( 'Something went wrong when executing:', $cmd, " -- env was:\n" . join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
         return -1;
     }
     return 0;
