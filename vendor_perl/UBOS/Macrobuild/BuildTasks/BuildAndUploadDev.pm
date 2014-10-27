@@ -31,7 +31,7 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my @repos = (
+    my @dbs = (
         'os',
         'hl',
         'tools',
@@ -41,18 +41,18 @@ sub new {
     my $buildTasks  = {};
     my $uploadTasks = {};
     
-    foreach my $repo ( @repos ) {
-        $repoUpConfigs->{$repo} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $repo . '/up' );
-        $repoUsConfigs->{$repo} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $repo . '/us' );
+    foreach my $db ( @dbs ) {
+        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $db . '/up' );
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $db . '/us' );
 
-        $buildTasks->{"build-$repo"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
-                'name'       => 'Build dev packages in ' . $repo,
-                'upconfigs'  => $repoUpConfigs->{$repo},
-                'usconfigs'  => $repoUsConfigs->{$repo},
-                'repository' => $repo );
-        $uploadTasks->{"upload-$repo"} = new UBOS::Macrobuild::BasicTasks::Upload(
-                'from'        => '${repodir}/${channel}/${arch}/' . $repo,
-                'to'          => '${uploadDest}/${arch}/'         . $repo );
+        $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
+                'name'       => 'Build dev packages in ' . $db,
+                'upconfigs'  => $repoUpConfigs->{$db},
+                'usconfigs'  => $repoUsConfigs->{$db},
+                'db'         => $db );
+        $uploadTasks->{"upload-$db"} = new UBOS::Macrobuild::BasicTasks::Upload(
+                'from'        => '${repodir}/${channel}/${arch}/' . $db,
+                'to'          => '${uploadDest}/${arch}/'         . $db );
     }
     my @buildTaskNames  = keys %$buildTasks;
     my @uploadTaskNames = keys %$uploadTasks;
@@ -60,10 +60,10 @@ sub new {
     my @mergeKeys = ( '', @buildTaskNames, @uploadTaskNames );
     
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
-        'name' => 'Build and upload dev repos ' . join( ', ', @repos ) . ', then report',
+        'name' => 'Build and upload dev dbs ' . join( ', ', @dbs ) . ', then report',
         'tasks' => [
             new Macrobuild::CompositeTasks::SplitJoin( 
-                'name'          => 'Build dev repos ' . join( ', ', @repos ) . ', then merge update lists and upload',
+                'name'          => 'Build dev dbs ' . join( ', ', @dbs ) . ', then merge update lists and upload',
                 'splitTask'     => new UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps(
                     'repoUpConfigs' => $repoUpConfigs,
                     'repoUsConfigs' => $repoUsConfigs ),
@@ -73,13 +73,13 @@ sub new {
                         new Macrobuild::CompositeTasks::SplitJoin(
                             'parallelTasks' => $uploadTasks ),
                         new Macrobuild::CompositeTasks::MergeValuesTask(
-                            'name'         => 'Merge update lists from dev repositories: ' . join( ' ', @repos ),
+                            'name'         => 'Merge update lists from dev dbs: ' . join( ' ', @dbs ),
                             'keys'         => \@mergeKeys )
                     ]
                 )
             ),
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report build activity for dev repositories: ' . join( ' ', @repos ),
+                'name'        => 'Report build activity for dev dbs: ' . join( ' ', @dbs ),
                 'fields'      => [ 'updated-packages', 'bootimages', 'vmdkimages', 'uploaded-to' ] ),
             new Macrobuild::BasicTasks::ReportViaMosquitto(
                 'fieldsChannels' => {

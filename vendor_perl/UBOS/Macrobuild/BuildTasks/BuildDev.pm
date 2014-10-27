@@ -28,7 +28,7 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my @repos = (
+    my @dbs = (
         'os',
         'hl',
         'tools',
@@ -37,20 +37,20 @@ sub new {
     my $repoUsConfigs = {};
     my $buildTasks = {};
 
-    foreach my $repo ( @repos ) {
-        $repoUpConfigs->{$repo} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $repo . '/up' );
-        $repoUsConfigs->{$repo} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $repo . '/us' );
+    foreach my $db ( @dbs ) {
+        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $db . '/up' );
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $db . '/us' );
 
-        $buildTasks->{"build-$repo"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
-                'name'       => 'Build dev packages in ' . $repo,
-                'upconfigs'  => $repoUpConfigs->{$repo},
-                'usconfigs'  => $repoUsConfigs->{$repo},
-                'repository' => $repo );
+        $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
+                'name'       => 'Build dev packages in ' . $db,
+                'upconfigs'  => $repoUpConfigs->{$db},
+                'usconfigs'  => $repoUsConfigs->{$db},
+                'db'         => $db );
     }
     my @buildTaskNames = keys %$buildTasks;
     
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'name'          => 'Build dev repos ' . join( ', ', @repos ) . ', then merge update lists and report',
+        'name'          => 'Build dev dbs ' . join( ', ', @dbs ) . ', then merge update lists and report',
         'splitTask'     => new UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps(
             'repoUpConfigs' => $repoUpConfigs,
             'repoUsConfigs' => $repoUsConfigs ),
@@ -58,10 +58,10 @@ sub new {
         'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
                 new Macrobuild::CompositeTasks::MergeValuesTask(
-                    'name'         => 'Merge update lists from dev repositories: ' . join( ' ', @repos ),
+                    'name'         => 'Merge update lists from dev dbs: ' . join( ' ', @dbs ),
                     'keys'         => \@buildTaskNames ),
                 new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report build activity for dev repositories: ' . join( ' ', @repos ),
+                    'name'        => 'Report build activity for dev dbs: ' . join( ' ', @dbs ),
                     'fields'      => [ 'updated-packages' ] )
             ]
         ));

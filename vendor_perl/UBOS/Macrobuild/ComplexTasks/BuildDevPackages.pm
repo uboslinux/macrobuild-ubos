@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( upconfigs usconfigs repository );
+use fields qw( upconfigs usconfigs db );
 
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValuesTask;
@@ -56,7 +56,7 @@ sub new {
                                 'downloaddir' => '${builddir}/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${channel}/${arch}/' . $self->{repository} ),
+                                'stagedir'    => '${repodir}/${channel}/${arch}/' . $self->{db} ),
                     ]
                 ),
                 'build-ubos-packages' => new Macrobuild::CompositeTasks::Sequential(
@@ -72,7 +72,7 @@ sub new {
                                 'stopOnError' => 0 ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${channel}/${arch}/' . $self->{repository} ),
+                                'stagedir'    => '${repodir}/${channel}/${arch}/' . $self->{db} ),
                     ]                
                 )
             },
@@ -83,7 +83,7 @@ sub new {
                             'keys'         => [ 'build-ubos-packages', 'fetch-upstream-packages' ] ),
                     new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
                             'name'         => 'Update package database with new packages',
-                            'dbfile'       => '${repodir}/${arch}/' . $self->{repository} . '/' . $self->{repository} . '.db.tar.xz' )
+                            'dbfile'       => '${repodir}/${channel}/${arch}/' . $self->{db} . '/' . $self->{db} . '.db.tar.xz' )
                 ]
             ));
 
