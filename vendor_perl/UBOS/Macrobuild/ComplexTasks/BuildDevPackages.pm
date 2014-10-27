@@ -41,7 +41,7 @@ sub new {
             'name' => 'Fetch upstream packages, build UBOS packages, then merge and update package database',
             'parallelTasks' => {
                 'fetch-upstream-packages' => new Macrobuild::CompositeTasks::Sequential(
-                    'name' => 'Fetch upstream packages for ' . $self->{repository},
+                    'name' => 'Fetch upstream packages for db ' . $self->{db},
                     'tasks' => [
                         new UBOS::Macrobuild::BasicTasks::DownloadPackageDbs(
                                 'name'        => 'Download package database files from Arch',
