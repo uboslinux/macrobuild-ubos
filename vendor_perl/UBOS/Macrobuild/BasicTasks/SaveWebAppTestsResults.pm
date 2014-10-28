@@ -30,7 +30,10 @@ sub run {
 
         for( my $i=0 ; $i < @$testsSequence ; ++$i ) {
             my $testName = $testsSequence->[$i];
-            my $content  = $testsPassed->{$testName} || $testsFailed->{$testName};
+            my $content  = $testsPassed->{$testName};
+            if( $content =~ m!^\s*$! ) {
+                $content = $testsFailed->{$testName};
+            }
             $testName =~ s!/!_!g;
             UBOS::Utils::saveFile( sprintf( "%s/%03d-%s.log", $testLogsDir, $i, $testName ), $content );
         }
