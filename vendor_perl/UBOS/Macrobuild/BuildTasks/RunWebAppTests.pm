@@ -29,7 +29,7 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my $usConfigs = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/${repository}/us' );
+    my $usConfigs = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/${db}/us' );
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'stopOnError' => 0,
