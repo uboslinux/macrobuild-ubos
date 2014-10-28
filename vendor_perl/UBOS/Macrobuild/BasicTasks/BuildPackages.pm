@@ -112,14 +112,14 @@ sub _buildPackage {
 
 	my $err;
 	UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
-	my $cmd = "cd $dir; makepkg -c -f -d";
+	my $cmd = "cd $dir; env -i makepkg -c -f -d";
 	if( $packageSignKey ) {
 		$cmd .= ' --sign --key ' . $packageSignKey;
 	}
 
     my $out;
 	if( UBOS::Utils::myexec( $cmd, undef, \$out, \$err )) { # writes to stderr, don't complain about dependencies
-		error( "makepkg in $dir failed", $err, " -- env was:\n" . join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
+		error( "makepkg in $dir failed", $err );
 
 		if( $self->{stopOnError} ) {
 			return -1;
