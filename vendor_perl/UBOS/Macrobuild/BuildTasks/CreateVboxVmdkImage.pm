@@ -32,14 +32,14 @@ sub new {
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::CreateBootImage(
                 'name'         => 'Create 1-partition boot disk for VirtualBox',
-                'repodir'      => '${repodir}/${channel}',
+                'repodir'      => '${repodir}',
                 'channel'      => '${channel}',
-                'image'        => '${imagedir}/${arch}/images/ubos_${channel}_${arch}_${tstamp}-1part-vbox.img',
+                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_${arch}_${tstamp}-1part-vbox.img',
                 'imagesize'    => '3G',
                 'rootpartsize' => 'all',
                 'fs'           => 'btrfs',
                 'type'         => 'vbox.img',
-                'linkLatest'   => '${imagedir}/${arch}/images/ubos_${channel}_${arch}_LATEST-1part-vbox.img' ),
+                'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_${arch}_LATEST-1part-vbox.img' ),
             new UBOS::Macrobuild::BasicTasks::BootImageToVmdk(),
             new Macrobuild::BasicTasks::Report(
                 'name'         => 'Report build activity for creating ${channel} virtualbox vmdk image',

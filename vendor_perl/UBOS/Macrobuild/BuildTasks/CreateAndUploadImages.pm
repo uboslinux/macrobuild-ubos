@@ -32,7 +32,7 @@ sub new {
         'tasks' => [
             new UBOS::Macrobuild::ComplexTasks::CreateImages(),
             new UBOS::Macrobuild::BasicTasks::Upload(
-                'from'        => '${imagedir}/${arch}/images',
+                'from'        => '${imagesdir}/${arch}/images',
                 'to'          => '${uploadDest}/${arch}/images' ),
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report build activity for creating and uploading ${channel} images',

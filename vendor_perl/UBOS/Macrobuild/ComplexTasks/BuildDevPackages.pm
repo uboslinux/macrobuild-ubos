@@ -56,7 +56,7 @@ sub new {
                                 'downloaddir' => '${builddir}/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${channel}/${arch}/' . $self->{db} ),
+                                'stagedir'    => '${repodir}/${arch}/' . $self->{db} ),
                     ]
                 ),
                 'build-ubos-packages' => new Macrobuild::CompositeTasks::Sequential(
@@ -72,7 +72,7 @@ sub new {
                                 'stopOnError' => 0 ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${channel}/${arch}/' . $self->{db} ),
+                                'stagedir'    => '${repodir}/${arch}/' . $self->{db} ),
                     ]                
                 )
             },
@@ -83,7 +83,7 @@ sub new {
                             'keys'         => [ 'build-ubos-packages', 'fetch-upstream-packages' ] ),
                     new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
                             'name'         => 'Update package database with new packages',
-                            'dbfile'       => '${repodir}/${channel}/${arch}/' . $self->{db} . '/' . $self->{db} . '.db.tar.xz' )
+                            'dbfile'       => '${repodir}/${arch}/' . $self->{db} . '/' . $self->{db} . '.db.tar.xz' )
                 ]
             ));
 

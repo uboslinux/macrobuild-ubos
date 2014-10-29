@@ -9,7 +9,7 @@ use warnings;
 package UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( upconfigs usconfigs repository );
+use fields qw( upconfigs usconfigs db );
 
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
@@ -36,14 +36,14 @@ sub new {
                         'name'           => 'Determine which packages should be promoted',
                         'upconfigs'      => $self->{upconfigs},
                         'usconfigs'      => $self->{usconfigs},
-                        'fromRepository' => '${repodir}/${fromChannel}/${arch}/' . $self->{repository},
-                        'toRepository'   => '${repodir}/${toChannel}/${arch}/'   . $self->{repository} ),
+                        'fromRepository' => '${fromRepodir}/${arch}/' . $self->{db},
+                        'toRepository'   => '${toRepodir}/${arch}/'   . $self->{db} ),
                 new UBOS::Macrobuild::BasicTasks::Stage(
                         'name'        => 'Stage new packages in to-repository',
-                        'stagedir'    => '${repodir}/${toChannel}/${arch}/' . $self->{repository} ),
+                        'stagedir'    => '${toRepodir}/${arch}/' . $self->{db} ),
                 new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
                         'name'         => 'Update package database with new packages',
-                        'dbfile'       => '${repodir}/${toChannel}/${arch}/' . $self->{repository} . '/' . $self->{repository} . '.db.tar.xz' )
+                        'dbfile'       => '${toRepodir}/${arch}/' . $self->{db} . '/' . $self->{db} . '.db.tar.xz' )
             ]
     );
 

@@ -31,10 +31,13 @@ sub run {
         for( my $i=0 ; $i < @$testsSequence ; ++$i ) {
             my $testName = $testsSequence->[$i];
             my $content  = $testsPassed->{$testName};
-            if( $content =~ m!^\s*$! ) {
+            if( !defined( $content ) || $content =~ m!^\s*$! ) {
                 $content = $testsFailed->{$testName};
             }
             $testName =~ s!/!_!g;
+            if( $content && $content !~ m!\n\s*$! ) {
+                $content .= "\n";
+            }
             UBOS::Utils::saveFile( sprintf( "%s/%03d-%s.log", $testLogsDir, $i, $testName ), $content );
         }
     }

@@ -71,7 +71,7 @@ sub run {
                     push @$testsSequence, "$name::$test";
 
                     my $out;
-                    if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file . " 2>&1", undef, \$out )) {
+                    if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file, undef, \$out, \$out )) {
                         $out =~ s!\s+$!!;
                         error( 'Test', $test, 'failed:', $out );
                         $testsFailed->{"$name::$test"} = $out;

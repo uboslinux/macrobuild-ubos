@@ -224,7 +224,7 @@ END
         close $pacstrapPacmanConfig;
 
         # pacstrap
-        $error += $self->ubosPacstrap( $mountedRootPart, $repodir, $pacstrapPacmanConfig->filename );
+        $error += $self->ubosPacstrap( $mountedRootPart, $pacstrapPacmanConfig->filename );
 
         # hostname
         UBOS::Utils::saveFile( $mountedRootPart . '/etc/hostname', "indiebox\n", 0644, 'root', 'root' );
@@ -498,7 +498,6 @@ OSRELEASE
 sub ubosPacstrap {
     my $self      = shift;
     my $targetDir = shift;
-    my $repRoot   = shift;
     my $config    = shift;
 
     unless( -d $targetDir ) {

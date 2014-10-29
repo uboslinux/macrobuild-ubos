@@ -31,24 +31,24 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my @repos = (
-        'os',
-        'hl',
-        'tools',
-        'virt' );
+    my @dbs = (
+            'os',
+            'hl',
+            'tools',
+            'virt' );
 
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
-    my $promoteTasks = {};
+    my $promoteTasks  = {};
 
-    foreach my $repo ( @repos ) {
-        $repoUpConfigs->{$repo} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $repo . '/up' );
-        $repoUsConfigs->{$repo} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $repo . '/us' );
+    foreach my $db ( @dbs ) {
+        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $db . '/up' );
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $db . '/us' );
 
-        $promoteTasks->{"promote-$repo"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
-            'upconfigs'  => $repoUpConfigs->{$repo},
-            'usconfigs'  => $repoUsConfigs->{$repo},
-            'repository' => $repo );
+        $promoteTasks->{"promote-$db"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
+            'upconfigs' => $repoUpConfigs->{$db},
+            'usconfigs' => $repoUsConfigs->{$db},
+            'db'        => $db );
     }
     my @promoteTaskNames = keys %$promoteTasks;
     
@@ -57,10 +57,10 @@ sub new {
         'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
                 new Macrobuild::CompositeTasks::MergeValuesTask(
-                    'name'         => 'Merge promotion lists from repositories: ' . join( ' ', @repos ),
+                    'name'         => 'Merge promotion lists from repositories: ' . join( ' ', @dbs ),
                     'keys'         => \@promoteTaskNames ),
                 new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report promotion activity for repositories: ' . join( ' ', @repos ),
+                    'name'        => 'Report promotion activity for repositories: ' . join( ' ', @dbs ),
                     'fields'      => [ 'updated-packages' ] )
             ]
         ));
