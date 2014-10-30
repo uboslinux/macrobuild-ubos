@@ -70,15 +70,20 @@ sub run {
         }
     }
 
-    $run->taskEnded( $self, {
-            'new-packages' => $downloaded,
-            'old-packages' => $haveAlready
-    } );
+    my $ret = 1;
     if( %$downloaded ) {
-        return 0;
-    } else {
-        return 1;
+        $ret = 0;
     }
+
+    $run->taskEnded(
+            $self,
+            {
+                'new-packages' => $downloaded,
+                'old-packages' => $haveAlready
+            },
+            $ret );
+
+    return $ret;
 }
 
 1;

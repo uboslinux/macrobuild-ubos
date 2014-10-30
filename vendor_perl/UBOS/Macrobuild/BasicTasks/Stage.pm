@@ -77,14 +77,17 @@ sub run {
         }
     }
 
-    $run->taskEnded( $self, {
-            'staged-packages' => $staged
-    } );
+    my $ret = 1;
     if( %$staged ) {
-        return 0;
-    } else {
-        return 1;
+        $ret = 0;
     }
+
+    $run->taskEnded(
+            $self,
+            { 'staged-packages' => $staged },
+            $ret );
+
+    return $ret;
 }
 
 1;

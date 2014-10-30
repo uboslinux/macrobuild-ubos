@@ -447,11 +447,14 @@ OSRELEASE
     }
 
     if( $error ) {
-        $run->taskEnded( $self, {
-                'bootimages'   => [],
-                'failedimages' => [ $image ],
-                'linkLatests'  => []
-        } );
+        $run->taskEnded(
+                $self,
+                {
+                    'bootimages'   => [],
+                    'failedimages' => [ $image ],
+                    'linkLatests'  => []
+                },
+                -1 );
 
         return -1;
 
@@ -473,20 +476,26 @@ OSRELEASE
             }
         }
 
-        $run->taskEnded( $self, {
-                'bootimages'   => [ $image ],
-                'failedimages' => [],
-                'linkLatests'  => [ $linkLatest ]
-        } );
+        $run->taskEnded(
+                $self,
+                {
+                    'bootimages'   => [ $image ],
+                    'failedimages' => [],
+                    'linkLatests'  => [ $linkLatest ]
+                },
+                0 );
 
         return 0;
 
     } else {
-        $run->taskEnded( $self, {
-                'bootimages'   => [],
-                'failedimages' => [],
-                'linkLatests'  => []
-        } );
+        $run->taskEnded(
+                $self,
+                {
+                    'bootimages'   => [],
+                    'failedimages' => [],
+                    'linkLatests'  => []
+                },
+                1 );
 
         return 1;
     }

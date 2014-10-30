@@ -51,15 +51,20 @@ sub run {
 		}
     }
 
-    $run->taskEnded( $self, {
-            'dirs-updated'     => $dirsUpdated,
-            'dirs-not-updated' => $dirsNotUpdated
-    } );
-    if( %$dirsUpdated ) {
-        return 0;
-    } else {
-        return 1;
+    my $ret = 1;
+    if( keys %$dirsUpdated ) {
+        $ret = 0;
     }
+
+    $run->taskEnded(
+            $self,
+            {
+                'dirs-updated'     => $dirsUpdated,
+                'dirs-not-updated' => $dirsNotUpdated
+            },
+            $ret );
+
+    return $ret;
 }
 
 ##

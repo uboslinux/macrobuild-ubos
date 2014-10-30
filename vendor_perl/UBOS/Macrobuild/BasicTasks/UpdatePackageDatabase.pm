@@ -39,15 +39,16 @@ sub run {
         @updated = values %$staged;
     }
 
-    $run->taskEnded( $self, {
-            'updated-packages' => \@updated
-    } );
-
+    my $ret = 1;
     if( @updated ) {
-        return 0;
-    } else {
-        return 1;
+        $ret = 0;
     }
+    $run->taskEnded(
+            $self,
+            { 'updated-packages' => \@updated },
+            $ret );
+
+    return $ret;
 }
 
 1;

@@ -90,16 +90,20 @@ sub run {
         }
     }
 
-    $run->taskEnded( $self, {
-            'new-packages' => $built,
-            'old-packages' => $notRebuilt
-    } );
-    
+    my $ret = 1;
     if( %$built ) {
-        return 0;
-    } else {
-        return 1;
+        $ret = 0;
     }
+
+    $run->taskEnded(
+            $self,
+            {
+                'new-packages' => $built,
+                'old-packages' => $notRebuilt
+            },
+            $ret );
+
+    return $ret;
 }
 
 ##

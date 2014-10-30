@@ -86,15 +86,21 @@ sub run {
             debug( "Skipped download, not updated" );
         }
     }
-    $run->taskEnded( $self, {
-            'all-package-databases'     => $allPackageDatabases,
-            'updated-package-databases' => $updatedPackageDatabases
-    } );
+
+    my $ret = 1;
     if( %$updatedPackageDatabases ) {
-        return 0;
-    } else {
-        return 1;
+        $ret = 0;
     }
+
+    $run->taskEnded(
+            $self,
+            {
+                'all-package-databases'     => $allPackageDatabases,
+                'updated-package-databases' => $updatedPackageDatabases
+            },
+            $ret );
+
+    return $ret;
 }
 
 1;

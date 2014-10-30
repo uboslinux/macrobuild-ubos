@@ -89,21 +89,24 @@ sub run {
 		}
     }
 
-    $run->taskEnded( $self, {
-            'tests-sequence' => $testsSequence,
-            'tests-passed'   => $testsPassed,
-            'tests-failed'   => $testsFailed
-    } );
-    
+    my $ret = 1;
     if( %$testsFailed ) {
-        return -1;
+        $ret = -1;
     } elsif( %$testsPassed ) {
-        return 0;
-    } else {
-        return 1;
+        $ret = 0;
     }
-}
+    
+    $run->taskEnded(
+            $self,
+            {
+                'tests-sequence' => $testsSequence,
+                'tests-passed'   => $testsPassed,
+                'tests-failed'   => $testsFailed
+            },
+            $ret );
 
+    return $ret;
+}
 
 1;
 

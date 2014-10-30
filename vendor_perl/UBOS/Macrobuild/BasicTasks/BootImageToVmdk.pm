@@ -116,10 +116,13 @@ sub run {
         }
     }
 
-    $run->taskEnded( $self, {
-            'vmdkimages'      => $vmdkimages,
-            'vmdkLinkLatests' => $vmdkLinkLatests
-    } );
+    $run->taskEnded(
+            $self,
+            {
+                'vmdkimages'      => $vmdkimages,
+                'vmdkLinkLatests' => $vmdkLinkLatests
+            },
+            $ret );
 
     return $ret;
 }

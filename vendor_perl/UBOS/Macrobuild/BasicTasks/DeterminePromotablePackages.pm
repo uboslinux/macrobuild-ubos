@@ -93,16 +93,20 @@ sub run {
         }
     }
 
-    $run->taskEnded( $self, {
-            'new-packages' => $newPackages,
-            'old-packages' => $oldPackages
-    } );
-
+    my $ret = 1;
     if( keys %$newPackages ) {
-        return 0;
-    } else {
-        return 1;
+        $ret = 0;
     }
+
+    $run->taskEnded(
+            $self,
+            {
+                'new-packages' => $newPackages,
+                'old-packages' => $oldPackages
+            },
+            $ret );
+
+    return $ret;
 }
 
 1;

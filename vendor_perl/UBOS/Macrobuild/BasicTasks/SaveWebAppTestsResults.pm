@@ -42,7 +42,7 @@ sub run {
         }
     }
 
-    $run->taskEnded( $self );
+    $run->taskEnded( $self, {}, 0 );
 
     return 0;
 }

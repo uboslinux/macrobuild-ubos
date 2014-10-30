@@ -28,7 +28,7 @@ sub run {
     UBOS::Macrobuild::UpConfigs::checkNoOverlap( $self->{repoUpConfigs}, $run->getSettings() );
     UBOS::Macrobuild::UsConfigs::checkNoOverlap( $self->{repoUsConfigs}, $run->getSettings() );
 
-    $run->taskEnded( $self, {} );
+    $run->taskEnded( $self, {}, $ret );
 
     return $ret;
 }

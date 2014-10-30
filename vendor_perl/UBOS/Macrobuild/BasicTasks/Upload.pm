@@ -44,15 +44,12 @@ sub run {
         error( "rsync failed", $ret );
     }        
 
-    $run->taskEnded( $self, {
-            'uploaded-to' => $toSuccess
-    } );
+    $run->taskEnded(
+            $self,
+            { 'uploaded-to' => $toSuccess },
+            $ret );
 
-    if( $toSuccess ) {
-        return 0;
-    } else {
-        return -1;
-    }
+    return $ret;
 }
 
 1;

@@ -76,16 +76,18 @@ sub run {
         }
     }
 
-    $run->taskEnded( $self, {
-            'packages-to-download' => $toDownload
-    } );
+    my $ret = 1;
     if( %$toDownload ) {
-        return 0;
-    } else {
-        return 1;
+        $ret = 0;
     }
-}
 
+    $run->taskEnded(
+            $self,
+            { 'packages-to-download' => $toDownload },
+            $ret );
+
+    return $ret;
+}
 
 1;
 
