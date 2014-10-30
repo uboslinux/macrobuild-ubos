@@ -126,7 +126,7 @@ sub _buildPackage {
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
 
     my $cmd  =  "cd $dir;";
-    $cmd    .= ' env -i'
+    $cmd    .= ' env -i';
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=C';
     $cmd    .=   ' GNUPGHOME=$GNUPGHOME';
