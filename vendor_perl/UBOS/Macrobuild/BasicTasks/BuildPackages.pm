@@ -126,8 +126,11 @@ sub _buildPackage {
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
 
     my $cmd  =  "cd $dir;";
-    $cmd    .= " env -i PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl LANG=C";
-    $cmd    .= " makepkg -c -f -d";
+    $cmd    .= ' env -i'
+    $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
+    $cmd    .=   ' LANG=C';
+    $cmd    .=   ' GNUPGHOME=$GNUPGHOME';
+    $cmd    .= ' makepkg -c -f -d';
     if( $packageSignKey ) {
         $cmd .= ' --sign --key ' . $packageSignKey;
     }
