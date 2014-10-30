@@ -35,7 +35,8 @@ sub run {
     my $dirsNotUpdated = $run->replaceVariables( $in->{'dirs-not-updated'} );
     
     my $packageSignKey = $run->getSettings()->getVariable( 'packageSignKey', undef );
-    
+
+    my $ret        = 1;
     my $built      = {};
     my $notRebuilt = {};
     foreach my $repoName ( sort keys  %$dirsUpdated ) {
@@ -50,49 +51,56 @@ sub run {
 
             my $packageName = _determinePackageName( $dir );
             debug( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
-            
+
             if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
-                return -1;
-            }
-        }
-        if( %$inThisRepo ) {
-            $built->{$repoName} = $inThisRepo;
-        }
-    }
-    foreach my $repoName ( sort keys %$dirsNotUpdated ) {
-        my $repoInfo = $dirsNotUpdated->{$repoName};
-
-        my $inThisRepo = {};
-        foreach my $subdir ( @$repoInfo ) {
-            my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
-            if( $subdir ) {
-                $dir .= "/$subdir";
-            }
-
-            my $packageName = _determinePackageName( $dir );
-            debug( "dir not updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
-
-            if( -e "$dir/$failedstamp" ) {
-                info( "build failed last time, trying again: makepkg in", $dir );
-
-                if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
-                    return -1;
+                $ret = -1;
+                if( $self->{stopOnError} ) {
+                    last;
                 }
-            } else {
-                my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
-                if( $mostRecent ) {
-                    $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
-                } 
+            } elsif( $ret == 1 ) {
+                $ret = 0; # we did something
             }
         }
         if( %$inThisRepo ) {
             $built->{$repoName} = $inThisRepo;
         }
     }
+    if( $ret != -1 || !$self->{stopOnError} ) {
+        foreach my $repoName ( sort keys %$dirsNotUpdated ) {
+            my $repoInfo = $dirsNotUpdated->{$repoName};
 
-    my $ret = 1;
-    if( %$built ) {
-        $ret = 0;
+            my $inThisRepo = {};
+            foreach my $subdir ( @$repoInfo ) {
+                my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
+                if( $subdir ) {
+                    $dir .= "/$subdir";
+                }
+
+                my $packageName = _determinePackageName( $dir );
+                debug( "dir not updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
+
+                if( -e "$dir/$failedstamp" ) {
+                    info( "build failed last time, trying again: makepkg in", $dir );
+
+                    if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
+                        $ret = -1;
+                        if( $self->{stopOnError} ) {
+                            last;
+                        } elsif( $ret == 1 ) {
+                            $ret = 0; # we did something
+                        }
+                    }
+                } else {
+                    my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
+                    if( $mostRecent ) {
+                        $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
+                    } 
+                }
+            }
+            if( %$inThisRepo ) {
+                $built->{$repoName} = $inThisRepo;
+            }
+        }
     }
 
     $run->taskEnded(
@@ -128,9 +136,7 @@ sub _buildPackage {
     if( UBOS::Utils::myexec( $cmd, undef, \$out, \$err )) { # writes to stderr, don't complain about dependencies
         error( "makepkg in $dir failed", $err );
 
-        if( $self->{stopOnError} ) {
-            return -1;
-        }
+        return -1;
 
     } elsif( $err =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
         $builtRepo->{$packageName} = "$dir/" . UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
@@ -138,12 +144,12 @@ sub _buildPackage {
         if( -e "$dir/$failedstamp" ) {
             UBOS::Utils::deleteFile( "$dir/$failedstamp" );
         }
+        return 0;
 
     } else {
         error( "could not find package built by makepkg in", $dir );
         return -1;
     }
-    return 0;
 }
 
 sub _determinePackageName {
