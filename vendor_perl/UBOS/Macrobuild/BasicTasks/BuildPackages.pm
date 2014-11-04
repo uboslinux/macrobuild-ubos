@@ -130,7 +130,7 @@ sub _buildPackage {
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=C';
     $cmd    .=   ' GNUPGHOME=$GNUPGHOME';
-    $cmd    .= ' makepkg -c -f -d';
+    $cmd    .= ' makepkg -c -f -d -A'; # clean after, overwrite old build, no dependency checks, no arch checks
     if( $packageSignKey ) {
         $cmd .= ' --sign --key ' . $packageSignKey;
     }
