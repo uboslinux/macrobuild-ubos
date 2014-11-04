@@ -2,7 +2,7 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
-pkgver=0.87
+pkgver=0.88
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
@@ -10,18 +10,21 @@ license=('GPL')
 depends=(
         'macrobuild'
         'ubos-perl-utils'
-        'virtualbox'
         'parted'
         'util-linux'
         'btrfs-progs'
         'arch-install-scripts'
-        'grub'
         'curl'
         'git'
         'rsync'
         'perl-http-date'
         'multipath-tools'
 )
+optdepends=(
+        'grub'
+        'virtualbox'
+)
+
 options=('!strip')
 
 package() {
