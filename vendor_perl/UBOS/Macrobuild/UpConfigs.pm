@@ -57,14 +57,11 @@ sub configs {
             $shortRepoName =~ s!\.json$!!;
 
             my $upConfigJson = UBOS::Utils::readJsonFromFile( $file );
-            my $directory    = $upConfigJson->{directory};
             my $packages     = $upConfigJson->{packages};
 
-            unless( defined( $directory )) {
-                warning( "No directory given in $file, skipping." );
-                next;
-            }
-            $directory = $settings->replaceVariables( $directory );
+            my $directory = $settings->replaceVariables(
+                    $settings->getVariable( 'archUpstreamDir' ),
+                    { 'db' => $shortRepoName } );
 
             unless( !defined( $directory ) || ( $directory =~ m!^/! && -d $directory ) || $directory =~ m!^https?://! ) {
                 warning( "No or invalid directory given in $file, skipping: ", $directory );
