@@ -51,7 +51,8 @@ sub configs {
         $ret = {};
         $self->{settingsConfigsMap}->{$settings->getName} = $ret;
 
-        CONFIGFILES:
+        my $arch = $settings->getVariable( 'arch' );
+
         foreach my $file ( @files ) {
             debug( "Now reading upstream sources config file", $file );
             my $shortSourceName = $file;
@@ -59,6 +60,22 @@ sub configs {
             $shortSourceName =~ s!\.json$!!;
 
             my $usConfigJson = UBOS::Utils::readJsonFromFile( $file );
+            my $archs        = $usConfigJson->{archs};
+
+            if( $archs ) {
+                # not all archs
+                my $found = 0;
+                foreach my $a ( @$archs ) {
+                    if( $a eq $arch ) {
+                        $found = 1;
+                        last;
+                    }
+                }
+                unless( $found ) {
+                    debug( 'Skipping', $file, ': arch', $arch ); 
+                    next;
+                }
+            }
 
 			if( ! $usConfigJson->{type} ) {
 				warning( "No type given in $file, skipping." );

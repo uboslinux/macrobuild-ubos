@@ -50,6 +50,7 @@ sub configs {
         $ret = {};
         $self->{settingsConfigsMap}->{$settings->getName} = $ret;
 
+        my $arch = $settings->getVariable( 'arch' );
         foreach my $file ( @files ) {
             debug( "Now reading upstream packages config file", $file );
             my $shortRepoName = $file;
@@ -57,8 +58,24 @@ sub configs {
             $shortRepoName =~ s!\.json$!!;
 
             my $upConfigJson = UBOS::Utils::readJsonFromFile( $file );
-            my $packages     = $upConfigJson->{packages};
+            my $archs        = $upConfigJson->{archs};
 
+            if( $archs ) {
+                # not all archs
+                my $found = 0;
+                foreach my $a ( @$archs ) {
+                    if( $a eq $arch ) {
+                        $found = 1;
+                        last;
+                    }
+                }
+                unless( $found ) {
+                    debug( 'Skipping', $file, ': arch', $arch ); 
+                    next;
+                }
+            }
+            
+            my $packages  = $upConfigJson->{packages};
             my $directory = $settings->replaceVariables(
                     $settings->getVariable( 'archUpstreamDir' ),
                     { 'db' => $shortRepoName } );
