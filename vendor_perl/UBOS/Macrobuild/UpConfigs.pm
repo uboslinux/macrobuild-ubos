@@ -11,6 +11,7 @@ use fields qw( dir settingsConfigsMap );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::UpConfig;
+use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
 
 ##
@@ -60,22 +61,23 @@ sub configs {
             my $upConfigJson = UBOS::Utils::readJsonFromFile( $file );
             my $archs        = $upConfigJson->{archs};
 
-            if( $archs ) {
-                # not all archs
-                my $found = 0;
-                foreach my $a ( @$archs ) {
-                    if( $a eq $arch ) {
-                        $found = 1;
-                        last;
-                    }
-                }
-                unless( $found ) {
-                    debug( 'Skipping', $file, ': arch', $arch ); 
-                    next;
-                }
+            if( exists( $upConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $upConfigJson->{archs} )) {
+                debug( 'Skipping', $file, 'for arch', $arch );
+                next;
             }
             
             my $packages  = $upConfigJson->{packages};
+            # Remove packages not for this arch
+            foreach my $packageName ( keys %$packages ) {
+                my $packageData = $packages->{$packageName};
+                if( defined( $packageData ) && exists( $packageData->{archs} )) {
+                    unless( UBOS::Macrobuild::Utils::useForThisArch( $arch, $packageData->{archs} )) {
+                        delete $packages->{$packageName};
+                        debug( 'Skipping package', $packageName, 'for arch', $arch );
+                    }
+                }
+            }
+            
             my $directory = $settings->replaceVariables(
                     $settings->getVariable( 'archUpstreamDir' ),
                     { 'db' => $shortRepoName } );

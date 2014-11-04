@@ -1,11 +1,11 @@
 # 
-# File utilities.
+# File and other utilities.
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::FileUtils;
+package UBOS::Macrobuild::Utils;
 
 use Cwd;
 
@@ -52,6 +52,27 @@ sub relPath {
         }
     }
     return $toRelPath;
+}
+
+##
+# Convenience method to determine whether an arch should be used, given
+# the set of archs specified (or null)
+# $arch: the arch
+# $archs: if not given, use. If given, only use if $arch is in this array
+# return: true or false
+sub useForThisArch {
+    my $arch  = shift;
+    my $archs = shift;
+
+    unless( defined( $archs )) {
+        return 1;
+    }
+    foreach my $a ( @$archs ) {
+        if( $a eq $arch ) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 1;

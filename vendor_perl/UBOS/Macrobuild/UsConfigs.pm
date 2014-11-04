@@ -12,6 +12,7 @@ use fields qw( dir settingsConfigsMap );
 use UBOS::Logging;
 use UBOS::Macrobuild::DownloadUsConfig;
 use UBOS::Macrobuild::GitUsConfig;
+use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
 
 ##
@@ -62,19 +63,9 @@ sub configs {
             my $usConfigJson = UBOS::Utils::readJsonFromFile( $file );
             my $archs        = $usConfigJson->{archs};
 
-            if( $archs ) {
-                # not all archs
-                my $found = 0;
-                foreach my $a ( @$archs ) {
-                    if( $a eq $arch ) {
-                        $found = 1;
-                        last;
-                    }
-                }
-                unless( $found ) {
-                    debug( 'Skipping', $file, ': arch', $arch ); 
-                    next;
-                }
+            if( exists( $usConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $usConfigJson->{archs} )) {
+                debug( 'Skipping', $file, 'for arch', $arch );
+                next;
             }
 
 			if( ! $usConfigJson->{type} ) {
