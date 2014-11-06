@@ -1,5 +1,5 @@
 # 
-# Creates all images
+# Creates all images for the PC
 #
 
 use strict;
