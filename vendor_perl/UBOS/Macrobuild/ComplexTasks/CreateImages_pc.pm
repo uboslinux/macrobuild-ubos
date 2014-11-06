@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::ComplexTasks::CreateImages;
+package UBOS::Macrobuild::ComplexTasks::CreateImages_pc;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -15,7 +15,8 @@ use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::BootImageToVmdk;
-use UBOS::Macrobuild::BasicTasks::CreateBootImage;
+use UBOS::Macrobuild::BasicTasks::CreateBootImage_pc;
+use UBOS::Macrobuild::BasicTasks::CreateBootImage_pc_vbox;
 
 ##
 # Constructor
@@ -31,7 +32,7 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin( 
         'parallelTasks' => {
-            'img' => new UBOS::Macrobuild::BasicTasks::CreateBootImage(
+            'img' => new UBOS::Macrobuild::BasicTasks::CreateBootImage_pc(
                 'name'         => 'Create 1-partition boot disk image for ${channel}',
                 'repodir'      => '${repodir}',
                 'channel'      => '${channel}',
@@ -39,12 +40,11 @@ sub new {
                 'imagesize'    => '3G',
                 'rootpartsize' => 'all',
                 'fs'           => 'btrfs',
-                'type'         => 'img',
                 'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_${arch}_LATEST.img'
             ),
             'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                 'tasks' => [
-                    new UBOS::Macrobuild::BasicTasks::CreateBootImage(
+                    new UBOS::Macrobuild::BasicTasks::CreateBootImage_pc_vbox(
                         'name'         => 'Create 1-partition boot disk for ${channel} for VirtualBox',
                         'repodir'      => '${repodir}',
                         'channel'      => '${channel}',
@@ -52,7 +52,6 @@ sub new {
                         'imagesize'    => '3G',
                         'rootpartsize' => 'all',
                         'fs'           => 'btrfs',
-                        'type'         => 'vbox.img',
                         'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_${arch}_LATEST-vbox.img' ),
                     new UBOS::Macrobuild::BasicTasks::BootImageToVmdk()
                 ]

@@ -14,7 +14,7 @@ use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::BootImageToVmdk;
-use UBOS::Macrobuild::BasicTasks::CreateBootImage;
+use UBOS::Macrobuild::BasicTasks::CreateBootImage_pc;
 
 ##
 # Constructor
@@ -30,7 +30,7 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::CreateBootImage(
+            new UBOS::Macrobuild::BasicTasks::CreateBootImage_pc(
                 'name'         => 'Create 1-partition boot disk for VirtualBox',
                 'repodir'      => '${repodir}',
                 'channel'      => '${channel}',

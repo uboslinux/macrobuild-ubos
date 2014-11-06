@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateAllImages;
+package UBOS::Macrobuild::BuildTasks::CreateAllImages_pc;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -13,7 +13,7 @@ use fields;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
-use UBOS::Macrobuild::ComplexTasks::CreateImages;
+use UBOS::Macrobuild::ComplexTasks::CreateImages_pc;
 
 ##
 # Constructor
@@ -29,7 +29,7 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new UBOS::Macrobuild::ComplexTasks::CreateImages(),
+            new UBOS::Macrobuild::ComplexTasks::CreateImages_pc(),
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report build activity for creating ${channel} images',
                 'fields'      => [ 'bootimages', 'vmdkimages' ] )
