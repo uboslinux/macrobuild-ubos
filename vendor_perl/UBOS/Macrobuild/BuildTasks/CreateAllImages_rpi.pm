@@ -1,11 +1,12 @@
 # 
-# Creates the image for the Raspberry Pi
+# Creates the image for the Raspberry Pi. This uses the plural name
+# to be consistent on all device types
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateImage_rpi;
+package UBOS::Macrobuild::BuildTasks::CreateAllImages_rpi;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
