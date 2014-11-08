@@ -26,9 +26,9 @@ sub new {
     }
     $self->SUPER::new( @args );
 
-    $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking' ];
+    $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'rng-tools' ];
     $self->{enableDbs}       = [ 'os', 'hl', 'tools' ];
-    $self->{startServices}   = [ 'ubos-admin', 'ubos-networking', 'sshd' ];
+    $self->{startServices}   = [ 'rngd', 'ubos-admin', 'ubos-networking', 'sshd' ];
 
     return $self;
 }

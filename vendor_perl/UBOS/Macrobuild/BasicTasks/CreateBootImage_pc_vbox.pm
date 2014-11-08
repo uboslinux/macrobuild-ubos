@@ -23,9 +23,9 @@ sub new {
 
     # We have a few more
 
-    push @{$self->{installPackages}}, 'virtualbox-guest', 'cloud-init', 'rng-tools';
+    push @{$self->{installPackages}}, 'virtualbox-guest', 'cloud-init';
     push @{$self->{enableDbs}},       'virt';
-    push @{$self->{startServices}},   'vboxservice', 'rngd', 'cloud-final';
+    push @{$self->{startServices}},   'vboxservice', 'cloud-final';
 
     return $self;
 }

@@ -1,11 +1,11 @@
 # 
-# Creates and uploads all images
+# Creates and uploads all images for the PC
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateAndUploadImages;
+package UBOS::Macrobuild::BuildTasks::CreateAndUploadImages_pc;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -14,7 +14,7 @@ use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::Upload;
-use UBOS::Macrobuild::ComplexTasks::CreateImages;
+use UBOS::Macrobuild::ComplexTasks::CreateImages_pc;
 
 ##
 # Constructor
@@ -30,7 +30,7 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new UBOS::Macrobuild::ComplexTasks::CreateImages(),
+            new UBOS::Macrobuild::ComplexTasks::CreateImages_pc(),
             new UBOS::Macrobuild::BasicTasks::Upload(
                 'from'        => '${imagesdir}/${arch}/images',
                 'to'          => '${uploadDest}/${arch}/images' ),

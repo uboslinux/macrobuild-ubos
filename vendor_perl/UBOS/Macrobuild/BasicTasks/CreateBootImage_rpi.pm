@@ -15,6 +15,14 @@ use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
 use Macrobuild::Utils;
 
+my @partitions = (
+    {
+        mountPoint => '',
+        size       => '3G'
+        '
+    },
+);
+
 ##
 # Constructor
 sub new {
@@ -26,9 +34,9 @@ sub new {
     }
     $self->SUPER::new( @args );
 
-    $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking' ];
+    $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'rng-tools' ];
     $self->{enableDbs}       = [ 'os', 'hl', 'tools' ];
-    $self->{startServices}   = [ 'ubos-admin', 'ubos-networking', 'sshd' ];
+    $self->{startServices}   = [ 'rngd', 'ubos-admin', 'ubos-networking', 'sshd' ];
 
     return $self;
 }
