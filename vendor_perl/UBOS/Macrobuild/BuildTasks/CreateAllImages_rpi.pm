@@ -37,7 +37,7 @@ sub new {
                 'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_${arch}_${tstamp}.img',
                 'imagesize'    => '3G',
                 'rootpartsize' => 'all',
-                'fs'           => 'btrfs',
+                'fs'           => 'ext4',
                 'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_${arch}_LATEST.img'
             ),
 
