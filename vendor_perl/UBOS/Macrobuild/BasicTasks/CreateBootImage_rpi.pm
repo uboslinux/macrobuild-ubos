@@ -28,7 +28,7 @@ sub new {
 
     $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ntp', 'ubos-admin', 'ubos-networking', 'rng-tools',
                                  'linux-raspberrypi', 'raspberrypi-firmware', 'raspberrypi-firmware-bootloader',
-                                 'raspberrypi-firmware-bootloader-x' 'archlinuxarm-keyring' ];
+                                 'raspberrypi-firmware-bootloader-x', 'archlinuxarm-keyring' ];
     $self->{enableDbs}       = [ 'os', 'hl', 'tools' ];
     $self->{startServices}   = [ 'rngd', 'ubos-admin', 'ubos-networking', 'sshd' ];
 
