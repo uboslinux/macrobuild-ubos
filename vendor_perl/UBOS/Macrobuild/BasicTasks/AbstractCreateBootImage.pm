@@ -158,7 +158,7 @@ END
         # fstab
         debug( "Generating fstab" );
 
-        $errors += $self->generateFsTab( \@mountPathSequence, $partitions );
+        $errors += $self->generateFsTab( \@mountPathSequence, $partitions, $targetDir );
 
         $errors += $self->installBootLoader( $image, $targetDir, $pacstrapPacmanConfig->filename );
 
@@ -378,11 +378,13 @@ sub createPartitions {
 # Generate and save /etc/fstab
 # $@mountPathSequence: the sequence of paths to mount
 # %$partitions: map of paths to devices
+# $targetDir: the path where the bootimage has been mounted
 # return: number of errors
 sub generateFsTab {
     my $self              = shift;
     my $mountPathSequence = shift;
     my $partitions        = shift;
+    my $targetDir         = shift;
 
     error( 'generateFsTab not overridden for', ref( $self ));
 

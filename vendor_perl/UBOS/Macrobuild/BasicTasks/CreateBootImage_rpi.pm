@@ -171,11 +171,13 @@ END
 # Generate and save /etc/fstab
 # $@mountPathSequence: the sequence of paths to mount
 # %$partitions: map of paths to devices
+# $targetDir: the path where the bootimage has been mounted
 # return: number of errors
 sub generateFsTab {
     my $self              = shift;
     my $mountPathSequence = shift;
     my $partitions        = shift;
+    my $targetDir         = shift;
     
     my $fs    = $self->{fs};
     my $fsTab = <<FSTAB;
