@@ -158,30 +158,7 @@ END
         # fstab
         debug( "Generating fstab" );
 
-        my $fs    = $self->{fs};
-        my $fsTab = <<FSTAB;
-#
-# /etc/fstab: static file system information
-#
-# <file system> <dir>	<type>	<options>	<dump>	<pass>
-
-FSTAB
-        my $i=0;
-        foreach my $mountPath ( @mountPathSequence ) {
-            my $device = $partitions->{$mountPath};
-            my $uuid;
-                        
-            UBOS::Utils::myexec( "sudo blkid -s UUID -o value '$device'", undef, \$uuid );
-            $uuid =~ s!^\s+!!g;
-            $uuid =~ s!\s+$!!g;
-
-            $fsTab .= <<FSTAB;
-UUID=$uuid $mountPath $fs rw,relatime $i 1
-FSTAB
-            ++$i;
-        }
-
-        UBOS::Utils::saveFile( $targetDir . '/etc/fstab', $fsTab, 0644, 'root', 'root' );
+        $errors += $self->generateFsTab( \@mountPathSequence, $partitions );
 
         $errors += $self->installBootLoader( $image, $targetDir, $pacstrapPacmanConfig->filename );
 
@@ -393,6 +370,21 @@ sub createPartitions {
     my $partitions = shift;
 
     error( 'createPartitions not overridden for', ref( $self ));
+
+    return 1;
+}
+
+##
+# Generate and save /etc/fstab
+# $@mountPathSequence: the sequence of paths to mount
+# %$partitions: map of paths to devices
+# return: number of errors
+sub generateFsTab {
+    my $self              = shift;
+    my $mountPathSequence = shift;
+    my $partitions        = shift;
+
+    error( 'generateFsTab not overridden for', ref( $self ));
 
     return 1;
 }

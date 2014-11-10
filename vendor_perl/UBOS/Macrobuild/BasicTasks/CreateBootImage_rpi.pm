@@ -168,6 +168,30 @@ END
 
 
 ##
+# Generate and save /etc/fstab
+# $@mountPathSequence: the sequence of paths to mount
+# %$partitions: map of paths to devices
+# return: number of errors
+sub generateFsTab {
+    my $self              = shift;
+    my $mountPathSequence = shift;
+    my $partitions        = shift;
+    
+    my $fs    = $self->{fs};
+    my $fsTab = <<FSTAB;
+# 
+# /etc/fstab: static file system information
+#
+# <file system>	<dir>	<type>	<options>	<dump>	<pass>
+/dev/mmcblk0p1  /boot   vfat    defaults        0       0
+FSTAB
+
+    UBOS::Utils::saveFile( $targetDir . '/etc/fstab', $fsTab, 0644, 'root', 'root' );
+
+    return 0;
+}
+
+##
 # Install the bootloader for this BootImage
 # $image: the image file
 # $targetDir: the path where the bootimage has been mounted

@@ -143,6 +143,44 @@ END
 
 
 ##
+# Generate and save /etc/fstab
+# $@mountPathSequence: the sequence of paths to mount
+# %$partitions: map of paths to devices
+# return: number of errors
+sub generateFsTab {
+    my $self              = shift;
+    my $mountPathSequence = shift;
+    my $partitions        = shift;
+    
+    my $fs    = $self->{fs};
+    my $fsTab = <<FSTAB;
+#
+# /etc/fstab: static file system information
+#
+# <file system> <dir>	<type>	<options>	<dump>	<pass>
+
+FSTAB
+    my $i=0;
+    foreach my $mountPath ( @$mountPathSequence ) {
+        my $device = $partitions->{$mountPath};
+        my $uuid;
+                    
+        UBOS::Utils::myexec( "sudo blkid -s UUID -o value '$device'", undef, \$uuid );
+        $uuid =~ s!^\s+!!g;
+        $uuid =~ s!\s+$!!g;
+
+        $fsTab .= <<FSTAB;
+UUID=$uuid $mountPath $fs rw,relatime $i 1
+FSTAB
+        ++$i;
+    }
+
+    UBOS::Utils::saveFile( $targetDir . '/etc/fstab', $fsTab, 0644, 'root', 'root' );
+
+    return 0;
+}
+
+##
 # Install the bootloader for this BootImage
 # $image: the image file
 # $targetDir: the path where the bootimage has been mounted
