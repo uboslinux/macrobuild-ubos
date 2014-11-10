@@ -26,7 +26,7 @@ sub new {
     }
     $self->SUPER::new( @args );
 
-    $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ubos-admin', 'ubos-networking', 'rng-tools',
+    $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ntp', 'ubos-admin', 'ubos-networking', 'rng-tools',
                                  'linux-raspberrypi', 'raspberrypi-firmware', 'raspberrypi-firmware-bootloader',
                                  'raspberrypi-firmware-bootloader-x' 'archlinuxarm-keyring' ];
     $self->{enableDbs}       = [ 'os', 'hl', 'tools' ];
@@ -189,6 +189,55 @@ sub generateFsTab {
 FSTAB
 
     UBOS::Utils::saveFile( $targetDir . '/etc/fstab', $fsTab, 0644, 'root', 'root' );
+
+    return 0;
+}
+
+##
+# Generate and save a different /etc/securetty if needed
+# $targetDir: the path where the bootimage has been mounted
+# return: number of errors
+sub generateSecuretty {
+    my $self      = shift;
+    my $targetDir = shift;
+
+    UBOS::Utils::saveFile( $targetDir . '/etc/securetty', <<END, 0644, 'root', 'root' );
+#
+# /etc/securetty
+#
+
+console
+tty1
+tty2
+tty3
+tty4
+tty5
+tty6
+ttyS0
+hvc0
+ttyAMA0
+END
+
+    return 0;
+}
+
+##
+# Generate and save different other files if needed
+# $targetDir: the path where the bootimage has been mounted
+# return: number of errors
+sub generateOther {
+    my $self      = shift;
+    my $targetDir = shift;
+
+    UBOS::Utils::saveFile( $targetDir . '/etc/modules-load.d/raspberrypi.conf', <<END, 0644, 'root', 'root' );
+bcm2708-rng
+snd-bcm2835
+END
+
+    UBOS::Utils::saveFile( $targetDir . '/etc/sysctl.d/raspberrypi.conf', <<END, 0644, 'root', 'root' );
+vm.min_free_kbytes=32768
+vm.vfs_cache_pressure = 300
+END
 
     return 0;
 }

@@ -157,9 +157,10 @@ END
                 0644, 'root', 'root' );
         
         # fstab
-        debug( "Generating fstab" );
-
+        debug( "Generating fstab etc" );
         $errors += $self->generateFsTab( \@mountPathSequence, $partitions, $targetDir );
+        $errors += $self->generateSecuretty( $targetDir );
+        $errors += $self->generateOther( $targetDir );
 
         $errors += $self->installBootLoader( $image, $targetDir, $pacstrapPacmanConfig->filename );
 
@@ -227,6 +228,7 @@ END
 
 [options]
 Architecture = $arch
+CheckSpace
 
 SigLevel           = Required TrustedOnly
 LocalFileSigLevel  = Required TrustedOnly
@@ -374,6 +376,32 @@ sub createPartitions {
     error( 'createPartitions not overridden for', ref( $self ));
 
     return 1;
+}
+
+##
+# Generate and save a different /etc/securetty if needed
+# $targetDir: the path where the bootimage has been mounted
+# return: number of errors
+sub generateSecuretty {
+    my $self      = shift;
+    my $targetDir = shift;
+
+    # do nothing by default
+
+    return 0;
+}
+
+##
+# Generate and save different other files if needed
+# $targetDir: the path where the bootimage has been mounted
+# return: number of errors
+sub generateOther {
+    my $self      = shift;
+    my $targetDir = shift;
+
+    # do nothing by default
+
+    return 0;
 }
 
 ##
