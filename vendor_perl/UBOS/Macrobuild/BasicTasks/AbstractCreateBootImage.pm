@@ -68,6 +68,7 @@ sub run {
     my $image;
     my $errors = 0;
     if( !defined( $updatedPackages ) || @$updatedPackages ) {
+        my $buildId  = UBOS::Utils::time2string( time() );
         my $repodir  = File::Spec->rel2abs( $run->replaceVariables( $self->{repodir} ));
         $image       = File::Spec->rel2abs( $run->replaceVariables( $self->{image}   ));
 
@@ -271,10 +272,11 @@ ISSUE
 
         UBOS::Utils::saveFile( $targetDir . '/etc/os-release', <<OSRELEASE, 0644, 'root', 'root' );
 NAME="UBOS"
-ID=ubos
-ID_LIKE=arch
+ID="ubos"
+ID_LIKE="arch"
 PRETTY_NAME="UBOS"
 HOME_URL="http://ubos.net/"
+BUILD_ID="$buildId"
 OSRELEASE
 
         # Clean up
