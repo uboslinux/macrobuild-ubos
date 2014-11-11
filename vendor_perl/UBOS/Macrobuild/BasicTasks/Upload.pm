@@ -40,22 +40,23 @@ sub run {
         $rsyncCmd .= " $from/*"
                    . " '$to'";
         info( "Rsync command:", $rsyncCmd );
-        my $ret = UBOS::Utils::myexec( $rsyncCmd );
-
-        my $toSuccess;
-        unless( $ret ) {
-            $toSuccess = $to;
-            $ret       = 0;
-        } else {
-            error( "rsync failed", $ret );
+        if( UBOS::Utils::myexec( $rsyncCmd )) {
+            error( "rsync failed" );
             $ret = -1;
         }
     }
 
-    $run->taskEnded(
-            $self,
-            { 'uploaded-to' => $toSuccess },
-            $ret );
+    if( $ret == 0 ) {
+        $run->taskEnded(
+                $self,
+                { 'uploaded-to' => $toSuccess },
+                $ret );
+    } else {
+        $run->taskEnded(
+                $self,
+                {},
+                $ret );
+    }
 
     return $ret;
 }
