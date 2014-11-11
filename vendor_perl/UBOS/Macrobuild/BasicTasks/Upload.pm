@@ -11,6 +11,7 @@ use base qw( Macrobuild::Task );
 use fields qw( from to );
 
 use UBOS::Logging;
+use UBOS::Utils;
 
 ##
 # Run this task.
@@ -23,26 +24,33 @@ sub run {
 
     my $from      = $run->replaceVariables( $self->{from} );
     my $to        = $run->replaceVariables( $self->{to} );
-    my $uploadKey = $run->getVariable( 'uploadSshKey' );
 
-    # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
-    my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --safe-links --max-delete=1000';
-    if( $uploadKey ) {
-        $rsyncCmd .= " -e 'ssh -i $uploadKey'";
-    } else {
-        $rsyncCmd .= ' -e ssh';
+    my $ret = 1;
+    if( -d $from && <$from/*> ) {
+        # we don't upload . files
+        my $uploadKey = $run->getVariable( 'uploadSshKey' );
+
+        # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
+        my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --safe-links --max-delete=1000';
+        if( $uploadKey ) {
+            $rsyncCmd .= " -e 'ssh -i $uploadKey'";
+        } else {
+            $rsyncCmd .= ' -e ssh';
+        }
+        $rsyncCmd .= " $from/*"
+                   . " '$to'";
+        info( "Rsync command:", $rsyncCmd );
+        my $ret = UBOS::Utils::myexec( $rsyncCmd );
+
+        my $toSuccess;
+        unless( $ret ) {
+            $toSuccess = $to;
+            $ret       = 0;
+        } else {
+            error( "rsync failed", $ret );
+            $ret = -1;
+        }
     }
-    $rsyncCmd .= " $from/*"
-               . " '$to'";
-    info( "Rsync command:", $rsyncCmd );
-    my $ret = UBOS::Utils::myexec( $rsyncCmd );
-
-    my $toSuccess;
-    unless( $ret ) {
-        $toSuccess = $to;
-    } else {
-        error( "rsync failed", $ret );
-    }        
 
     $run->taskEnded(
             $self,
