@@ -26,23 +26,26 @@ sub run {
     my $to        = $run->replaceVariables( $self->{to} );
 
     my $ret = 1;
-    if( -d $from && <$from/*> ) {
-        # we don't upload . files
-        my $uploadKey = $run->getVariable( 'uploadSshKey' );
+    if( -d $from ) {
+        my @filesInFrom = <$from/*>;
+        # we don't upload hidden files
+        if( @filesInFrom ) {
+            my $uploadKey = $run->getVariable( 'uploadSshKey' );
 
-        # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
-        my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --safe-links --max-delete=1000';
-        if( $uploadKey ) {
-            $rsyncCmd .= " -e 'ssh -i $uploadKey'";
-        } else {
-            $rsyncCmd .= ' -e ssh';
-        }
-        $rsyncCmd .= " $from/*"
-                   . " '$to'";
-        info( "Rsync command:", $rsyncCmd );
-        if( UBOS::Utils::myexec( $rsyncCmd )) {
-            error( "rsync failed" );
-            $ret = -1;
+            # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
+            my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --safe-links --max-delete=1000';
+            if( $uploadKey ) {
+                $rsyncCmd .= " -e 'ssh -i $uploadKey'";
+            } else {
+                $rsyncCmd .= ' -e ssh';
+            }
+            $rsyncCmd .= " $from/*"
+                       . " '$to'";
+            info( "Rsync command:", $rsyncCmd );
+            if( UBOS::Utils::myexec( $rsyncCmd )) {
+                error( "rsync failed" );
+                $ret = -1;
+            }
         }
     }
 
