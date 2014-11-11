@@ -49,7 +49,7 @@ sub run {
     if( $ret == 0 ) {
         $run->taskEnded(
                 $self,
-                { 'uploaded-to' => $toSuccess },
+                { 'uploaded-to' => $to },
                 $ret );
     } else {
         $run->taskEnded(
