@@ -48,6 +48,9 @@ sub run {
             }
         }
     }
+    if( $ret == 1 ) {
+        debug( 'Skipped uploading', $from, $to, 'nothing to do' );
+    }
 
     if( $ret == 0 ) {
         $run->taskEnded(
