@@ -45,6 +45,8 @@ sub run {
             if( UBOS::Utils::myexec( $rsyncCmd )) {
                 error( "rsync failed" );
                 $ret = -1;
+            } else {
+                $ret = 0;
             }
         }
     }
