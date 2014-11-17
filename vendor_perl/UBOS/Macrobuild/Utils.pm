@@ -20,10 +20,15 @@ sub relPath {
     my $to   = shift;
     my $from = shift;
 
-    unless( $to =~ m!^/! ) {
+    if( $to =~ m!^\./(.*)$! ) {
+        $to = getcwd . '/' . $1;
+    } elsif( $to !~ m!^/! ) {
         $to = getcwd . '/' . $to;
     }
-    unless( $from =~ m!^/! ) {
+
+    if( $from =~ m!^\./(.*)$! ) {
+        $from = getcwd . '/' . $1;
+    } elsif( $from !~ m!^/! ) {
         $from = getcwd . '/' . $from;
     }
     
