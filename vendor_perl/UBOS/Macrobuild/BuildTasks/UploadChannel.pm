@@ -36,13 +36,14 @@ sub new {
         'os',
         'hl',
         'tools',
-        'virt' );
+        'virt',
+        'images' ); # not a repo, but structurally in the same place
 
     my $uploadTasks = {};    
     foreach my $repo ( @repos ) {
         $uploadTasks->{"upload-$repo"} = new UBOS::Macrobuild::BasicTasks::Upload(
-            'from' => '${repodir}/${arch}/' . $repo,
-            'to'   => '${uploadDest}/${arch}/'           . $repo );
+            'from' => '${repodir}/${arch}/'    . $repo,
+            'to'   => '${uploadDest}/${arch}/' . $repo );
     }
     my @uploadTaskNames  = keys %$uploadTasks;
             
