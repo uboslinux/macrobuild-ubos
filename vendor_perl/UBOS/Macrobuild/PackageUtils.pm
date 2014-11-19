@@ -97,15 +97,19 @@ sub packageVersionNoLaterThan {
     my @sorted = sortByPackageVersion( @names );
     my $ret    = undef;
     foreach my $candidate ( @sorted ) {
-        my %candidateParsed = parsePackageFileName( $candidate );
+        my $candidateParsed = parsePackageFileName( $candidate );
+        unless( $candidateParsed ) {
+            error( $@ );
+            next;
+        }
         if( $ret ) {
-            if( compareParsedPackageFileNamesByVersion( $limit, \%candidateParsed ) < 0 ) {
+            if( compareParsedPackageFileNamesByVersion( $limit, $candidateParsed ) < 0 ) {
                 return $ret;
             } # else continue
 
         } else {
             # first time around
-            if( compareParsedPackageFileNamesByVersion( $limit, \%candidateParsed ) < 0 ) {
+            if( compareParsedPackageFileNamesByVersion( $limit, $candidateParsed ) < 0 ) {
                 return undef; # all too new
             }
         }
@@ -147,10 +151,18 @@ sub comparePackageFileNamesByVersion($$) {
         return 0;
 	}
 
-    my %aParsed = parsePackageFileName( $a );
-    my %bParsed = parsePackageFileName( $b );
+    my $aParsed = parsePackageFileName( $a );
+    unless( $aParsed ) {
+        error( $@ );
+        return 0; # gotta return something
+    }    
+    my $bParsed = parsePackageFileName( $b );
+    unless( $bParsed ) {
+        error( $@ );
+        return 0; # gotta return something
+    }
 
-    my $ret = compareParsedPackageFileNamesByVersion( \%aParsed, \%bParsed );
+    my $ret = compareParsedPackageFileNamesByVersion( $aParsed, $bParsed );
     return $ret;
 }
 
@@ -186,7 +198,7 @@ sub compareParsedPackageFileNamesByVersion {
 # Split file name into package name, epoch, version, release,
 # architecture, and compression components
 # $s: package-[epoch:]version[-release]-arch.pkg.compression string
-# return: ( name, epoch, version, release, arch, compression )
+# return: hash of name, epoch, version, release, arch, compression and their values
 sub parsePackageFileName {
     my $s = shift;
     
@@ -205,19 +217,21 @@ sub parsePackageFileName {
         $arch        = $5;
         $compression = $6;
     } else {
-        error( 'Cannot parse', $s, 'into epoch, version and release components' );
+        $@ = "Cannot parse $s into epoch, version and release components";
         return undef;
     }
     unless( $epoch ) {
         $epoch = '0';
     }
-    return (
+    return {
         'name'        => $name,
         'epoch'       => $epoch,
         'version'     => $version,
         'release'     => $release,
         'arch'        => $arch,
-        'compression' => $compression );
+        'compression' => $compression,
+        'original'    => $s
+    };
 }
 
 ##
