@@ -23,15 +23,24 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
+    my $arch      = $run->getVariable( 'arch' );
+    my $toChannel = $run->getVariable( 'toChannel' );
+    unless( $arch ) {
+        error( 'Variable not set: arch' );
+        return -1;
+    }
+    unless( $toChannel ) {
+        error( 'Variable not set: toChannel' );
+        return -1;
+    }
+
     $run->taskStarting( $self ); # input ignored
 
-    my $toChannel      = $run->getSettings->getVariable( 'toChannel' );
     my $fromRepository = $run->replaceVariables( $self->{fromRepository} );
     my $toRepository   = $run->replaceVariables( $self->{toRepository} );
 
     my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
     my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
-    my $arch      = $run->getVariable( 'arch' );
     
     my $newPackages = {};
     my $oldPackages = {};

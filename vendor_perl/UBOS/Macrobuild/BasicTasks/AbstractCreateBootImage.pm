@@ -55,15 +55,20 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
-    my $in              = $run->taskStarting( $self );
-    my $updatedPackages = $in->{'updated-packages'};
-    my $arch            = $run->getSettings->getVariable( 'arch' );
+    my $arch = $run->getVariable( 'arch' );
+    unless( $arch ) {
+        error( 'Variable not set: arch' );
+        return -1;
+    }
 
     unless( exists( $self->{channel} )) {
         error( 'Missing parameter channel' );
         return -1;
     }
-    my $channel = $run->replaceVariables( $self->{channel} );
+
+    my $in              = $run->taskStarting( $self );
+    my $updatedPackages = $in->{'updated-packages'};
+    my $channel         = $run->replaceVariables( $self->{channel} );
 
     my $image;
     my $errors = 0;
@@ -123,7 +128,7 @@ sub run {
 [options]
 END
 
-        if( $run->getSettings->getVariable( 'sigRequiredInstall' )) {
+        if( $run->getVariable( 'sigRequiredInstall' )) {
             print $pacstrapPacmanConfig <<END;
 SigLevel           = Required TrustedOnly
 LocalFileSigLevel  = Required TrustedOnly
@@ -177,7 +182,7 @@ END
 
         debug( 'Keys' );
 
-        my $adminSshKeyFile = $run->getSettings->getVariable( 'adminSshKeyFile' );
+        my $adminSshKeyFile = $run->getVariable( 'adminSshKeyFile' );
         if( $adminSshKeyFile ) {
             my $adminSshKey = UBOS::Utils::slurpFile( $adminSshKeyFile );
             $chrootScript .= <<END;
@@ -190,7 +195,7 @@ chmod 600 ~ubos-admin/.ssh/authorized_keys
 chown ubos-admin:ubos-admin ~ubos-admin/.ssh{,/authorized_keys}
 END
 
-            if( $run->getSettings->getVariable( 'adminHasRoot' )) {
+            if( $run->getVariable( 'adminHasRoot' )) {
                 # to help with debugging
                 $chrootScript .= <<END;
 cat > /etc/sudoers.d/ubos-admin <<SUDO

@@ -34,7 +34,7 @@ sub run {
     my $dirsUpdated    = $run->replaceVariables( $in->{'dirs-updated'} );
     my $dirsNotUpdated = $run->replaceVariables( $in->{'dirs-not-updated'} );
     
-    my $packageSignKey = $run->getSettings()->getVariable( 'packageSignKey', undef );
+    my $packageSignKey = $run->getVariable( 'packageSignKey', undef ); # ok if not exists
 
     my $ret        = 1;
     my $built      = {};

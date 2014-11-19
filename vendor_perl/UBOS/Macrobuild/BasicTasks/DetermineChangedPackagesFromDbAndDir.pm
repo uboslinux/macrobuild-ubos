@@ -20,6 +20,12 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
+    my $arch = $run->getVariable( 'arch' );
+    unless( $arch ) {
+        error( 'Variable not set: arch' );
+        return -1;
+    }
+
     my $in = $run->taskStarting( $self );
 
     my $packageDatabases = $in->{'all-package-databases'};
@@ -28,12 +34,10 @@ sub run {
             # because several repositories access the same upstream repository, and on the
             # second access, it says "not changed" although it might have in the first
             # access during the same build. As a result, some packages won't be updated.
-    my $dir              = $run->{settings}->replaceVariables( $self->{dir} );
+    my $dir = $run->{settings}->replaceVariables( $self->{dir} );
 
     my $toDownload = {};
     if( %$packageDatabases ) {
-        my $arch = $run->getVariable( 'arch' );
-
         my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
         foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
             my $upConfig = $upConfigs->{$repoName}; 

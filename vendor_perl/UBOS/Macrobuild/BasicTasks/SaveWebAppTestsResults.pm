@@ -19,7 +19,7 @@ sub run {
 
     my $in = $run->taskStarting( $self ); # ignore input
 
-    my $testLogsDir = $run->getSettings->getVariable( 'testLogsDir' );
+    my $testLogsDir = $run->getVariable( 'testLogsDir' );
     if( defined( $testLogsDir )) {
         unless( -d $testLogsDir ) {
             UBOS::Utils::mkdir( $testLogsDir );

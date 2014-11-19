@@ -39,6 +39,12 @@ sub configs {
     my $self     = shift;
     my $settings = shift;
 
+    my $arch = $settings->getVariable( 'arch' );
+    unless( $arch ) {
+        error( 'Variable not set: arch' );
+        return undef;
+    }
+
     my $ret = $self->{settingsConfigsMap}->{$settings->getName};
     unless( $ret ) {
         my $realDir = $settings->replaceVariables( $self->{dir} );
@@ -51,8 +57,6 @@ sub configs {
 
         $ret = {};
         $self->{settingsConfigsMap}->{$settings->getName} = $ret;
-
-        my $arch = $settings->getVariable( 'arch' );
 
         foreach my $file ( @files ) {
             debug( "Now reading upstream sources config file", $file );

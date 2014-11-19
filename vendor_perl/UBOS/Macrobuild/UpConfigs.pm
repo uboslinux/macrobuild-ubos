@@ -38,6 +38,17 @@ sub configs {
     my $self     = shift;
     my $settings = shift;
 
+    my $archUpstreamDir = $settings->getVariable( 'archUpstreamDir' );
+    my $arch            = $settings->getVariable( 'arch' );
+    unless( $archUpstreamDir ) {
+        error( 'Variable not set: archUpstreamDir' );
+        return undef;
+    }
+    unless( $arch ) {
+        error( 'Variable not set: arch' );
+        return undef;
+    }
+
     my $ret = $self->{settingsConfigsMap}->{$settings->getName};
     unless( $ret ) {
         my $realDir = $settings->replaceVariables( $self->{dir} );
@@ -51,7 +62,6 @@ sub configs {
         $ret = {};
         $self->{settingsConfigsMap}->{$settings->getName} = $ret;
 
-        my $arch = $settings->getVariable( 'arch' );
         foreach my $file ( @files ) {
             debug( "Now reading upstream packages config file", $file );
             my $shortRepoName = $file;
@@ -79,7 +89,7 @@ sub configs {
             }
             
             my $directory = $settings->replaceVariables(
-                    $settings->getVariable( 'archUpstreamDir' ),
+                    $archUpstreamDir,
                     { 'db' => $shortRepoName } );
 
             unless( !defined( $directory ) || ( $directory =~ m!^/! && -d $directory ) || $directory =~ m!^https?://! ) {

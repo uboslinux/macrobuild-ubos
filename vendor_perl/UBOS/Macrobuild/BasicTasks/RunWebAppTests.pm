@@ -24,9 +24,9 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $scaffold    = $run->getSettings->getVariable( 'scaffold' );
-    my $testplan    = $run->getSettings->getVariable( 'testplan' );
-    my $testVerbose = $run->getSettings->getVariable( 'testverbose' );
+    my $scaffold    = $run->getVariable( 'scaffold' );    # ok if not exists
+    my $testplan    = $run->getVariable( 'testplan' );    # ok if not exists
+    my $testVerbose = $run->getVariable( 'testverbose' ); # ok if not exists
 
     my $testCmd  = 'webapptest run';
 
