@@ -44,7 +44,7 @@ sub new {
                 'from' => '${repodir}/${arch}/'    . $repo,
                 'to'   => '${uploadDest}/${arch}/' . $repo );
     }
-    $uploadTasks->{"upload-$images"} = new UBOS::Macrobuild::BasicTasks::Upload(
+    $uploadTasks->{"upload-images"} = new UBOS::Macrobuild::BasicTasks::Upload(
             'from' => '${imagesdir}/${arch}/images',
             'to'   => '${uploadDest}/${arch}/images' );
     
