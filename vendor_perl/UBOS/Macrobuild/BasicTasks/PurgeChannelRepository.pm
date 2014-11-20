@@ -34,6 +34,7 @@ sub run {
 
     my @keepList  = ();
     my @purgeList = ();
+    my $ret       = 1;
 
     if( -e "$dir/$dbName" ) {
         # This might be a db not supported on this arch, such as virt on arm
@@ -136,7 +137,6 @@ sub run {
         debug( 'Keeping', @keepList );
         debug( 'Purging', @purgeList );
 
-        my $ret;
         if( @purgeList ) {
             if( UBOS::Utils::deleteFile( @purgeList )) {
                 $ret = 0;
@@ -144,8 +144,6 @@ sub run {
                 error( 'Failed to purge some files:', @purgeList );
                 $ret = -1;
             }
-        } else {
-            $ret = 1;
         }
     }
 
