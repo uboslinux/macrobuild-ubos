@@ -9,6 +9,7 @@ use warnings;
 package UBOS::Macrobuild::PacmanDbFile;
 
 use Archive::Tar;
+use File::Temp;
 use UBOS::Logging;
 use UBOS::Utils;
 
@@ -32,6 +33,8 @@ sub new {
 }
 
 ##
+# Obtain the filename of the pacman DB file
+# return filename
 sub fileName {
     my $self = shift;
 
@@ -39,11 +42,32 @@ sub fileName {
 }
 
 ##
+# Obtain a hash of package names to package archive names, described in the DB file
+# return: the hash
 sub containedPackages {
     my $self = shift;
 
     unless( $self->{containedPackages} ) {
-        my $tar = Archive::Tar->new( $self->{filename} );
+        my $realFile = $self->{filename};
+        if( -l $realFile ) {
+            if( $realFile =~ m!^(.*/)([^/]+)$! ) {
+                $realFile = $1 . readlink( $realFile );
+            } else {
+                $realFile = readlink( $realFile );
+            }
+        }
+        # Need to uncompress
+        my $out;
+        UBOS::Utils::myexec( "file '$realFile'", undef, \$out );
+        my $tmpfile; # outside of the next block, otherwise will be deleted before we can use it
+        if( $out =~ m!XZ compressed data! ) {
+            $tmpfile = File::Temp->new();
+            if( UBOS::Utils::myexec( "xz -d '$realFile' --stdout > " . $tmpfile->filename )) {
+                error( 'xz command failed' );
+            }
+            $realFile = $tmpfile->filename;
+        }
+        my $tar = Archive::Tar->new( $realFile );
         if( $tar ) {
             my @files = $tar->get_files;
 
@@ -64,8 +88,7 @@ sub containedPackages {
             $self->{containedPackages} = $ret;
 
         } else {
-            error( 'Failed to read tar file, skipping', $self->{filename} );
-            next;
+            error( 'Failed to read tar file, skipping', $realFile, '(was:', $self->{filename}, ')' );
         }
     }
 

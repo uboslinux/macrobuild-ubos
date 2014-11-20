@@ -209,7 +209,7 @@ sub parsePackageFileName {
     my $arch;
     my $compression;
 
-    if( $s =~ m!^([-_.\w]+)-(?:([^:]+):)?([^-]+)(?:-(\d+))-(\w+)\.pkg\.([a-z.]+)$! ) {
+    if( $s =~ m!^([-_.\w]+)-(?:([^:]+):)?([^-]+)(?:-([^-]+))-(\w+)\.pkg\.tar(?:\.([a-z]+))$! ) {
         $name        = $1;
         $epoch       = $2;
         $version     = $3;
@@ -248,6 +248,7 @@ sub rpmvercmp {
 	my $ret = 0;
 
 	# easy comparison to see if versions are identical
+debug( 'Comparing', $a, $b );
     if( $a eq $b ) {
         return 0;
     }
