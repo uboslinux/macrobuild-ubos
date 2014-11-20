@@ -8,8 +8,9 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CompressFiles;
 
 use base qw( Macrobuild::Task );
-use fields qw( files command );
+use fields qw( files adjustSymlinks );
 
+use Cwd qw( abs_path );
 use UBOS::Logging;
 use UBOS::Utils;
 
@@ -23,9 +24,31 @@ sub run {
     $run->taskStarting( $self ); # input ignored
 
     my $files   = $run->replaceVariables( $self->{files} );
-    my $command = $run->replaceVariables( $self->{command} || 'xz' );
+    my $command = 'xz';
+    my $ext     = '.xz';
 
-    my @files = glob $files;
+    my @files = grep { ! -l $_ } glob $files;
+
+    if( exists( $self->{adjustSymlinks} ) && $self->{adjustSymlinks} ) {
+        foreach my $file ( @files ) {
+            my $absFile = abs_path( $file );
+            my $dir     = $absFile;
+            $dir =~ s!/[^/]+$!!;
+
+            my @symlinks = grep { -l $_ } <$dir/*>;
+            foreach my $symlink ( @symlinks ) {
+                my $target = readlink( $symlink );
+                unless( $target =~ m!/! ) {
+                    # we don't do anything outside of our current dir
+                    if( "$dir/$target" eq $absFile ) {
+                        UBOS::Utils::deleteFile( $symlink );
+                        UBOS::Utils::symlink( "$target$ext", "$symlink$ext" );
+                    }
+                }
+            }
+        }            
+    }
+
     my $ret   = 0;
     if( @files ) {
         foreach my $file ( @files ) {

@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::BootImageToVmdk;
 
 use base qw( Macrobuild::Task );
-use fields qw();
+use fields qw( deleteOriginal );
 
 use File::Spec;
 use UBOS::Logging;
@@ -35,7 +35,7 @@ sub run {
         my $out;
         my $err;
         $ret = UBOS::Utils::myexec( "sudo VBoxManage convertfromraw '$bootimage' '$vmdk' --format VMDK", undef, \$out, \$err );
-            # We run this as root because that way, VirtualBox will create ~root/.config/ files instead of ~tomcat7
+            # We run this as root because that way, VirtualBox will create ~root/.config/ files instead of ~buildmaster
         unless( $ret ) {
             my $meUser;
             my $meGroup;
@@ -51,6 +51,9 @@ sub run {
         } else {
             error( "VBoxManage convertfromraw failed", $bootimage, $err );
             push @$vmdkimages, undef; # keep the same length
+        }
+        if( !defined( $self->{deleteOriginal} ) || $self->{deleteOriginal} ) {
+            UBOS::Utils::deleteFile( $bootimage );
         }
     }
     
