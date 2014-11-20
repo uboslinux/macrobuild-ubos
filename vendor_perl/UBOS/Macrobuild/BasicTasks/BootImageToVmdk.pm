@@ -25,6 +25,7 @@ sub run {
     my $bootimages      = $in->{'bootimages'};
     my $vmdkimages      = [];
     my $vmdkLinkLatests = [];
+    my $deleteOriginal = !defined( $self->{deleteOriginal} ) || $self->{deleteOriginal};
 
     my $ret;
     foreach my $bootimage ( @$bootimages ) {
@@ -51,9 +52,6 @@ sub run {
         } else {
             error( "VBoxManage convertfromraw failed", $bootimage, $err );
             push @$vmdkimages, undef; # keep the same length
-        }
-        if( !defined( $self->{deleteOriginal} ) || $self->{deleteOriginal} ) {
-            UBOS::Utils::deleteFile( $bootimage );
         }
     }
     
@@ -111,12 +109,15 @@ sub run {
                     warning( "vmdkLinkLatest $vmdkLinkLatest exists, but isn't a symlink. Not updating" );
                     $vmdkLinkLatest = undef;
                 }
-                if( $vmdkLinkLatest ) {
+                if( $vmdkLinkLatest && !$deleteOriginal ) {
                     my $relVmdk = UBOS::Macrobuild::Utils::relPath( $vmdk, $vmdkLinkLatest );
                     UBOS::Utils::symlink( $relVmdk, $vmdkLinkLatest );
                 }
             }
         }
+    }
+    if( $deleteOriginal ) {
+        UBOS::Utils::deleteFile( @$bootimages );
     }
 
     $run->taskEnded(
