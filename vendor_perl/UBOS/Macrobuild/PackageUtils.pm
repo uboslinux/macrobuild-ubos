@@ -248,7 +248,6 @@ sub rpmvercmp {
 	my $ret = 0;
 
 	# easy comparison to see if versions are identical
-debug( 'Comparing', $a, $b );
     if( $a eq $b ) {
         return 0;
     }
