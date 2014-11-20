@@ -27,6 +27,8 @@ sub run {
 
     my $cutoff = UBOS::Utils::time2string( time() - $age );
 
+    debug( 'Looking for images in directory', $dir, 'created before', UBOS::Utils::time2string( $cutoff ));
+
     my @files = <$dir/*>;
     @files = grep { ! -s $_ } @files; # ignore symlinks
 
