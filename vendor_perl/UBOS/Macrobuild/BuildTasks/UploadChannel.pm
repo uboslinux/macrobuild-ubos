@@ -36,16 +36,19 @@ sub new {
         'os',
         'hl',
         'tools',
-        'virt',
-        'images' ); # not a repo, but structurally in the same place
+        'virt' );
 
     my $uploadTasks = {};    
     foreach my $repo ( @repos ) {
         $uploadTasks->{"upload-$repo"} = new UBOS::Macrobuild::BasicTasks::Upload(
-            'from' => '${repodir}/${arch}/'    . $repo,
-            'to'   => '${uploadDest}/${arch}/' . $repo );
+                'from' => '${repodir}/${arch}/'    . $repo,
+                'to'   => '${uploadDest}/${arch}/' . $repo );
     }
-    my @uploadTaskNames  = keys %$uploadTasks;
+    $uploadTasks->{"upload-$images"} = new UBOS::Macrobuild::BasicTasks::Upload(
+            'from' => '${imagesdir}/${arch}/images',
+            'to'   => '${uploadDest}/${arch}/images' );
+    
+    my @uploadTaskNames = keys %$uploadTasks;
             
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
         'tasks' => [
