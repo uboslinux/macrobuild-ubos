@@ -58,9 +58,12 @@ sub run {
     if( defined( $in->{'linkLatests'} )) {
         # symlink the VMDKs whose images were symlinked
 
+        debug( 'Attempting vmdk linkLatests' );
         for( my $i=0 ; $i < @$bootimages ; ++$i ) {
             my $bootimage = $bootimages->[$i];
             my $vmdk      = $vmdkimages->[$i];
+
+            debug( 'Attempting vmdk linkLatest of', $bootImage, $vmdk );
 
             unless( $vmdk ) {
                 next;
@@ -101,6 +104,8 @@ sub run {
                 
                 my $vmdkLinkLatest = $vmdk;
                 $vmdkLinkLatest =~ s!\Q$from\E!$to!;
+
+                debug( 'Found vmdkLinkLatest', $vmdkLinkLatest );
 
                 if( -l $vmdkLinkLatest ) {
                     UBOS::Utils::deleteFile( $vmdkLinkLatest );

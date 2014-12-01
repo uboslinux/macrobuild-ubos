@@ -34,11 +34,11 @@ sub new {
                 'name'         => 'Create boot disk image for ${channel}',
                 'repodir'      => '${repodir}',
                 'channel'      => '${channel}',
-                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_${arch}_${tstamp}.img',
+                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_rpi_${tstamp}.img',
                 'imagesize'    => '3G',
                 'rootpartsize' => 'all',
                 'fs'           => 'ext4',
-                'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_${arch}_LATEST.img'
+                'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_rpi_LATEST.img'
             ),
 
             new Macrobuild::BasicTasks::Report(
