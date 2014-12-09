@@ -22,20 +22,20 @@ sub run {
     my $run  = shift;
 
     my $in              = $run->taskStarting( $self );
-    my $bootimages      = $in->{'bootimages'};
-    my $vmdkimages      = [];
+    my $bootImages      = $in->{'bootimages'};
+    my $vmdkImages      = [];
     my $vmdkLinkLatests = [];
     my $deleteOriginal = !defined( $self->{deleteOriginal} ) || $self->{deleteOriginal};
 
     my $ret;
-    foreach my $bootimage ( @$bootimages ) {
-        my $vmdk = $bootimage;
+    foreach my $bootImage ( @$bootImages ) {
+        my $vmdk = $bootImage;
         $vmdk =~ s!\.img$!!;
         $vmdk .= '.vmdk';
 
         my $out;
         my $err;
-        $ret = UBOS::Utils::myexec( "sudo VBoxManage convertfromraw '$bootimage' '$vmdk' --format VMDK", undef, \$out, \$err );
+        $ret = UBOS::Utils::myexec( "sudo VBoxManage convertfromraw '$bootImage' '$vmdk' --format VMDK", undef, \$out, \$err );
             # We run this as root because that way, VirtualBox will create ~root/.config/ files instead of ~buildmaster
         unless( $ret ) {
             my $meUser;
@@ -48,10 +48,10 @@ sub run {
 
             UBOS::Utils::myexec( "sudo chown $meUser:$meGroup '$vmdk'" ); 
             UBOS::Utils::myexec( "sudo chmod 644 '$vmdk'" ); 
-            push @$vmdkimages, $vmdk;
+            push @$vmdkImages, $vmdk;
         } else {
-            error( "VBoxManage convertfromraw failed", $bootimage, $err );
-            push @$vmdkimages, undef; # keep the same length
+            error( "VBoxManage convertfromraw failed", $bootImage, $err );
+            push @$vmdkImages, undef; # keep the same length
         }
     }
     
@@ -59,9 +59,9 @@ sub run {
         # symlink the VMDKs whose images were symlinked
 
         debug( 'Attempting vmdk linkLatests' );
-        for( my $i=0 ; $i < @$bootimages ; ++$i ) {
-            my $bootimage = $bootimages->[$i];
-            my $vmdk      = $vmdkimages->[$i];
+        for( my $i=0 ; $i < @$bootImages ; ++$i ) {
+            my $bootImage = $bootImages->[$i];
+            my $vmdk      = $vmdkImages->[$i];
 
             debug( 'Attempting vmdk linkLatest of', $bootImage, $vmdk );
 
@@ -69,7 +69,7 @@ sub run {
                 next;
             }
 
-            my( $bootImageDev, $bootImageInode ) = ( stat $bootimage )[ 0, 1 ];
+            my( $bootImageDev, $bootImageInode ) = ( stat $bootImage )[ 0, 1 ];
 
             my $foundLinkLatest = undef;
             foreach my $linkLatest ( @{$in->{'linkLatests'}} ) {
@@ -86,20 +86,20 @@ sub run {
                 # look for the string that changed, and make the same change
                 my $start = 0;
                 my $end   = 0;
-                my $max   = min( length( $bootimage ), length( $foundLinkLatest ));
+                my $max   = min( length( $bootImage ), length( $foundLinkLatest ));
                 
                 for( ; $start < $max; ++$start ) {
-                    if( substr( $bootimage, $start, 1 ) ne substr( $foundLinkLatest, $start, 1 )) {
+                    if( substr( $bootImage, $start, 1 ) ne substr( $foundLinkLatest, $start, 1 )) {
                         last;
                     }
                 }
                 for( ; $end < $max; ++$end ) {
-                    if( substr( $bootimage, -$end-1, 1 ) ne substr( $foundLinkLatest, -$end-1, 1 )) {
+                    if( substr( $bootImage, -$end-1, 1 ) ne substr( $foundLinkLatest, -$end-1, 1 )) {
                         last;
                     }
                 }
 
-                my $from = substr( $bootimage,       $start, length( $bootimage )-$start-$end );
+                my $from = substr( $bootImage,       $start, length( $bootImage )-$start-$end );
                 my $to   = substr( $foundLinkLatest, $start, length( $foundLinkLatest )-$start-$end );
                 
                 my $vmdkLinkLatest = $vmdk;
@@ -122,13 +122,13 @@ sub run {
         }
     }
     if( $deleteOriginal ) {
-        UBOS::Utils::deleteFile( @$bootimages );
+        UBOS::Utils::deleteFile( @$bootImages );
     }
 
     $run->taskEnded(
             $self,
             {
-                'vmdkimages'      => $vmdkimages,
+                'vmdkimages'      => $vmdkImages,
                 'vmdkLinkLatests' => $vmdkLinkLatests
             },
             $ret );
