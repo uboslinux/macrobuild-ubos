@@ -23,6 +23,7 @@ sub run {
 
     my $in              = $run->taskStarting( $self );
     my $bootImages      = $in->{'bootimages'};
+    my $bootLinkLatests = [];
     my $vmdkImages      = [];
     my $vmdkLinkLatests = [];
     my $deleteOriginal = !defined( $self->{deleteOriginal} ) || $self->{deleteOriginal};
@@ -80,6 +81,7 @@ sub run {
                     last;
                 }
             }
+            push @$bootLinkLatests, $foundLinkLatest; # whether we found it or not
             if( $foundLinkLatest ) {
                 $foundLinkLatest = File::Spec->rel2abs( $foundLinkLatest );      
 
@@ -123,6 +125,7 @@ sub run {
     }
     if( $deleteOriginal ) {
         UBOS::Utils::deleteFile( @$bootImages );
+        UBOS::Utils::deleteFile( grep { $_ } @$bootLinkLatests );
     }
 
     $run->taskEnded(
