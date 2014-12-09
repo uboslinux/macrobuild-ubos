@@ -114,7 +114,7 @@ sub run {
                     warning( "vmdkLinkLatest $vmdkLinkLatest exists, but isn't a symlink. Not updating" );
                     $vmdkLinkLatest = undef;
                 }
-                if( $vmdkLinkLatest && !$deleteOriginal ) {
+                if( $vmdkLinkLatest ) {
                     my $relVmdk = UBOS::Macrobuild::Utils::relPath( $vmdk, $vmdkLinkLatest );
                     UBOS::Utils::symlink( $relVmdk, $vmdkLinkLatest );
                 }
