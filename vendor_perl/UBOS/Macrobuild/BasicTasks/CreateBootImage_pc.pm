@@ -250,6 +250,7 @@ END
 set -e
 
 perl -pi -e 's/GRUB_DISTRIBUTOR=".*"/GRUB_DISTRIBUTOR="UBOS"/' /etc/default/grub
+perl -pi -e 's/^.*SystemMaxUse=.*$/SystemMaxUse=50M/'          /etc/systemd/journald.conf
 
 grub-mkconfig -o /boot/grub/grub.cfg
 
