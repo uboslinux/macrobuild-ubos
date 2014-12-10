@@ -58,12 +58,20 @@ sub run {
         }            
     }
 
-    my $ret   = 0;
+    my $ret = 0;
     if( @files ) {
         foreach my $file ( @files ) {
-            if( UBOS::Utils::myexec( "$command '$file'" )) {
-                error( 'Compressing failed:', $file );
-                $ret = 1;
+            if( -e "$file$ext" ) {
+                info( 'Already compressed, skipping', $file );
+                if( $ret == 0 ) {
+                    $ret = -1;
+                }
+
+            } else {
+                if( UBOS::Utils::myexec( "$command '$file'" )) {
+                    error( 'Compressing failed:', $file );
+                    $ret = 1;
+                }
             }
         }
     } else {
