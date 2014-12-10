@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CompressFiles;
 
 use base qw( Macrobuild::Task );
-use fields qw( files adjustSymlinks );
+use fields qw( files keep adjustSymlinks );
 
 use Cwd qw( abs_path );
 use UBOS::Logging;
@@ -23,13 +23,20 @@ sub run {
 
     $run->taskStarting( $self ); # input ignored
 
-    my $files   = $run->replaceVariables( $self->{files} );
+    my $files          = $run->replaceVariables( $self->{files} );
+    my $keep           = exists( $self->{keep} ) && $self->{keep};
+    my $adjustSymlinks = exists( $self->{adjustSymlinks} ) && $self->{adjustSymlinks};
+
     my $command = 'xz';
     my $ext     = '.xz';
 
+    if( $keep ) {
+        $command .= ' --keep';
+    }
+
     my @files = grep { ! -l $_ } glob $files;
 
-    if( exists( $self->{adjustSymlinks} ) && $self->{adjustSymlinks} ) {
+    if( $adjustSymlinks ) {
         foreach my $file ( @files ) {
             my $absFile = abs_path( $file );
             my $dir     = $absFile;
@@ -41,7 +48,9 @@ sub run {
                 unless( $target =~ m!/! ) {
                     # we don't do anything outside of our current dir
                     if( "$dir/$target" eq $absFile ) {
-                        UBOS::Utils::deleteFile( $symlink );
+                        unless( $keep ) {
+                            UBOS::Utils::deleteFile( $symlink );
+                        }
                         UBOS::Utils::symlink( "$target$ext", "$symlink$ext" );
                     }
                 }

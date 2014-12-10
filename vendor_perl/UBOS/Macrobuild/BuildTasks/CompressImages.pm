@@ -31,6 +31,7 @@ sub new {
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::CompressFiles(
                 'files'          => '${imagesdir}/${arch}/images/*.{img,vmdk}',
+                'keep'           => 1,
                 'adjustSymlinks' => 1
             ),
             new Macrobuild::BasicTasks::Report(
