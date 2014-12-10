@@ -249,6 +249,8 @@ END
     my $chrootScript = <<'END';
 set -e
 
+perl -pi -e 's/GRUB_DISTRIBUTOR=".*"/GRUB_DISTRIBUTOR="UBOS"/' /etc/default/grub
+
 grub-mkconfig -o /boot/grub/grub.cfg
 
 for v in $(ls -1 /lib/modules | grep -v extramodules); do depmod -a $v; done
