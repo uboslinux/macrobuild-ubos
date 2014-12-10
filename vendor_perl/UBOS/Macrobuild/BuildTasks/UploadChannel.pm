@@ -46,7 +46,8 @@ sub new {
     }
     $uploadTasks->{"upload-images"} = new UBOS::Macrobuild::BasicTasks::Upload(
             'from' => '${imagesdir}/${arch}/images',
-            'to'   => '${uploadDest}/${arch}/images' );
+            'to'   => '${uploadDest}/${arch}/images',
+            'glob' => '*.xz' );
     
     my @uploadTaskNames = keys %$uploadTasks;
             

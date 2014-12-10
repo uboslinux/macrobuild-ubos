@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::Upload;
 
 use base qw( Macrobuild::Task );
-use fields qw( from to );
+use fields qw( from to glob );
 
 use UBOS::Logging;
 use UBOS::Utils;
@@ -22,8 +22,9 @@ sub run {
 
     $run->taskStarting( $self ); # input ignored
 
-    my $from      = $run->replaceVariables( $self->{from} );
-    my $to        = $run->replaceVariables( $self->{to} );
+    my $from = $run->replaceVariables( $self->{from} );
+    my $to   = $run->replaceVariables( $self->{to} );
+    my $glob = $self->{glob} || '*';
 
     my $ret = 1;
     if( -d $from ) {
@@ -39,7 +40,7 @@ sub run {
             } else {
                 $rsyncCmd .= ' -e ssh';
             }
-            $rsyncCmd .= " $from/*"
+            $rsyncCmd .= " $from/$glob"
                        . " '$to'";
             info( "Rsync command:", $rsyncCmd );
             if( UBOS::Utils::myexec( $rsyncCmd )) {
