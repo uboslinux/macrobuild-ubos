@@ -36,6 +36,7 @@ sub run {
             # access during the same build. As a result, some packages won't be updated.
     my $dir = $run->{settings}->replaceVariables( $self->{dir} );
 
+    my $ret = 0;
     my $toDownload = {};
     if( %$packageDatabases ) {
         my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
@@ -74,14 +75,14 @@ sub run {
                         $toDownload->{$repoName}->{$packageName} = $url;
                     }
                 } else {
-                    warning( 'Failed to find package file for package', $packageName, 'in database for repo', $repoName );
+                    error( 'Failed to find package file for package', $packageName, 'in database for repo', $repoName );
+                    $ret = -1;
                 }
             }
         }
     }
 
-    my $ret = 1;
-    if( %$toDownload ) {
+    if( %$toDownload && $ret != -1 ) {
         $ret = 0;
     }
 
