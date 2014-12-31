@@ -37,12 +37,13 @@ sub run {
     my @files = grep { ! -l $_ } glob $files;
 
     if( $adjustSymlinks ) {
-        my @symlinks = grep { !m!/! } grep { !m/$ext$/ } grep { -l $_ } <$dir/*>;
-                # don't do anything outside of this directory, and skip those that are compressed already
         foreach my $file ( @files ) {
             my $absFile = abs_path( $file );
             my $dir     = $absFile;
             $dir =~ s!/[^/]+$!!;
+
+            my @symlinks = grep { !m!/! } grep { !m/$ext$/ } grep { -l $_ } <$dir/*>;
+                    # don't do anything outside of this directory, and skip those that are compressed already
 
             foreach my $symlink ( @symlinks ) {
                 my $target = readlink( $symlink );
