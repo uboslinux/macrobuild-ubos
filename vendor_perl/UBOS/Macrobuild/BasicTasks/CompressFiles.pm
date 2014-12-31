@@ -37,7 +37,7 @@ sub run {
     my @files = grep { ! -l $_ } glob $files;
 
     if( $adjustSymlinks ) {
-        my @symlinks = grep { !m!/!/ } grep { !m/$ext$/ } grep { -l $_ } <$dir/*>;
+        my @symlinks = grep { !m!/! } grep { !m/$ext$/ } grep { -l $_ } <$dir/*>;
                 # don't do anything outside of this directory, and skip those that are compressed already
         foreach my $file ( @files ) {
             my $absFile = abs_path( $file );
@@ -62,13 +62,13 @@ sub run {
             if( -e "$file$ext" ) {
                 info( 'Already compressed, skipping', $file );
                 if( $ret == 0 ) {
-                    $ret = -1;
+                    $ret = 1;
                 }
 
             } else {
                 if( UBOS::Utils::myexec( "$command '$file'" )) {
                     error( 'Compressing failed:', $file );
-                    $ret = 1;
+                    $ret = -1;
                 }
             }
         }
