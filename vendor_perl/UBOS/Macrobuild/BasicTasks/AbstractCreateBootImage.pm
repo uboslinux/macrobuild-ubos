@@ -248,7 +248,11 @@ Server = http://depot.ubos.net/$channel/\$arch/$db
 END
         }
         UBOS::Utils::saveFile( $targetDir . '/etc/pacman.conf', $productionPacmanConfig, 0644, 'root', 'root' );
-        
+
+        # Limit size of system journal
+        debug( "System journal" );
+        UBOS::Utils::myexec( "sudo perl -pi -e 's/^\s*(#\s*)?SystemMaxUse=.*$/SystemMaxUse=50M/ '$targetDir/etc/systemd/journald.conf'" );
+
         # Locale
         debug( "Locale" );
         UBOS::Utils::myexec( "sudo perl -pi -e 's/^#.*en_US\.UTF-8.*\$/en_US.UTF-8 UTF-8/g' '$targetDir/etc/locale.gen'" );
