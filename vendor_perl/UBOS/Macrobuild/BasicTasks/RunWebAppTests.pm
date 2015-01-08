@@ -34,7 +34,13 @@ sub run {
         $testCmd .= ' --scaffold ' . $scaffold;
     }
     if( defined( $testplan )) {
-        $testCmd .= ' --testplan ' . $testplan;
+        if( ref( $testplan ) eq 'ARRAY' ) {
+            if( @$testplan ) {
+                $testCmd .= ' ' . map { '--testplan ' . @_ } @$testplan;
+            }
+        } else {
+            $testCmd .= ' --testplan ' . $testplan;
+        }
     }
     if( defined( $testVerbose )) {
         $testCmd .= " $testVerbose";
