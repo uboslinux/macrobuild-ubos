@@ -33,10 +33,11 @@ sub run {
     if( defined( $scaffold )) {
         $testCmd .= ' --scaffold ' . $scaffold;
     }
+
     if( defined( $testplan )) {
         if( ref( $testplan ) eq 'ARRAY' ) {
             if( @$testplan ) {
-                $testCmd .= ' ' . map { '--testplan ' . @_ } @$testplan;
+                $testCmd .= ' ' . join( ' ', map { '--testplan ' . $_ } @$testplan );
             }
         } else {
             $testCmd .= ' --testplan ' . $testplan;
