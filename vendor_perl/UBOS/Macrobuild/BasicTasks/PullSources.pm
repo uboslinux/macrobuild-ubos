@@ -127,7 +127,7 @@ sub _pullFromGit {
 				$dirsNotUpdated->{$name} = \@notUpdated;
 			}
 		} else {
-			info( "Source spec as changed. Starting over\n" );
+			info( "Source spec has changed. Starting over\n" );
 			UBOS::Utils::deleteRecursively( $sourceSourceDir );
 		}
 	}
