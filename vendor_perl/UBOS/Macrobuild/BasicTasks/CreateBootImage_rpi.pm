@@ -26,7 +26,7 @@ sub new {
     }
     $self->SUPER::new( @args );
 
-    $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ntp', 'ubos-admin', 'ubos-networking', 'rng-tools',
+    $self->{installPackages} = [ 'base', 'openssh', 'btrfs-progs', 'ntp', 'ubos-admin', 'ubos-networking', 'ubos-install', 'rng-tools',
                                  'linux-raspberrypi', 'raspberrypi-firmware', 'raspberrypi-firmware-bootloader',
                                  'raspberrypi-firmware-bootloader-x', 'archlinuxarm-keyring' ];
     $self->{enableDbs}       = [ 'os', 'hl', 'tools' ];
