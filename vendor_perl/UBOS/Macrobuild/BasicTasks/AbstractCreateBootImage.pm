@@ -251,7 +251,7 @@ END
 
         # Limit size of system journal
         debug( "System journal" );
-        UBOS::Utils::myexec( "sudo perl -pi -e 's/^\s*(#\s*)?SystemMaxUse=.*$/SystemMaxUse=50M/ '$targetDir/etc/systemd/journald.conf'" );
+        UBOS::Utils::myexec( "sudo perl -pi -e 's/^\\s*(#\\s*)?SystemMaxUse=.*\$/SystemMaxUse=50M/ '$targetDir/etc/systemd/journald.conf'" );
 
         # Locale
         debug( "Locale" );
