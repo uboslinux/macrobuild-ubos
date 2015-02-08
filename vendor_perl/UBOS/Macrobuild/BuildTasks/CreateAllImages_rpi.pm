@@ -1,6 +1,5 @@
 # 
-# Creates the image for the Raspberry Pi. This uses the plural name
-# to be consistent on all device types
+# Creates all images for the Raspberry Pi.
 #
 
 use strict;
@@ -14,7 +13,7 @@ use fields;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::CreateBootImage_rpi;
+use UBOS::Macrobuild::BasicTasks::CreateImage_rpi;
 
 ##
 # Constructor
@@ -30,19 +29,19 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::CreateBootImage_rpi(
+            new UBOS::Macrobuild::BasicTasks::CreateImage_rpi(
                 'name'         => 'Create boot disk image for ${channel}',
                 'repodir'      => '${repodir}',
                 'channel'      => '${channel}',
-                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_rpi_${tstamp}.img',
+                'deviceclass'  => 'rpi',
                 'imagesize'    => '3G',
-                'rootpartsize' => 'all',
-                'fs'           => 'ext4',
+                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_rpi_${tstamp}.img',
                 'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_rpi_LATEST.img'
             ),
 
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report build activity for creating ${channel} images' )
+                'name'        => 'Report build activity for creating ${channel} images' ),
+                'fields'      => [ 'bootimages' ] )
         ]
     );
 

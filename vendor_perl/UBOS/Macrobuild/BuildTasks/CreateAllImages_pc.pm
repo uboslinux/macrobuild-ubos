@@ -11,9 +11,12 @@ use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
+use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
-use UBOS::Macrobuild::ComplexTasks::CreateImages_pc;
+use UBOS::Macrobuild::BasicTasks::CreateImage_pc;
+use UBOS::Macrobuild::BasicTasks::CreateImage_vbox_pc;
+use UBOS::Macrobuild::BasicTasks::ImageToVmdk;
 
 ##
 # Constructor
@@ -29,10 +32,39 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new UBOS::Macrobuild::ComplexTasks::CreateImages_pc(),
+            new Macrobuild::CompositeTasks::SplitJoin( 
+                'parallelTasks' => {
+                    'img' => new UBOS::Macrobuild::BasicTasks::CreateImage(
+                        'name'         => 'Create boot disk image for ${channel}',
+                        'repodir'      => '${repodir}',
+                        'channel'      => '${channel}',
+                        'deviceclass'  => 'pc',
+                        'imagesize'    => '3G',
+                        'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_pc_x86_64_${tstamp}.img',
+                        'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_pc_x86_64_LATEST.img'
+                    ),
+                    'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
+                        'tasks' => [
+                            new UBOS::Macrobuild::BasicTasks::CreateImage_vbox_pc(
+                                'name'         => 'Create boot disk image for ${channel} for VirtualBox',
+                                'repodir'      => '${repodir}',
+                                'channel'      => '${channel}',
+                                'deviceclass'  => 'vbox-pc',
+                                'imagesize'    => '3G',
+                                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_vbox-pc_x86_64_${tstamp}.img',
+                                'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_vbox-pc_x86_64_LATEST.img' ),
+                            new UBOS::Macrobuild::BasicTasks::ImagesToVmdk()
+                        ]
+                    )
+                },
+                'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
+                        'name'         => 'Merge images list for ${channel}',
+                        'keys'         => [ 'img', 'vbox.img' ]
+                )
+            ),
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report build activity for creating ${channel} images',
-                'fields'      => [ 'bootimages', 'vmdkimages' ] )
+                'fields'      => [ 'images', 'vmdkimages' ] )
         ]
     );
 
@@ -40,3 +72,7 @@ sub new {
 }
 
 1;
+
+
+
+

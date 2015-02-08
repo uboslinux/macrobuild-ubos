@@ -2,13 +2,14 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
-pkgver=0.124
+pkgver=0.125
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
 depends=(
         'macrobuild'
+        'ubos-install'
         'ubos-perl-utils'
         'parted'
         'util-linux'
