@@ -13,7 +13,7 @@ use fields;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::CreateImage_rpi;
+use UBOS::Macrobuild::BasicTasks::CreateImage;
 
 ##
 # Constructor
@@ -29,7 +29,7 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::CreateImage_rpi(
+            new UBOS::Macrobuild::BasicTasks::CreateImage(
                 'name'         => 'Create boot disk image for ${channel}',
                 'repodir'      => '${repodir}',
                 'channel'      => '${channel}',

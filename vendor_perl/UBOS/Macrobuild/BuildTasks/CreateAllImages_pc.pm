@@ -14,8 +14,7 @@ use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::CreateImage_pc;
-use UBOS::Macrobuild::BasicTasks::CreateImage_vbox_pc;
+use UBOS::Macrobuild::BasicTasks::CreateImage;
 use UBOS::Macrobuild::BasicTasks::ImageToVmdk;
 
 ##
@@ -45,7 +44,7 @@ sub new {
                     ),
                     'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                         'tasks' => [
-                            new UBOS::Macrobuild::BasicTasks::CreateImage_vbox_pc(
+                            new UBOS::Macrobuild::BasicTasks::CreateImage(
                                 'name'         => 'Create boot disk image for ${channel} for VirtualBox',
                                 'repodir'      => '${repodir}',
                                 'channel'      => '${channel}',
