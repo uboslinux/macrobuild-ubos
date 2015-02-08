@@ -13,9 +13,10 @@ use fields;
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
+use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CreateImage;
-use UBOS::Macrobuild::BasicTasks::ImageToVmdk;
+use UBOS::Macrobuild::BasicTasks::ImagesToVmdk;
 
 ##
 # Constructor

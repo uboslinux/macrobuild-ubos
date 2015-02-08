@@ -41,7 +41,7 @@ sub run {
         return -1;
     }
 
-    foreach $key ( qw( channel deviceclass image imagesize repodir ) ) {
+    foreach my $key ( qw( channel deviceclass image imagesize repodir ) ) {
         unless( exists( $self->{$key} )) {
             error( 'Missing parameter', $key );
             return -1;
@@ -72,12 +72,12 @@ sub run {
              ++$errors;
         }
 
-        my $installCmd = 'ubos-install';
+        my $installCmd = 'sudo ubos-install';
         $installCmd .= " --channel $channel";
-        $installCmd .= " --repository file://$repodir/$arch";
+        $installCmd .= " --repository '$repodir'";
         $installCmd .= " --deviceclass $deviceclass";
         $installCmd .= " --verbose";
-        $installCmd .= "'image'";
+        $installCmd .= " '$image'";
 
         if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$err )) {
             error( 'ubos-install failed:', $err );
