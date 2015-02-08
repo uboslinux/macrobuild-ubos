@@ -51,7 +51,7 @@ sub run {
             UBOS::Utils::myexec( "sudo chmod 644 '$vmdk'" ); 
             push @$vmdkImages, $vmdk;
         } else {
-            error( "VBoxManage convertfromraw failed", $bootImage, $err );
+            error( "VBoxManage convertfromraw failed", $image, $err );
             push @$vmdkImages, undef; # keep the same length
         }
     }
@@ -81,7 +81,7 @@ sub run {
                     last;
                 }
             }
-            push @$bootLinkLatests, $foundLinkLatest; # whether we found it or not
+            push @$linkLatests, $foundLinkLatest; # whether we found it or not
             if( $foundLinkLatest ) {
                 $foundLinkLatest = File::Spec->rel2abs( $foundLinkLatest );      
 
@@ -125,7 +125,7 @@ sub run {
     }
     if( $deleteOriginal ) {
         UBOS::Utils::deleteFile( @$images );
-        UBOS::Utils::deleteFile( grep { $_ } @$bootLinkLatests );
+        UBOS::Utils::deleteFile( grep { $_ } @$linkLatests );
     }
 
     $run->taskEnded(
