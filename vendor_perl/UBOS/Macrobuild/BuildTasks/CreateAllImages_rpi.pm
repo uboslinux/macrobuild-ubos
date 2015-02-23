@@ -40,7 +40,7 @@ sub new {
             ),
 
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report build activity for creating ${channel} images' ),
+                'name'        => 'Report build activity for creating ${channel} images',
                 'fields'      => [ 'bootimages' ] )
         ]
     );
