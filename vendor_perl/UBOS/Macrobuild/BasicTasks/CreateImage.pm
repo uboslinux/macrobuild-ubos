@@ -76,7 +76,7 @@ sub run {
         $installCmd .= " --channel $channel";
         $installCmd .= " --repository '$repodir'";
         $installCmd .= " --deviceclass $deviceclass";
-        $installCmd .= " --verbose";
+        $installCmd .= " --verbose --verbose"; # for now
         $installCmd .= " '$image'";
 
         if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$err )) {
