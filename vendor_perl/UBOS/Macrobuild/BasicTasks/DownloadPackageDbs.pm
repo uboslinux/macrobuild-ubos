@@ -55,7 +55,7 @@ sub run {
         }
         
         my $cachedNow = "$upcRepoPackageDb.now"; # don't destroy the previous file if download fails
-        my $cmd       = "curl '$directory/$name.db' -L -s -o '$cachedNow'$ifModifiedSinceHeader"; 
+        my $cmd       = "curl '$directory/$name.db' -L -R -s -o '$cachedNow'$ifModifiedSinceHeader"; 
 
         debug( "Download command:", $cmd );
 

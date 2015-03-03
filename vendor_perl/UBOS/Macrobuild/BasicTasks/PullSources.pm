@@ -184,7 +184,7 @@ sub _pullByDownload {
     if( -e $downloaded ) {
 		my $downloadedNow = "$downloaded.now"; # don't destroy the previous file if download fails
 		
-		UBOS::Utils::myexec( "curl '$url' -L -s -o '$downloadedNow' -z '$downloaded'" ); 
+		UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloadedNow' -z '$downloaded'" ); 
 		if( -e $downloadedNow ) {
 			# Build again from scratch
 			UBOS::Utils::deleteRecursively( "$sourceDir/$name", $downloaded );
@@ -195,7 +195,7 @@ sub _pullByDownload {
         }
 	}
 	unless( -e $downloaded ) {
-		UBOS::Utils::myexec( "curl '$url' -L -s -o '$downloaded'" );
+		UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloaded'" );
 		
 		if( UBOS::Utils::myexec( "cd $sourceDir; " . $knownExtensions{$ext} . " '$name$ext'" )) {
             error( $knownExtensions{$ext} . " failed" );
