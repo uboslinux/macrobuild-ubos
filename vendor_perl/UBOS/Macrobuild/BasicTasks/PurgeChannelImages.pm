@@ -11,6 +11,7 @@ package UBOS::Macrobuild::BasicTasks::PurgeChannelImages;
 use base qw( Macrobuild::Task );
 use fields qw( dir age );
 
+use Cwd qw( abs_path );
 use UBOS::Logging;
 use UBOS::Utils;
 
