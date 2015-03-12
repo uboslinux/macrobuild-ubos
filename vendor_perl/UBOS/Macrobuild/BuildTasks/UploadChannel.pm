@@ -36,7 +36,7 @@ sub new {
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::Upload(
                 'from' => '${repodir}/${arch}',
-                'to'   => '${uploadDest}/${arch}' );
+                'to'   => '${uploadDest}/${arch}' ),
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report upload activity',
                 'fields'      => [ 'uploaded-to' ]
