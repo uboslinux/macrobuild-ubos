@@ -88,7 +88,7 @@ sub run {
         my $absTarget = abs_path( "$dir/$target" );
         unless( -e $absTarget ) {
             unless( UBOS::Utils::deleteFile( $absFile )) {
-                error( 'Failed to delete symlink:', absFile );
+                error( 'Failed to delete symlink:', $absFile );
                 $ret = -1;
             }
         }
