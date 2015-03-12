@@ -27,7 +27,7 @@ sub run {
     my $dir = $run->replaceVariables( $self->{dir} );
 
     my @allFiles = <$dir/*>;
-    my @files = grep { ! -s $_ } @allFiles; # ignore symlinks
+    my @files = grep { ! -l $_ } @allFiles; # ignore symlinks
 
     my %categories = ();
     foreach my $file ( @files ) {
@@ -78,7 +78,7 @@ sub run {
 
     # delete dangling symlinks
     foreach my $file ( @allFiles ) {
-        unless( -s $file ) {
+        unless( -l $file ) {
             next;
         }
         my $absFile = File::Spec->rel2abs( $file ); # need of the symlink, not the target
