@@ -93,8 +93,10 @@ sub run {
                         unless( $keep ) {
                             UBOS::Utils::deleteFile( $symlink );
                         }
-                        info( 'Symlinking', "$file$ext", '->', "$symlink$ext" );
-                        UBOS::Utils::symlink( "$file$ext", "$symlink$ext" );
+                        my $target = readlink( $symlink ); # Set it up the same way
+
+                        info( 'Symlinking', "$target$ext", '->', "$symlink$ext" );
+                        UBOS::Utils::symlink( "$target$ext", "$symlink$ext" );
                     }
                 }
             }
