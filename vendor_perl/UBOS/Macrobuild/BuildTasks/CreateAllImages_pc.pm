@@ -40,8 +40,8 @@ sub new {
                         'channel'      => '${channel}',
                         'deviceclass'  => 'pc',
                         'imagesize'    => '3G',
-                        'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_pc_x86_64_${tstamp}.img',
-                        'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_pc_x86_64_LATEST.img'
+                        'image'        => '${repodir}/${arch}/images/ubos_${channel}_pc_x86_64_${tstamp}.img',
+                        'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_pc_x86_64_LATEST.img'
                     ),
                     'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                         'tasks' => [
@@ -51,8 +51,8 @@ sub new {
                                 'channel'      => '${channel}',
                                 'deviceclass'  => 'vbox-pc',
                                 'imagesize'    => '3G',
-                                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_vbox-pc_x86_64_${tstamp}.img',
-                                'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_vbox-pc_x86_64_LATEST.img' ),
+                                'image'        => '${repodir}/${arch}/images/ubos_${channel}_vbox-pc_x86_64_${tstamp}.img',
+                                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_vbox-pc_x86_64_LATEST.img' ),
                             new UBOS::Macrobuild::BasicTasks::ImagesToVmdk()
                         ]
                     )

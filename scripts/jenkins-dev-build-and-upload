@@ -1,0 +1,33 @@
+# Verbosity setting
+export VERBOSE=-v
+
+# Go to work area
+cd "$JENKINS_HOME"
+cd ../workarea
+export WORKAREA=$(pwd)
+export GNUPGHOME=$WORKAREA/keys/ubos/buildmaster\@ubos.net/gpg/
+
+# Make sure we have keys
+[ -e $WORKAREA/keys/ubos/MOUNTED ] || ( echo 'FATAL: No keys available'; exit 1 )
+
+# Get build code
+for d in git github.com indiebox; do
+    [ -d $d ] || mkdir $d
+    cd $d
+done
+
+for p in ubos-admin macrobuild macrobuild-ubos perl; do
+    [ -d $p ] || git clone https://github.com/indiebox/$p
+done
+( cd ubos-admin/ubos-perl-utils; git pull; rm -f ubos-perl-utils-*pkg*; makepkg -c -f; sudo pacman -U --noconfirm ubos-perl-utils-*pkg* )
+( cd perl/perl-log-journald; git pull; rm -f perl-log-journald-*pkg*; makepkg -c -f; sudo pacman -U --noconfirm perl-log-journald-*pkg* )
+for p in macrobuild macrobuild-ubos; do
+    ( cd $p; git pull; rm -f $p-*pkg*; makepkg -c -f; sudo pacman -U --noconfirm $p-*pkg* )
+done
+
+
+# Run the actual build
+
+cd $WORKAREA
+echo "Now building in $(pwd)"
+macrobuild UBOS::Macrobuild::BuildTasks::BuildAndUploadDev --configdir git/github.com/indiebox/macrobuild-ubos/config --archUpstreamSite http://mirror.us.leaseweb.net/archlinux --arch x86_64 --builddir build --repodir repository/dev --uploadDest buildmaster@depot.ubos.net:/var/lib/cldstr-archdepot/a4f233ff23d73bc9c22e8cf2b2667ef3c095eec6d --uploadSshKey $WORKAREA/keys/ubos/buildmaster@ubos.net/ssh/id_rsa --packageSignKey 'buildmaster@ubos.net' $VERBOSE

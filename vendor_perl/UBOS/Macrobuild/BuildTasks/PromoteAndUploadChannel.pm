@@ -41,7 +41,6 @@ sub new {
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
     my $promoteTasks = {};
-    my $uploadTasks = {};
     
     foreach my $db ( @dbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $db . '/up' );
@@ -51,33 +50,22 @@ sub new {
             'upconfigs' => $repoUpConfigs->{$db},
             'usconfigs' => $repoUsConfigs->{$db},
             'db'        => $db );
-
-        $uploadTasks->{"upload-$repo"} = new UBOS::Macrobuild::BasicTasks::Upload(
-            'from' => '${repodir}/${arch}/'    . $db,
-            'to'   => '${uploadDest}/${arch}/' . $db );
     }
     my @promoteTaskNames = keys %$promoteTasks;
-    my @uploadTaskNames  = keys %$uploadTasks;
             
-    my @mergeKeys = ( '', @promoteTaskNames, @uploadTaskNames );
+    my @mergeKeys = ( '', @promoteTaskNames );
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
         'tasks' => [
             new Macrobuild::CompositeTasks::SplitJoin(
                 'parallelTasks' => $promoteTasks,
-                'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
-                    'tasks' => [
-                        new Macrobuild::CompositeTasks::SplitJoin(
-                            'parallelTasks' => $uploadTasks ),
-                        new Macrobuild::CompositeTasks::MergeValuesTask(
-                            'name'         => 'Merge promotion lists from repositories: ' . join( ' ', @dbs ),
-                            'keys'         => \@mergeKeys ),
-                    ]
-                )
             ),
+            new UBOS::Macrobuild::BasicTasks::Upload(
+                'from'          => '${repodir}/${arch}',
+                'to'            => '${uploadDest}/${arch}' ),
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report promotion activity for repositories: ' . join( ' ', @dbs ),
-                'fields'      => [ 'promoted-to' ] )
+                'name'          => 'Report promotion activity',
+                'fields'        => [ 'promoted-to' ] )
         ]
     );
 

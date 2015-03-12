@@ -31,33 +31,14 @@ sub new {
     }
     
     $self->SUPER::new( @args );
-
-    my @repos = (
-        'os',
-        'hl',
-        'tools',
-        'virt' );
-
-    my $uploadTasks = {};    
-    foreach my $repo ( @repos ) {
-        $uploadTasks->{"upload-$repo"} = new UBOS::Macrobuild::BasicTasks::Upload(
-                'from' => '${repodir}/${arch}/'    . $repo,
-                'to'   => '${uploadDest}/${arch}/' . $repo );
-    }
-    $uploadTasks->{"upload-images"} = new UBOS::Macrobuild::BasicTasks::Upload(
-            'from' => '${imagesdir}/${arch}/images',
-            'to'   => '${uploadDest}/${arch}/images',
-            'glob' => '*.xz' );
-    
-    my @uploadTaskNames = keys %$uploadTasks;
             
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
         'tasks' => [
-            new Macrobuild::CompositeTasks::SplitJoin(
-                'parallelTasks' => $uploadTasks
-            ),
+            new UBOS::Macrobuild::BasicTasks::Upload(
+                'from' => '${repodir}/${arch}',
+                'to'   => '${uploadDest}/${arch}' );
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report upload activity for repositories: ' . join( ' ', @repos ),
+                'name'        => 'Report upload activity',
                 'fields'      => [ 'uploaded-to' ]
             )
         ]

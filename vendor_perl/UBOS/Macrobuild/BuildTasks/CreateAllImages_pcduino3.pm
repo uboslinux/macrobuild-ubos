@@ -35,8 +35,8 @@ sub new {
                 'channel'      => '${channel}',
                 'deviceclass'  => 'pcduino3',
                 'imagesize'    => '3G',
-                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_pcduino3_${tstamp}.img',
-                'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_pcduino3_LATEST.img'
+                'image'        => '${repodir}/${arch}/images/ubos_${channel}_pcduino3_${tstamp}.img',
+                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_pcduino3_LATEST.img'
             ),
 
             new Macrobuild::BasicTasks::Report(

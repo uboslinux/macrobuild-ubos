@@ -11,6 +11,7 @@ use base qw( Macrobuild::Task );
 use fields qw( files keep adjustSymlinks );
 
 use Cwd qw( abs_path );
+use File::Spec;
 use UBOS::Logging;
 use UBOS::Utils;
 
@@ -34,42 +35,67 @@ sub run {
         $command .= ' --keep';
     }
 
-    my @files = grep { ! -l $_ } glob $files;
+    my @allFiles        = glob $files;
+    my %filesToSymlinks = ();
 
-    if( $adjustSymlinks ) {
-        foreach my $file ( @files ) {
+    foreach my $file ( @allFiles ) {
+        unless( -l $file ) {
             my $absFile = abs_path( $file );
+            $filesToSymlinks{$absFile} = [];
+        }
+    }
+
+    foreach my $file ( @allFiles ) {    
+        if( -l $file ) {
+            my $absFile = File::Spec->rel2abs( $file ); # need of the symlink, not the target
             my $dir     = $absFile;
             $dir =~ s!/[^/]+$!!;
 
-            my @symlinks = grep { !m!/! } grep { !m/$ext$/ } grep { -l $_ } <$dir/*>;
-                    # don't do anything outside of this directory, and skip those that are compressed already
+            my $target    = readlink( $absFile );
+            my $absTarget = abs_path( "$dir/$target" );
 
-            foreach my $symlink ( @symlinks ) {
-                my $target = readlink( $symlink );
-                if( "$dir/$target" eq $absFile ) {
-                    unless( $keep ) {
-                        UBOS::Utils::deleteFile( $symlink );
-                    }
-                    UBOS::Utils::symlink( "$target$ext", "$symlink$ext" );
-                }
+            if( exists( $filesToSymlinks{$absTarget} )) {
+                push @{$filesToSymlinks{$absTarget}}, $absFile;
+                
+            } else {
+                info( 'Skipping', $absFile, '=>', $absTarget );
             }
-        }            
+            
+        } else {
+        }
     }
 
-    my $ret = 0;
-    if( @files ) {
-        foreach my $file ( @files ) {
-            if( -e "$file$ext" ) {
-                info( 'Already compressed, skipping', $file );
-                if( $ret == 0 ) {
-                    $ret = 1;
-                }
+    my $ret = 1;
+    my @already    = ();
+    my @compressed = ();
+    if( keys %filesToSymlinks ) {
+        foreach my $file ( keys %filesToSymlinks ) {
+            if( $file =~ m!$ext$! ) {
+                info( 'Skipping compressed file', $file );
+
+            } elsif( -l "$file" ) {
+                info( 'Is a symlink, skipping', $file );
+
+            } elsif( -e "$file$ext" ) {
+                info( 'Already has a compressed companion, skipping', $file );
+                push @already, $file;
 
             } else {
                 if( UBOS::Utils::myexec( "$command '$file'" )) {
                     error( 'Compressing failed:', $file );
                     $ret = -1;
+                } else {
+                    $ret = 0;
+
+                    push @compressed, $file;
+                    my @symlinks = @{$filesToSymlinks{$file}};
+                    foreach my $symlink ( @symlinks ) { # may be empty
+                        unless( $keep ) {
+                            UBOS::Utils::deleteFile( $symlink );
+                        }
+                        info( 'Symlinking', "$file$ext", '->', "$symlink$ext" );
+                        UBOS::Utils::symlink( "$file$ext", "$symlink$ext" );
+                    }
                 }
             }
         }
@@ -80,7 +106,8 @@ sub run {
     if( $ret == 0 ) {
         $run->taskEnded(
                 $self,
-                { 'files' => \@files },
+                { 'files'      => [ keys %filesToSymlinks ],
+                  'compressed' => \@compressed },
                 $ret );
     } else {
         $run->taskEnded(

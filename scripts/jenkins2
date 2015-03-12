@@ -1,0 +1,19 @@
+# Go to work area
+cd "$JENKINS_HOME"
+cd ../workarea
+export WORKAREA=$(pwd)
+
+# Get build code
+for d in git github.com indiebox; do
+    [ -d $d ] || mkdir $d
+    cd $d
+done
+for p in macrobuild macrobuild-indiebox; do
+    [ -d $p ] || git clone https://github.com/indiebox/$p
+    ( cd $p; git pull; rm -f $p-*pkg*; makepkg -c -f; sudo pacman -U --noconfirm $p-*pkg* )
+done
+# Run the actual build
+
+cd $WORKAREA
+echo "Now building in $(pwd)"
+macrobuild IndieBox::Macrobuild::BuildTasks::CreateDevOsImages --repodir repository --arch x86_64 --imagedir images -v -v

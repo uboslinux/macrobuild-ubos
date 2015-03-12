@@ -1,0 +1,7 @@
+macrobuild UBOS::Macrobuild::BuildTasks::CreateVboxVmdkImage \
+        --arch x86_64 \
+        --repodir ~/repository \
+        --imagedir ~/images \
+        --channel dev \
+        -v -v \
+        --adminSshKeyFile ~/keys/ubos-admin-test/ssh/id_rsa.pub

@@ -1,0 +1,7 @@
+macrobuild -v -v UBOS::Macrobuild::BuildTasks::PromoteChannel \
+        --repodir repository \
+        --arch x86_64 \
+        --fromChannel dev \
+        --toChannel red \
+        --configdir config \
+        --archUpstreamSite http://mirrors.liquidweb.com/archlinux

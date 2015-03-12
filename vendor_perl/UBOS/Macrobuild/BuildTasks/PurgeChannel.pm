@@ -47,8 +47,7 @@ sub new {
                 'age' => $age );
     }
     $purgeTasks->{"purge-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
-            'dir' => '${imagesdir}/${arch}/images',
-            'age' => $age );
+            'dir' => '${repodir}/${arch}/images' );
     
     my @purgeTaskNames = keys %$purgeTasks;
     

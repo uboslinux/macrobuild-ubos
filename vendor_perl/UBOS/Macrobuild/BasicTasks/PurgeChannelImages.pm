@@ -1,5 +1,6 @@
 # 
-# Purge the images in a channel
+# Purge the images in a channel. We keep the most recent, and
+# the first in any given month.
 #
 
 use strict;
@@ -23,14 +24,9 @@ sub run {
     $run->taskStarting( $self ); # input ignored
 
     my $dir = $run->replaceVariables( $self->{dir} );
-    my $age = $run->replaceVariables( $self->{age} );
 
-    my $cutoff = UBOS::Utils::time2string( time() - $age );
-
-    debug( 'Looking for images in directory', $dir, 'created before', $cutoff );
-
-    my @files = <$dir/*>;
-    @files = grep { ! -s $_ } @files; # ignore symlinks
+    my @allFiles = <$dir/*>;
+    my @files = grep { ! -s $_ } @allFiles; # ignore symlinks
 
     my %categories = ();
     foreach my $file ( @files ) {
@@ -52,9 +48,15 @@ sub run {
         # keep the last one
         push @keepList, ( "$dir/$prefix" . ( pop @timestamps ) . $postfix );
 
-        if( @timestamps ) {
-            my @addToPurge = map { "$dir/$prefix$_$postfix" } grep { $_ lt $cutoff } @timestamps;
-            push @purgeList, @addToPurge;
+        my $lastMonthKept = '000000'; # long time ago
+        foreach my $ts ( @timestamps ) {
+            my $yearMonth = ( $ts =~ m!^(\d{6})! );
+            if( $lastMonthKept eq $yearMonth ) {
+                push @purgeList, "$dir/$prefix$ts$postfix";
+            } else {
+                push @keepList, "$dir/$prefix$ts$postfix";
+                $lastMonthKept = $yearMonth;
+            }
         }
     }
 
@@ -73,6 +75,25 @@ sub run {
         $ret = 1;
     }
 
+    # delete dangling symlinks
+    foreach my $file ( @allFiles ) {
+        unless( -s $file ) {
+            next;
+        }
+        my $absFile = File::Spec->rel2abs( $file ); # need of the symlink, not the target
+        my $dir     = $absFile;
+        $dir =~ s!/[^/]+$!!;
+
+        my $target    = readlink( $absFile );
+        my $absTarget = abs_path( "$dir/$target" );
+        unless( -e $absTarget ) {
+            unless( UBOS::Utils::deleteFile( $absFile )) {
+                error( 'Failed to delete symlink:', absFile );
+                $ret = -1;
+            }
+        }
+    }
+    
     $run->taskEnded(
             $self,
             {

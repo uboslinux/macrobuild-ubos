@@ -52,6 +52,7 @@ sub run {
     my $updatedPackages = $in->{'updated-packages'};
     my $channel         = $run->replaceVariables( $self->{channel} );
     my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
+    my $imageSignKey    = $run->getVariable( 'imageSignKey', undef ); # ok if not exists
 
     my $image;
     my $errors = 0;
@@ -82,6 +83,14 @@ sub run {
         if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$err )) {
             error( 'ubos-install failed:', $err );
             ++$errors;
+
+        } elsif( $imageSignKey ) {
+            my $signCmd = "gpg --detach-sign -u '$imageSignKey'--no-armor '$image'";
+
+            if( UBOS::Utils::myexec( $signCmd, undef, \$out, \$err )) {
+                error( 'image signing failed:', $err );
+                ++$errors;
+            }
         }
     }
 
@@ -115,14 +124,24 @@ sub run {
             }
         }
 
-        $run->taskEnded(
-                $self,
-                {
-                    'images'       => [ $image ],
-                    'failedimages' => [],
-                    'linkLatests'  => [ $linkLatest ]
-                },
-                0 );
+        if( defined( $linkLatest )) {
+            $run->taskEnded(
+                    $self,
+                    {
+                        'images'       => [ $image ],
+                        'failedimages' => [],
+                        'linkLatests'  => [ $linkLatest ]
+                    },
+                    0 );
+        } else {
+            $run->taskEnded(
+                    $self,
+                    {
+                        'images'       => [ $image ],
+                        'failedimages' => []
+                    },
+                    0 );
+        }
 
         return 0;
 

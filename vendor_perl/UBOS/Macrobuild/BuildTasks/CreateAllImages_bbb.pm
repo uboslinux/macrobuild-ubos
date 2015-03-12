@@ -35,8 +35,8 @@ sub new {
                 'channel'      => '${channel}',
                 'deviceclass'  => 'bbb',
                 'imagesize'    => '3G',
-                'image'        => '${imagesdir}/${arch}/images/ubos_${channel}_bbb_${tstamp}.img',
-                'linkLatest'   => '${imagesdir}/${arch}/images/ubos_${channel}_bbb_LATEST.img'
+                'image'        => '${repodir}/${arch}/images/ubos_${channel}_bbb_${tstamp}.img',
+                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_bbb_LATEST.img'
             ),
 
             new Macrobuild::BasicTasks::Report(

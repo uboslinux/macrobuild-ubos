@@ -1,0 +1,6 @@
+macrobuild UBOS::Macrobuild::BuildTasks::RunWebAppTests \
+        --configdir config \
+        --repository hl \
+        --builddir build \
+        --scaffold v-box:vmdktemplate=$(pwd)/images/x86_64/images/indiebox_dev_x86_64_LATEST-1part-vbox.vmdk:ubos-admin-keyfile=$HOME/keys/ubos-admin/id_rsa \
+        -v -v
