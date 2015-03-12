@@ -35,8 +35,9 @@ sub new {
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::Upload(
-                'from' => '${repodir}/${arch}',
-                'to'   => '${uploadDest}/${arch}' ),
+                'from'        => '${repodir}/${arch}',
+                'to'          => '${uploadDest}/${arch}',
+                'excludeGlob' => '*.img' ), # don't upload uncompressed images
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report upload activity',
                 'fields'      => [ 'uploaded-to' ]
