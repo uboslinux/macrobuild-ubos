@@ -28,7 +28,7 @@ sub run {
     my $excludeGlob = $self->{excludeGlob};
 
     my $ret = 1;
-    if( $includeGlob && $excludeGlob ) {
+    if( defined( $includeGlob ) && @$includeGlob && defined( $excludeGlob ) && @$excludeGlob ) {
         error( 'Must not specify both includeGlob and excludeGlob' );
         $ret = -1;
     }
@@ -46,15 +46,15 @@ sub run {
             } else {
                 $rsyncCmd .= ' -e ssh';
             }
-            if( $includeGlob ) {
+            if( defined( $includeGlob ) && @$includeGlob ) {
                 # must include all directories
                 $rsyncCmd .= " --include '*/'";
-                $rsyncCmd .= " --include '$includeGlob'";
+                $rsyncCmd .= join( '', map { " --include '$_'" } @$includeGlob );
                 $rsyncCmd .= " --exclude '*'";
             }
-            if( $excludeGlob ) {
+            if( defined( $excludeGlob ) && @$excludeGlob ) {
                 $rsyncCmd .= " --include '*/'";
-                $rsyncCmd .= " --exclude '$excludeGlob'";
+                $rsyncCmd .= join( '', map { " --exclude '$_'" } @$excludeGlob );
             }
 
             $rsyncCmd .= " $from/"
