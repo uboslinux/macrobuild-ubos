@@ -37,7 +37,7 @@ sub new {
             new UBOS::Macrobuild::BasicTasks::Upload(
                 'from'        => '${repodir}/${arch}',
                 'to'          => '${uploadDest}/${arch}',
-                'excludeGlob' => '*.img' ), # don't upload uncompressed images
+                'excludeGlob' => '*.{img,vmdk}' ), # don't upload uncompressed images
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report upload activity',
                 'fields'      => [ 'uploaded-to' ]
