@@ -1,9 +1,0 @@
-macrobuild UBOS::Macrobuild::BuildTasks::BuildDev \
-        --configdir config \
-        --archUpstreamSite http://mirrors.liquidweb.com/archlinux \
-        --arch x86_64 \
-        --builddir ~/build \
-        --repodir ~/repository/dev \
-        --packageSignKey buildmaster-test@ubos.net \
-        --dbSignKey buildmaster-test@ubos.net \
-        -v -v
