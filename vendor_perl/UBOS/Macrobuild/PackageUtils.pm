@@ -23,10 +23,8 @@ sub packageVersionsInDirectory {
     my $dir         = shift;
     my $arch        = shift;
 
-    # make sure we don't accidentially get .sig files    
-    my @files1 = <$dir/$packageName-[0-9]*-$arch.pkg.tar.xz>;
-    my @files2 = <$dir/$packageName-[0-9]*-any.pkg.tar.xz>;
-    my @ret = map { s!.*/!!; $_; } ( @files1, @files2 );
+    my @all = map { s!.*/!!; $_; } <$dir/*>; # strip off directory
+    my @ret = grep { /^\Q$packageName\E-[^-]+-\d+-($arch|any)\.pkg\.tar\.xz$/ } @all;
 
     return @ret;
 }
