@@ -52,13 +52,17 @@ sub run {
             my $packageName = _determinePackageName( $dir );
             debug( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
 
-            if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
+            my $buildResult = $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey );
+            
+            if( $buildResult == -1 ) {
                 $ret = -1;
                 if( $self->{stopOnError} ) {
                     last;
                 }
-            } elsif( $ret == 1 ) {
-                $ret = 0; # we did something
+            } elsif( $buildResult == 0 ) {
+                if( $ret == 1 ) {
+                    $ret = 0; # say we did something
+                }
             }
         }
         if( %$inThisRepo ) {
@@ -82,12 +86,15 @@ sub run {
                 if( -e "$dir/$failedstamp" ) {
                     info( "build failed last time, trying again: makepkg in", $dir );
 
-                    if( $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey ) == -1 ) {
+                    my $buildResult = $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey );
+                    if( $buildResult == -1 ) {
                         $ret = -1;
                         if( $self->{stopOnError} ) {
                             last;
-                        } elsif( $ret == 1 ) {
-                            $ret = 0; # we did something
+                        }
+                    } elsif( $buildResult == 0 ) {
+                        if( $ret == 1 ) {
+                            $ret = 0; # say we did something
                         }
                     }
                 } else {
@@ -115,6 +122,11 @@ sub run {
 }
 
 ##
+# Build a package if needed.
+#
+# ret: -1: error
+#       0: ok
+#       1: have package already, no need to build
 sub _buildPackage {
     my $self           = shift;
     my $dir            = shift;
@@ -130,16 +142,20 @@ sub _buildPackage {
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=C';
     $cmd    .=   ' GNUPGHOME=$GNUPGHOME';
-    $cmd    .= ' makepkg -c -f -d -A'; # clean after, overwrite old build, no dependency checks, no arch checks
+    $cmd    .= ' makepkg -c -d -A'; # clean after, no dependency checks, no arch checks
     if( $packageSignKey ) {
         $cmd .= ' --sign --key ' . $packageSignKey;
     }
 
     my $out;
     if( UBOS::Utils::myexec( $cmd, undef, \$out, \$err )) { # writes to stderr, don't complain about dependencies
-        error( "makepkg in $dir failed", $err );
+        if( $err =~ /ERROR: A package has already been built/ ) {
+            return 1;
 
-        return -1;
+        } else {
+            error( "makepkg in $dir failed", $err );
+
+            return -1;
 
     } elsif( $err =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
         $builtRepo->{$packageName} = "$dir/" . UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
@@ -150,7 +166,7 @@ sub _buildPackage {
         return 0;
 
     } else {
-        error( "could not find package built by makepkg in", $dir );
+        error( "could not find package built by makepkg in", $dir, $out, $err );
         return -1;
     }
 }
