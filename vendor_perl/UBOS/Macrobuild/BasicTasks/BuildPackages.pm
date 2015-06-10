@@ -156,6 +156,7 @@ sub _buildPackage {
             error( "makepkg in $dir failed", $err );
 
             return -1;
+        }
 
     } elsif( $err =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
         $builtRepo->{$packageName} = "$dir/" . UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );

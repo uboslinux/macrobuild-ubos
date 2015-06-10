@@ -53,6 +53,7 @@ sub run {
     my $channel         = $run->replaceVariables( $self->{channel} );
     my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
     my $imageSignKey    = $run->getVariable( 'imageSignKey', undef ); # ok if not exists
+    my $checkSignatures = $run->getVariable( 'checkSignatures', 'required' );
 
     my $image;
     my $errors = 0;
@@ -78,6 +79,7 @@ sub run {
         $installCmd .= " --repository '$repodir'";
         $installCmd .= " --deviceclass $deviceclass";
         $installCmd .= " --verbose --verbose"; # for now
+        $installCmd .= " --checksignatures $checkSignatures";
         $installCmd .= " '$image'";
 
         if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$err )) {
