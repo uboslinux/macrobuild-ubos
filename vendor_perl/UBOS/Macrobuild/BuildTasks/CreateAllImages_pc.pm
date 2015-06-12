@@ -15,6 +15,7 @@ use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
+use UBOS::Macrobuild::BasicTasks::CreateContainer;
 use UBOS::Macrobuild::BasicTasks::CreateImage;
 use UBOS::Macrobuild::BasicTasks::ImagesToVmdk;
 
@@ -28,6 +29,8 @@ sub new {
         $self = fields::new( $self );
     }
     
+    my $deviceClass = 'pc_x86_64';
+
     $self->SUPER::new( @args );
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
@@ -40,8 +43,8 @@ sub new {
                         'channel'      => '${channel}',
                         'deviceclass'  => 'pc',
                         'imagesize'    => '3G',
-                        'image'        => '${repodir}/${arch}/images/ubos_${channel}_pc_x86_64_${tstamp}.img',
-                        'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_pc_x86_64_LATEST.img'
+                        'image'        => '${repodir}/${arch}/images/ubos_${channel}_${deviceClass}_${tstamp}.img',
+                        'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_${deviceClass}_LATEST.img'
                     ),
                     'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                         'tasks' => [
@@ -51,20 +54,30 @@ sub new {
                                 'channel'      => '${channel}',
                                 'deviceclass'  => 'vbox-pc',
                                 'imagesize'    => '3G',
-                                'image'        => '${repodir}/${arch}/images/ubos_${channel}_vbox-pc_x86_64_${tstamp}.img',
-                                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_vbox-pc_x86_64_LATEST.img' ),
+                                'image'        => '${repodir}/${arch}/images/ubos_${channel}_${deviceClass}_${tstamp}.img',
+                                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_${deviceClass}_LATEST.img' ),
                             new UBOS::Macrobuild::BasicTasks::ImagesToVmdk()
                         ]
+                    ),
+                    'container' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
+                        'name'              => 'Create bootable container for ${channel}',
+                        'repodir'           => '${repodir}',
+                        'channel'           => '${channel}',
+                        'deviceclass'       => 'pc',
+                        'dir'               => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceClass}_${tstamp}',
+                        'linkLatest-dir'    => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceClass}_LATEST',
+                        'tarfile'           => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceClass}_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/images/ubos_${channel}_container_${deviceClass}_LATEST.tar'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
                         'name'         => 'Merge images list for ${channel}',
-                        'keys'         => [ 'img', 'vbox.img' ]
+                        'keys'         => [ 'img', 'vbox.img', 'container' ]
                 )
             ),
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report build activity for creating ${channel} images',
-                'fields'      => [ 'images', 'vmdkimages' ] )
+                'fields'      => [ 'images', 'vmdkimages', 'dirs', 'tarfiles' ] )
         ]
     );
 
