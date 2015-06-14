@@ -43,8 +43,8 @@ sub new {
                         'channel'      => '${channel}',
                         'deviceclass'  => $deviceClass,
                         'imagesize'    => '3G',
-                        'image'        => '${repodir}/${arch}/images/ubos_${channel}_${deviceclass}_${tstamp}.img',
-                        'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_${deviceclass}_LATEST.img'
+                        'image'        => '${repodir}/${arch}/images/ubos_${channel}_' . $deviceClass . '_${tstamp}.img',
+                        'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_' . $deviceClass . '_LATEST.img'
                     ),
                     'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                         'tasks' => [
@@ -54,8 +54,8 @@ sub new {
                                 'channel'      => '${channel}',
                                 'deviceclass'  => $deviceClass,
                                 'imagesize'    => '3G',
-                                'image'        => '${repodir}/${arch}/images/ubos_${channel}_${deviceclass}_${tstamp}.img',
-                                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_${deviceclass}_LATEST.img' ),
+                                'image'        => '${repodir}/${arch}/images/ubos_${channel}_' . $deviceClass . '_${tstamp}.img',
+                                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_' . $deviceClass . '_LATEST.img' ),
                             new UBOS::Macrobuild::BasicTasks::ImagesToVmdk()
                         ]
                     ),
@@ -64,10 +64,10 @@ sub new {
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
                         'deviceclass'       => $deviceClass,
-                        'dir'               => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceclass}_${tstamp}',
-                        'linkLatest-dir'    => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceclass}_LATEST',
-                        'tarfile'           => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceclass}_${tstamp}.tar',
-                        'linkLatest-tarfile'=> '${repodir}/${arch}/images/ubos_${channel}_container_${deviceclass}_LATEST.tar'
+                        'dir'               => '${repodir}/${arch}/images/ubos_${channel}_container_' . $deviceClass . '_${tstamp}',
+                        'linkLatest-dir'    => '${repodir}/${arch}/images/ubos_${channel}_container_' . $deviceClass . '_LATEST',
+                        'tarfile'           => '${repodir}/${arch}/images/ubos_${channel}_container_' . $deviceClass . '_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/images/ubos_${channel}_container_' . $deviceClass . '_LATEST.tar'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
