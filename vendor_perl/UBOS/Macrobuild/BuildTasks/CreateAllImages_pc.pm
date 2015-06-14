@@ -29,7 +29,7 @@ sub new {
         $self = fields::new( $self );
     }
     
-    my $deviceClass = 'pc_x86_64';
+    my $deviceClass = 'vbox_pc_x86_64';
 
     $self->SUPER::new( @args );
 
@@ -41,10 +41,10 @@ sub new {
                         'name'         => 'Create boot disk image for ${channel}',
                         'repodir'      => '${repodir}',
                         'channel'      => '${channel}',
-                        'deviceclass'  => 'pc',
+                        'deviceclass'  => $deviceClass,
                         'imagesize'    => '3G',
-                        'image'        => '${repodir}/${arch}/images/ubos_${channel}_${deviceClass}_${tstamp}.img',
-                        'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_${deviceClass}_LATEST.img'
+                        'image'        => '${repodir}/${arch}/images/ubos_${channel}_${deviceclass}_${tstamp}.img',
+                        'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_${deviceclass}_LATEST.img'
                     ),
                     'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                         'tasks' => [
@@ -52,10 +52,10 @@ sub new {
                                 'name'         => 'Create boot disk image for ${channel} for VirtualBox',
                                 'repodir'      => '${repodir}',
                                 'channel'      => '${channel}',
-                                'deviceclass'  => 'vbox-pc',
+                                'deviceclass'  => $deviceClass,
                                 'imagesize'    => '3G',
-                                'image'        => '${repodir}/${arch}/images/ubos_${channel}_${deviceClass}_${tstamp}.img',
-                                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_${deviceClass}_LATEST.img' ),
+                                'image'        => '${repodir}/${arch}/images/ubos_${channel}_${deviceclass}_${tstamp}.img',
+                                'linkLatest'   => '${repodir}/${arch}/images/ubos_${channel}_${deviceclass}_LATEST.img' ),
                             new UBOS::Macrobuild::BasicTasks::ImagesToVmdk()
                         ]
                     ),
@@ -63,11 +63,11 @@ sub new {
                         'name'              => 'Create bootable container for ${channel}',
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
-                        'deviceclass'       => 'pc',
-                        'dir'               => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceClass}_${tstamp}',
-                        'linkLatest-dir'    => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceClass}_LATEST',
-                        'tarfile'           => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceClass}_${tstamp}.tar',
-                        'linkLatest-tarfile'=> '${repodir}/${arch}/images/ubos_${channel}_container_${deviceClass}_LATEST.tar'
+                        'deviceclass'       => $deviceClass,
+                        'dir'               => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceclass}_${tstamp}',
+                        'linkLatest-dir'    => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceclass}_LATEST',
+                        'tarfile'           => '${repodir}/${arch}/images/ubos_${channel}_container_${deviceclass}_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/images/ubos_${channel}_container_${deviceclass}_LATEST.tar'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
