@@ -93,7 +93,7 @@ sub run {
                 ++$errors;
 
             } else {
-                if( UBOS::Utils::myexec( "sudo chown '\$(id -u -n):\$(id -g -n)' '$tarfile'" )) {
+                if( UBOS::Utils::myexec( "sudo chown \$(id -u -n):\$(id -g -n) '$tarfile'" )) {
                     error( 'chown failed' );
                     ++$errors;
                 }
