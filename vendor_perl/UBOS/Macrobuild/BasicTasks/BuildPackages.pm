@@ -96,7 +96,7 @@ sub run {
                         if( $ret == 1 ) {
                             $ret = 0; # say we did something
                         }
-                    }
+                    } # can also be 1
                 } else {
                     my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
                     if( $mostRecent ) {
@@ -150,6 +150,9 @@ sub _buildPackage {
     my $out;
     if( UBOS::Utils::myexec( $cmd, undef, \$out, \$err )) { # writes to stderr, don't complain about dependencies
         if( $err =~ /ERROR: A package has already been built/ ) {
+            if( -e "$dir/$failedstamp" ) {
+                UBOS::Utils::deleteFile( "$dir/$failedstamp" );
+            }
             return 1;
 
         } else {

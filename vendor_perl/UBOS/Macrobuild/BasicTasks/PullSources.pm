@@ -13,7 +13,6 @@ use fields qw( usconfigs sourcedir );
 use Macrobuild::Utils;
 use UBOS::Logging;
 
-my $failedstamp = ".build-in-progress-or-failed";
 my %knownExtensions = (
 	'.tar'    => 'tar xf',
 	'.tar.gz' => 'tar xfz',
