@@ -19,6 +19,7 @@ use UBOS::Macrobuild::BasicTasks::Upload;
 use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
+use UBOS::Macrobuild::Utils;
 
 ##
 # Constructor
@@ -32,11 +33,7 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my @dbs = (
-            'os',
-            'hl',
-            'tools',
-            'virt' );
+    my @dbs = UBOS::Macrobuild::Utils::dbs();
 
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};

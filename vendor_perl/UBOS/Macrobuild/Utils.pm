@@ -9,6 +9,26 @@ package UBOS::Macrobuild::Utils;
 
 use Cwd;
 
+my @noOverlapDbs = (
+    'os',
+    'hl',
+    'tools',
+    'virt' );
+my @dbs = ( @noOverlapDbs, 'ubos-tools-arch' );
+
+##
+# The list of dbs, currently hard-coded.
+#
+sub dbs {
+    return @dbs;
+}
+
+##
+# The list of dbs that must not have an overlap. Currently hard-coded.
+sub noOverlapDbs {
+    return @noOverlapDbs;
+}
+
 ##
 # Express the second path as a relative path relative to the first. This is
 # useful to create relative symlinks.

@@ -19,6 +19,7 @@ use UBOS::Macrobuild::BasicTasks::PurgeChannelImages;
 use UBOS::Macrobuild::BasicTasks::PurgeChannelRepository;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
+use UBOS::Macrobuild::Utils;
 
 ##
 # Constructor
@@ -32,11 +33,7 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my @dbs = (
-            'os',
-            'hl',
-            'tools',
-            'virt' );
+    my @dbs = UBOS::Macrobuild::Utils::dbs();
 
     my $age        = 60*60*24*14; # Two weeks
     my $purgeTasks = {};

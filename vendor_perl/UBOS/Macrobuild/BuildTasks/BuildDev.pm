@@ -15,6 +15,7 @@ use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps;
 use UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
+use UBOS::Macrobuild::Utils;
 
 ##
 # Constructor
@@ -28,11 +29,8 @@ sub new {
     
     $self->SUPER::new( @args );
 
-    my @dbs = (
-        'os',
-        'hl',
-        'tools',
-        'virt' );
+    my @dbs = UBOS::Macrobuild::Utils::dbs();
+
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
     my $buildTasks = {};

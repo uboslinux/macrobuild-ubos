@@ -113,7 +113,7 @@ sub checkNoOverlap {
     my $settings = shift;
 
     my $all = {};
-    foreach my $name ( keys %$ups ) {
+    foreach my $name ( UBOS::Macrobuild::Utils::noOverlapDbs() ) {
         my $upConfigs = $ups->{$name};
 
         my $configs = $upConfigs->configs( $settings );
