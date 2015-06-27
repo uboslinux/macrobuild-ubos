@@ -53,8 +53,8 @@ sub run {
                 $rsyncCmd .= " --exclude '*'";
             }
             if( defined( $excludeGlob ) && @$excludeGlob ) {
-                $rsyncCmd .= " --include '*/'";
                 $rsyncCmd .= join( '', map { " --exclude '$_'" } @$excludeGlob );
+                $rsyncCmd .= " --include '*/'";
             }
 
             $rsyncCmd .= " $from/"

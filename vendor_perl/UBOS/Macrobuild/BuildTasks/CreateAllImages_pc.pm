@@ -64,7 +64,7 @@ sub new {
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
                         'deviceclass'       => $deviceClass,
-                        'dir'               => '${repodir}/${arch}/images/ubos_${channel}_container-' . $deviceClass . '_${tstamp}',
+                        'dir'               => '${repodir}/${arch}/images/ubos_${channel}_container-' . $deviceClass . '_${tstamp}.tardir',
                         'linkLatest-dir'    => '${repodir}/${arch}/images/ubos_${channel}_container-' . $deviceClass . '_LATEST',
                         'tarfile'           => '${repodir}/${arch}/images/ubos_${channel}_container-' . $deviceClass . '_${tstamp}.tar',
                         'linkLatest-tarfile'=> '${repodir}/${arch}/images/ubos_${channel}_container-' . $deviceClass . '_LATEST.tar'
