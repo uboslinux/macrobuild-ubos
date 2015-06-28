@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::Upload;
 
 use base qw( Macrobuild::Task );
-use fields qw( from to includeGlob excludeGlob );
+use fields qw( from to );
 
 use UBOS::Logging;
 use UBOS::Utils;
@@ -28,10 +28,6 @@ sub run {
     my $excludeGlob = $self->{excludeGlob};
 
     my $ret = 1;
-    if( defined( $includeGlob ) && @$includeGlob && defined( $excludeGlob ) && @$excludeGlob ) {
-        error( 'Must not specify both includeGlob and excludeGlob' );
-        $ret = -1;
-    }
     
     if( $ret == 1 && -d $from ) {
         my @filesInFrom = <$from/*>;
@@ -46,16 +42,7 @@ sub run {
             } else {
                 $rsyncCmd .= ' -e ssh';
             }
-            if( defined( $includeGlob ) && @$includeGlob ) {
-                # must include all directories
-                $rsyncCmd .= " --include '*/'";
-                $rsyncCmd .= join( '', map { " --include '$_'" } @$includeGlob );
-                $rsyncCmd .= " --exclude '*'";
-            }
-            if( defined( $excludeGlob ) && @$excludeGlob ) {
-                $rsyncCmd .= join( '', map { " --exclude '$_'" } @$excludeGlob );
-                $rsyncCmd .= " --include '*/'";
-            }
+            $rsyncCmd .= " --exclude uncompressed-images/ --exclude images/*/";
 
             $rsyncCmd .= " $from/"
                        . " '$to'";

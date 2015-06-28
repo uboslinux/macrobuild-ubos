@@ -1,5 +1,6 @@
 # 
-# Compress files given by a glob
+# Compress files given by a glob, possible move the compressed files
+# to a different directory, and adjust link-latest symlinks
 #
 
 use strict;
@@ -8,7 +9,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CompressFiles;
 
 use base qw( Macrobuild::Task );
-use fields qw( files keep adjustSymlinks );
+use fields qw( inDir glob outDir adjustSymlinks );
 
 use Cwd qw( abs_path );
 use File::Spec;
@@ -24,91 +25,96 @@ sub run {
 
     $run->taskStarting( $self ); # input ignored
 
-    my $files          = $run->replaceVariables( $self->{files} );
-    my $keep           = exists( $self->{keep} ) && $self->{keep};
+    my $inDir          = $run->replaceVariables( $self->{inDir} );
+    my $glob           = $run->replaceVariables( $self->{glob} );
+    my $outDir         = $run->replaceVariables( $self->{outDir} );
     my $adjustSymlinks = exists( $self->{adjustSymlinks} ) && $self->{adjustSymlinks};
+
+    unless( -d $outDir ) {
+        UBOS::Utils::mkdirDashP( $outDir );
+    }
 
     my $command = 'xz';
     my $ext     = '.xz';
 
-    if( $keep ) {
-        $command .= ' --keep';
-    }
+    my @allFiles             = glob "$inDir/$glob";
+    my %localFilesToSymlinks = ();
 
-    my @allFiles        = glob $files;
-    my %filesToSymlinks = ();
-
+    # assemble a hash of non-symlink files pointing to the symlinks referring to it.
+    # while are at it, delete compressed files in the $inDir
     foreach my $file ( @allFiles ) {
         unless( -l $file ) {
-            my $absFile = abs_path( $file );
-            $filesToSymlinks{$absFile} = [];
+
+            my $localFile = $file;
+            $localFile =~ s!.*/!!;
+
+            if( $localFile =~ m!$ext$! ) {
+                info( 'Deleting compressed file in inDir, should not be here:', "$inDir/$localFile" );
+                UBOS::Utils::deleteFile( "$inDir/$localFile" );
+            } else {
+                $localFilesToSymlinks{$localFile} = [];
+            }
         }
     }
 
     foreach my $file ( @allFiles ) {    
         if( -l $file ) {
-            my $absFile = File::Spec->rel2abs( $file ); # need of the symlink, not the target
-            my $dir     = $absFile;
-            $dir =~ s!/[^/]+$!!;
+            my $localFile = $file;
+            $localFile =~ s!.*/!!;
+            
+            my $target = readlink( $file );
+            if( $target =~ m!\.\.! || $target =~ m!/! ) {
+                warning( 'Cannot deal with non-local symlink:', $file, '=>', $target );
+                next;
+            }
 
-            my $target    = readlink( $absFile );
-            my $absTarget = abs_path( "$dir/$target" );
-
-            if( exists( $filesToSymlinks{$absTarget} )) {
-                push @{$filesToSymlinks{$absTarget}}, $absFile;
+            if( exists( $localFilesToSymlinks{$target} )) {
+                push @{$localFilesToSymlinks{$target}}, $localFile;
                 
             } else {
-                info( 'Skipping', $absFile, '=>', $absTarget );
+                info( 'Skipping', $file, '=>', $target );
             }
-            
-        } else {
         }
     }
 
+    # for all non-symlink files
     my $ret = 1;
     my @already    = ();
     my @compressed = ();
-    if( keys %filesToSymlinks ) {
-        foreach my $file ( keys %filesToSymlinks ) {
-            if( $file =~ m!$ext$! ) {
-                info( 'Skipping compressed file', $file );
-
-            } elsif( -l "$file" ) {
-                info( 'Is a symlink, skipping', $file );
-
-            } elsif( -e "$file$ext" ) {
-                info( 'Already has a compressed companion, skipping', $file );
-                push @already, $file;
+    if( keys %localFilesToSymlinks ) {
+        foreach my $localFile ( keys %localFilesToSymlinks ) {
+            if( -e "$outDir/$localFile$ext" ) {
+                info( 'Already has a compressed companion in outDir, skipping compression:', "$inDir/$localFile" );
+                push @already, "$outDir/$localFile$ext";
 
             } else {
-                if( UBOS::Utils::myexec( "$command '$file'" )) {
-                    error( 'Compressing failed:', $file );
+                if( UBOS::Utils::myexec( "$command < '$inDir/$localFile' > '$outDir/$localFile$ext'" )) {
+                    error( 'Compressing failed:', "$inDir/$localFile", '->', "$outDir/$localFile$ext" );
                     $ret = -1;
                 } else {
                     $ret = 0;
 
-                    push @compressed, $file;
-                    my @symlinks = @{$filesToSymlinks{$file}};
+                    push @compressed, "$outDir/$localFile$ext";
+                    my @symlinks = @{$localFilesToSymlinks{$localFile}};
                     foreach my $symlink ( @symlinks ) { # may be empty
-                        unless( $keep ) {
-                            UBOS::Utils::deleteFile( $symlink );
+                        if( -l "$outDir/$symlink$ext" ) {
+                            UBOS::Utils::deleteFile( "$outDir/$symlink$ext" );
                         }
-                        my $target = readlink( $symlink ); # Set it up the same way
 
-                        info( 'Symlinking', "$target$ext", '->', "$symlink$ext" );
-                        UBOS::Utils::symlink( "$target$ext", "$symlink$ext" );
+                        info( 'Symlinking', "$outDir/$localFile$ext", '<-', "$outDir/$symlink$ext" );
+                        UBOS::Utils::symlink( "$outDir/$localFile$ext", "$outDir/$symlink$ext" );
                     }
                 }
             }
         }
     } else {
-        warning( 'No files to compress when expanding glob', $files );
+        warning( 'No files to compress when expanding glob', $glob, 'in directory', $inDir );
     }
     
     if( $ret == 0 ) {
         $run->taskEnded(
                 $self,
-                { 'files'      => [ keys %filesToSymlinks ],
+                { 'files'      => [ map { "%fromDir/$+" } keys %localFilesToSymlinks ],
                   'compressed' => \@compressed },
                 $ret );
     } else {
