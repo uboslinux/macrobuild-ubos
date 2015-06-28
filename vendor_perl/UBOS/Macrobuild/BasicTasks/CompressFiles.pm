@@ -114,7 +114,7 @@ sub run {
     if( $ret == 0 ) {
         $run->taskEnded(
                 $self,
-                { 'files'      => [ map { "%fromDir/$+" } keys %localFilesToSymlinks ],
+                { 'files'      => [ map { "%fromDir/$_" } keys %localFilesToSymlinks ],
                   'compressed' => \@compressed },
                 $ret );
     } else {
