@@ -16,15 +16,16 @@ use UBOS::Utils;
 ##
 # Constructor
 sub new {
-    my $self        = shift;
-    my $name        = shift;
-    my $configJson  = shift;
-    my $file        = shift;
-    
+    my $self            = shift;
+    my $name            = shift;
+    my $configJson      = shift;
+    my $file            = shift;
+    my $localSourcesDir = shift;
+
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    $self->SUPER::new( $name, $configJson, $file );
+    $self->SUPER::new( $name, $configJson, $file, $localSourcesDir );
 
     return $self;
 }
