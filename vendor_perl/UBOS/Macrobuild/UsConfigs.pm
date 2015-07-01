@@ -7,7 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::UsConfigs;
 
-use fields qw( dir settingsConfigsMap );
+use fields qw( dir settingsConfigsMap localSourcesDir );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::DownloadUsConfig;
@@ -18,9 +18,11 @@ use UBOS::Utils;
 ##
 # Constructor.
 # $dir: the directory in which to read all files
+# $localSourcesDir: path that may override the url field in UsConfig JSONs
 sub allIn {
-    my $self = shift;
-    my $dir  = shift;
+    my $self            = shift;
+    my $dir             = shift;
+    my $localSourcesDir = shift;
 
     unless( ref( $dir )) {
         $self = fields::new( $self );
@@ -28,6 +30,7 @@ sub allIn {
 
     $self->{dir}                = $dir;
     $self->{settingsConfigsMap} = {};
+    $self->{localSourcesDir}    = $localSourcesDir;
 
     return $self;
 }
@@ -44,6 +47,8 @@ sub configs {
         error( 'Variable not set: arch' );
         return undef;
     }
+    
+    my $localSourcesDir = $settings->replaceVariables( $self->{localSourcesDir}, undef, 1 );
 
     my $ret = $self->{settingsConfigsMap}->{$settings->getName};
     unless( $ret ) {
@@ -79,13 +84,15 @@ sub configs {
 				$ret->{$shortSourceName} = new UBOS::Macrobuild::GitUsConfig(
 						$shortSourceName,
 						$usConfigJson,
-                        $file );
+                        $file,
+                        $localSourcesDir );
 				
 			} elsif( $usConfigJson->{type} eq 'download' ) {
 				$ret->{$shortSourceName} = new UBOS::Macrobuild::DownloadUsConfig(
 						$shortSourceName,
 						$usConfigJson,
-                        $file );
+                        $file,
+                        $localSourcesDir );
 			} else {
 				warning( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
 				next;

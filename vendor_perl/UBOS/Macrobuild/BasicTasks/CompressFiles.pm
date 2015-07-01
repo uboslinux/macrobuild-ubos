@@ -34,7 +34,7 @@ sub run {
         UBOS::Utils::mkdirDashP( $outDir );
     }
 
-    my $command = 'xz';
+    my $command = 'xz --threads=0'; # use as many threads as there are CPU cores
     my $ext     = '.xz';
 
     my @allFiles             = glob "$inDir/$glob";
@@ -114,7 +114,7 @@ sub run {
     if( $ret == 0 ) {
         $run->taskEnded(
                 $self,
-                { 'files'      => [ map { "%fromDir/$_" } keys %localFilesToSymlinks ],
+                { 'files'      => [ map { "$fromDir/$_" } keys %localFilesToSymlinks ],
                   'compressed' => \@compressed },
                 $ret );
     } else {
