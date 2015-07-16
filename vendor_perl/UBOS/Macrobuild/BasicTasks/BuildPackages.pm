@@ -147,6 +147,8 @@ sub _buildPackage {
         $cmd .= ' --sign --key ' . $packageSignKey;
     }
 
+    info( 'Building package', $packageName );
+
     my $out;
     if( UBOS::Utils::myexec( $cmd, undef, \$out, \$err )) { # writes to stderr, don't complain about dependencies
         if( $err =~ /ERROR: A package has already been built/ ) {

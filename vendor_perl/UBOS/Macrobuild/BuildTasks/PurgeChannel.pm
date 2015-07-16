@@ -45,6 +45,8 @@ sub new {
     }
     $purgeTasks->{"purge-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
             'dir' => '${repodir}/${arch}/images' );
+    $purgeTasks->{"purge-uncompressed-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
+            'dir' => '${repodir}/${arch}/uncompressed-images' );
     
     my @purgeTaskNames = keys %$purgeTasks;
     

@@ -66,11 +66,21 @@ sub run {
 
     my $ret;
     if( @purgeList ) {
-        if( UBOS::Utils::deleteFile( @purgeList )) {
-            $ret = 0;
-        } else {
-            error( 'Failed to purge some files:', @purgeList );
-            $ret = -1;
+        # some of these may be btrfs subvolumes
+        $ret = 0;
+        foreach my $purge ( @purgeList ) {
+            if( UBOS::Utils::myexec( "sudo btrfs subvolume show '$purge'" ) == 0 ) {
+                unless( UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge'" )) {
+                    error( 'Failed to delete btrfs subvolume:', $purge );
+                    $ret = -1;
+                }
+
+            } else {
+                unless( UBOS::Utils::deleteFile( $purge )) {
+                    error( 'Failed to purge:', $purge );
+                    $ret = -1;
+                }
+            }
         }
     } else {
         $ret = 1;

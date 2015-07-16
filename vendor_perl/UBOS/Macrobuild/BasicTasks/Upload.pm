@@ -22,10 +22,8 @@ sub run {
 
     $run->taskStarting( $self ); # input ignored
 
-    my $from        = $run->replaceVariables( $self->{from} );
-    my $to          = $run->replaceVariables( $self->{to} );
-    my $includeGlob = $self->{includeGlob};
-    my $excludeGlob = $self->{excludeGlob};
+    my $from = $run->replaceVariables( $self->{from} );
+    my $to   = $run->replaceVariables( $self->{to} );
 
     my $ret = 1;
     

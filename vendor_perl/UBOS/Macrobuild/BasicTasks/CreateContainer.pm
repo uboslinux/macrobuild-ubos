@@ -11,10 +11,11 @@ package UBOS::Macrobuild::BasicTasks::CreateContainer;
 use base qw( Macrobuild::Task );
 use fields qw( channel deviceclass image dir tarfile linkLatest-dir linkLatest-tarfile repodir );
 
+use File::Basename;
+use Macrobuild::Utils;
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
-use Macrobuild::Utils;
 
 ##
 # Constructor
@@ -69,6 +70,21 @@ sub run {
         Macrobuild::Utils::ensureParentDirectoriesOf( $dir );
         Macrobuild::Utils::ensureParentDirectoriesOf( $tarfile );
 
+        unless( -d $dir ) {
+            # if this is a btrfs filesystem, create a subvolume instead of a directory
+            my $parentDir = dirname( $dir );
+            my $out;
+            if( UBOS::Utils::myexec( "df --output=fstype '$parentDir'", undef, \$out ) == 0 ) {
+               if( $out =~ m!btrfs! ) {
+                   if( UBOS::Utils::myexec( "sudo btrfs subvolume create '$dir'" ) != 0 ) {
+                       error( "Failed creating btrfs subvolume '$dir'" );
+                   }
+               }
+            } else {
+                error( "df failed on '$parentDir'" );
+            }
+        }
+                
         unless( -d $dir ) {
             UBOS::Utils::mkdir( $dir );
         }
