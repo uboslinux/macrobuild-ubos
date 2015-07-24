@@ -40,7 +40,7 @@ sub new {
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $db . '/us', '${localSourcesDir}' );
 
         $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
-                'name'       => 'Build dev packages in ' . $db,
+                'name'       => 'Build ' . $db . ' packages',
                 'upconfigs'  => $repoUpConfigs->{$db},
                 'usconfigs'  => $repoUsConfigs->{$db},
                 'db'         => $db );

@@ -149,8 +149,8 @@ sub _buildPackage {
 
     info( 'Building package', $packageName );
 
-    my $out;
-    if( UBOS::Utils::myexec( $cmd, undef, \$out, \$err )) { # writes to stderr, don't complain about dependencies
+    if( UBOS::Utils::myexec( "$cmd 2>&1", undef, \$err )) {
+        # maven writes errors to stdout :-(
         if( $err =~ /ERROR: A package has already been built/ ) {
             if( -e "$dir/$failedstamp" ) {
                 UBOS::Utils::deleteFile( "$dir/$failedstamp" );
@@ -172,7 +172,7 @@ sub _buildPackage {
         return 0;
 
     } else {
-        error( "could not find package built by makepkg in", $dir, $out, $err );
+        error( "could not find package built by makepkg in", $dir, $err );
         return -1;
     }
 }
