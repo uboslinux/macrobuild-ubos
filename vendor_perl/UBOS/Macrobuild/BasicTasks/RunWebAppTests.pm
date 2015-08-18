@@ -1,5 +1,5 @@
 # 
-# Run webapptests in the usconfigs.
+# Run webapptests in ONE usconfig.
 # This does NOT pull sources for the tests; it is assumed that they are current
 # in the right directories.
 #
@@ -10,7 +10,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::RunWebAppTests;
 
 use base qw( Macrobuild::Task );
-use fields qw( usconfigs sourcedir );
+use fields qw( usconfig sourcedir config scaffold directory vmdktemplate);
 
 use Macrobuild::Utils;
 use UBOS::Logging;
@@ -24,76 +24,69 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $scaffold    = $run->getVariable( 'scaffold' );    # ok if not exists
-    my $testplan    = $run->getVariable( 'testplan' );    # ok if not exists
-    my $testVerbose = $run->getVariable( 'testverbose' ); # ok if not exists
-
     my $testCmd  = 'webapptest run';
 
-    if( defined( $scaffold )) {
-        $testCmd .= ' --scaffold ' . $scaffold;
+    my $config = $run->replaceVariables( $self->{config} );
+    if( defined( $config )) {
+        $testCmd .= " --config '$config'";
     }
 
-    if( defined( $testplan )) {
-        if( ref( $testplan ) eq 'ARRAY' ) {
-            if( @$testplan ) {
-                $testCmd .= ' ' . join( ' ', map { '--testplan ' . $_ } @$testplan );
-            }
-        } else {
-            $testCmd .= ' --testplan ' . $testplan;
-        }
+    my $scaffold = $run->replaceVariables( $self->{scaffold} );
+
+    my $directory = $run->replaceVariables( $self->{directory} );
+    if( $directory && ( !$scaffold || 'container' eq $scaffold )) {
+        $testCmd .= " --scaffold 'container:directory=$directory'";
     }
-    if( defined( $testVerbose )) {
-        $testCmd .= " $testVerbose";
+
+    my $vmdkTemplate = $run->replaceVariables( $self->{vmdktemplate} );
+    if( $vmdkTemplate && ( !$scaffold || 'vbox' eq $scaffold )) {
+        $testCmd .= " --scaffold 'vbox:vmdktemplate=$vmdkTemplate'";
     }
 
     my $testsSequence = [];
     my $testsPassed   = {};
     my $testsFailed   = {};
 
-    my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
-    foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
-        my $usConfig = $usConfigs->{$repoName}; 
+    my $usConfig = $self->{usconfig};
 
-        my $name = $usConfig->name;
-        debug( "Now processing upstream source config file", $name );
+    my $name = $usConfig->name;
+    debug( "Now processing upstream source config file", $name );
 
-        my $webapptests = $usConfig->webapptests;
-        if( defined( $webapptests ) && @$webapptests ) {
-            my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
-	        if( -d $sourceSourceDir ) {
-                foreach my $test ( @$webapptests ) {
-                    my $testDir;
-                    my $file;
-                    if( $test =~ m!^(.*)/([^/]+)$! ) {
-                        $testDir = $sourceSourceDir . '/' . $1;
-                        $file    = $2;
-                    } else {
-                        $testDir = $sourceSourceDir;
-                        $file    = $test;
-                    }
-
-                    info( "Running test $testDir/$file" );
-
-                    push @$testsSequence, "$name::$test";
-
-                    my $out;
-                    if( UBOS::Utils::myexec( "cd '$testDir'; $testCmd " . $file, undef, \$out, \$out )) {
-                        $out =~ s!\s+$!!;
-                        error( 'Test', $test, 'failed:', $out );
-                        $testsFailed->{"$name::$test"} = $out;
-                    } else {
-                        $out =~ s!\s+$!!;
-                        $testsPassed->{"$name::$test"} = 'Passed.';
-                    }
+    my $webapptests = $usConfig->webapptests;
+    if( defined( $webapptests ) && @$webapptests ) {
+        my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
+        if( -d $sourceSourceDir ) {
+            foreach my $test ( @$webapptests ) {
+                my $testDir;
+                my $file;
+                if( $test =~ m!^(.*)/([^/]+)$! ) {
+                    $testDir = $sourceSourceDir . '/' . $1;
+                    $file    = $2;
+                } else {
+                    $testDir = $sourceSourceDir;
+                    $file    = $test;
                 }
-            } else {
-                my $msg = "Cannot run webapptests defined in $name. Directory $sourceSourceDir not found.";
-                
-                error( $msg );
-                map { $testsFailed->{"$name :: $_"} = $msg; } @$webapptests;
+
+                info( "Running test $testDir/$file" );
+
+                push @$testsSequence, "$name::$test";
+
+                my $out;
+                if( UBOS::Utils::myexec( "$testCmd '$testDir/$file'", undef, \$out, \$out )) {
+                    $out =~ s!\s+$!!;
+                    error( 'Test', $test, 'failed:', $out );
+                    $testsFailed->{"$name::$test"} = $out;
+                } else {
+                    $out =~ s!\s+$!!;
+                    $testsPassed->{"$name::$test"} = 'Passed.';
+                }
             }
-		}
+        } else {
+            my $msg = "Cannot run webapptests defined in $name. Directory $sourceSourceDir not found.";
+            
+            error( $msg );
+            map { $testsFailed->{"$name :: $_"} = $msg; } @$webapptests;
+        }
     }
 
     my $ret = 1;

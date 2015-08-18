@@ -32,6 +32,7 @@ sub run {
     my $staged      = {};
 
     my $destDir = $run->{settings}->replaceVariables( $self->{stagedir} );
+
     Macrobuild::Utils::ensureDirectories( $destDir );
 
     if( %$newPackages ) {

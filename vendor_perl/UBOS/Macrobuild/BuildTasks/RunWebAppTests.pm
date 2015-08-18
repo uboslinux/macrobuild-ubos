@@ -10,6 +10,7 @@ use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
+use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
@@ -21,32 +22,51 @@ use UBOS::Macrobuild::UsConfigs;
 # Constructor
 sub new {
     my $self = shift;
-    my @args = @_;
+    my %args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
     
-    $self->SUPER::new( @args );
+    $self->SUPER::new( %args );
 
-    my $usConfigs = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/${db}/us' );
+    my @dbs = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'stopOnError' => 0,
-        'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::RunWebAppTests(
-                    'name'        => 'Run webapptests',
-                    'usconfigs'   => $usConfigs,
-                    'sourcedir'   => '${builddir}/ups' ),
-            new Macrobuild::CompositeTasks::SplitJoin(
-                    'parallelTasks' => {
-                            'save-results' => new UBOS::Macrobuild::BasicTasks::SaveWebAppTestsResults(
-                                    'name'        => 'Save app tests results' ),
-                            'report' => new Macrobuild::BasicTasks::Report(
-                                    'name'        => 'Report webapptest results',
-                                    'fields'      => [ 'tests-sequence', 'tests-passed', 'tests-failed' ] )
-                    } )
-        ]
+    my %tasks = ();
+    foreach my $db ( @dbs ) {
+        my $usConfigsObj = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', '${localSourcesDir}' );
+        my $usConfigs    = $usConfigsObj->configs( $self->{_settings} );
+
+        foreach my $repoName ( keys %$usConfigs ) {
+            my $usConfig = $usConfigs->{$repoName}; 
+
+            $tasks{$repoName} = new UBOS::Macrobuild::BasicTasks::RunWebAppTests(
+                    'name'         => 'Run webapptests in ' . $db . ' - ' . $repoName,
+                    'usconfig'     => $usConfig,
+                    'scaffold'     => '${scaffold}', # allows us to filter out 'directory parameter if not container, for example
+                    'config'       => '${testconfig}',
+                    'directory'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-${deviceclass}_LATEST.tardir',
+                    'vmdktemplate' => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-${deviceclass}_LATEST.vmdk',
+                    'sourcedir'    => '${builddir}/' . UBOS::Macrobuild::Utils::shortDb( $db ) . '/ups' ),
+        }
+    }
+
+    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
+        'stopOnError'   => 0,
+        'parallelTasks' => \%tasks,
+        'joinTask'      => new Macrobuild::CompositeTasks::SplitJoin(
+            'splitTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
+                    'name'         => 'Merge test results from dbs: ' . join( ' ', @dbs ),
+                    'keys'         => [ keys %tasks ]
+            ),
+            'parallelTasks' => {
+                    'save-results' => new UBOS::Macrobuild::BasicTasks::SaveWebAppTestsResults(
+                            'name'        => 'Save app tests results' ),
+                    'report' => new Macrobuild::BasicTasks::Report(
+                            'name'        => 'Report webapptest results',
+                            'fields'      => [ 'tests-sequence', 'tests-passed', 'tests-failed' ] )
+            }
+        )
     );
 
     return $self;

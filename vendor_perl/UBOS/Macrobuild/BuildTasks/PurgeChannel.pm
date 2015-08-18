@@ -25,22 +25,25 @@ use UBOS::Macrobuild::Utils;
 # Constructor
 sub new {
     my $self = shift;
-    my @args = @_;
+    my %args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
     
-    $self->SUPER::new( @args );
-
-    my @dbs = UBOS::Macrobuild::Utils::dbs();
+    $self->SUPER::new( %args );
 
     my $age        = 60*60*24*14; # Two weeks
     my $purgeTasks = {};
 
+    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
+    my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
+
+    @dbs = ( @dbs, @archDbs );
+
     foreach my $db ( @dbs ) {
         $purgeTasks->{"purge-$db"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelRepository(
-                'dir' => '${repodir}/${arch}/' . $db,
+                'dir' => '${repodir}/${arch}/' . UBOS::Macrobuild::Utils::shortDb( $db ),
                 'age' => $age );
     }
     $purgeTasks->{"purge-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(

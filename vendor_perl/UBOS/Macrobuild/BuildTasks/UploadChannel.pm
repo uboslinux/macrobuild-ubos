@@ -24,13 +24,13 @@ use UBOS::Macrobuild::UsConfigs;
 # Constructor
 sub new {
     my $self = shift;
-    my @args = @_;
+    my %args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
     
-    $self->SUPER::new( @args );
+    $self->SUPER::new( %args );
             
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
         'tasks' => [

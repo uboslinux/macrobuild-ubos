@@ -29,13 +29,15 @@ use UBOS::Macrobuild::UsConfigs;
 # Constructor
 sub new {
     my $self = shift;
-    my @args = @_;
+    my %args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
     
-    $self->SUPER::new( @args );
+    $self->SUPER::new( %args );
+
+    my $db = $self->{db};
 
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
             'name' => 'Fetch upstream packages, build UBOS packages, then merge and update package database',
@@ -46,17 +48,17 @@ sub new {
                         new UBOS::Macrobuild::BasicTasks::DownloadPackageDbs(
                                 'name'        => 'Download package database files from Arch',
                                 'upconfigs'   => $self->{upconfigs},
-                                'downloaddir' => '${builddir}/upc/${arch}' ),
+                                'downloaddir' => '${builddir}/' . $db . '/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir(
                                 'name'        => 'Determining which packages changed in Arch',
                                 'upconfigs'   => $self->{upconfigs},
-                                'dir'         => '${builddir}/upc/${arch}' ),
+                                'dir'         => '${builddir}/' . $db . '/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::FetchPackages(
                                 'name'        => 'Fetching packages downloaded from Arch',
-                                'downloaddir' => '${builddir}/upc/${arch}' ),
+                                'downloaddir' => '${builddir}/' . $db . '/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/' . $self->{db} ),
+                                'stagedir'    => '${repodir}/${arch}/' . $db ),
                     ]
                 ),
                 'build-ubos-packages' => new Macrobuild::CompositeTasks::Sequential(
@@ -65,14 +67,14 @@ sub new {
                         new UBOS::Macrobuild::BasicTasks::PullSources(
                                 'name'        => 'Pull the sources that need to be built',
                                 'usconfigs'   => $self->{usconfigs},
-                                'sourcedir'   => '${builddir}/ups'  ),
+                                'sourcedir'   => '${builddir}/' . $db . '/ups'  ),
                         new UBOS::Macrobuild::BasicTasks::BuildPackages(
                                 'name'        => 'Building packages locally',
-                                'sourcedir'   => '${builddir}/ups',
+                                'sourcedir'   => '${builddir}/' . $db . '/ups',
                                 'stopOnError' => 0 ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/' . $self->{db} ),
+                                'stagedir'    => '${repodir}/${arch}/' . $db ),
                     ]                
                 )
             },
@@ -83,7 +85,7 @@ sub new {
                             'keys'         => [ 'build-ubos-packages', 'fetch-upstream-packages' ] ),
                     new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
                             'name'         => 'Update package database with new packages',
-                            'dbfile'       => '${repodir}/${arch}/' . $self->{db} . '/' . $self->{db} . '.db.tar.xz' )
+                            'dbfile'       => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz' )
                 ]
             ));
 

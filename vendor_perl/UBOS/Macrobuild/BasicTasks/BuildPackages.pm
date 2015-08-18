@@ -134,7 +134,6 @@ sub _buildPackage {
     my $builtRepo      = shift;
     my $packageSignKey = shift;
 
-    my $err;
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
 
     my $cmd  =  "cd $dir;";
@@ -149,21 +148,26 @@ sub _buildPackage {
 
     info( 'Building package', $packageName );
 
-    if( UBOS::Utils::myexec( "$cmd 2>&1", undef, \$err )) {
-        # maven writes errors to stdout :-(
-        if( $err =~ /ERROR: A package has already been built/ ) {
+    my $out;
+    my $err;
+    my $result = UBOS::Utils::myexec( $cmd, undef, \$out, \$err );
+    my $both = $out . $err;
+    # maven writes errors to stdout :-(
+
+    if( $result ) {
+        if( $both =~ /ERROR: A package has already been built/ ) {
             if( -e "$dir/$failedstamp" ) {
                 UBOS::Utils::deleteFile( "$dir/$failedstamp" );
             }
             return 1;
 
         } else {
-            error( "makepkg in $dir failed", $err );
+            error( "makepkg in $dir failed", $both );
 
             return -1;
         }
 
-    } elsif( $err =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
+    } elsif( $both =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
         $builtRepo->{$packageName} = "$dir/" . UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
 
         if( -e "$dir/$failedstamp" ) {
@@ -172,7 +176,7 @@ sub _buildPackage {
         return 0;
 
     } else {
-        error( "could not find package built by makepkg in", $dir, $err );
+        error( "could not find package built by makepkg in", $dir, $both );
         return -1;
     }
 }

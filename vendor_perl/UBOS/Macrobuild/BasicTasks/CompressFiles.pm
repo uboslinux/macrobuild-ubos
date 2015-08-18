@@ -101,8 +101,8 @@ sub run {
                             UBOS::Utils::deleteFile( "$outDir/$symlink$ext" );
                         }
 
-                        info( 'Symlinking', "$outDir/$localFile$ext", '<-', "$outDir/$symlink$ext" );
-                        UBOS::Utils::symlink( "$outDir/$localFile$ext", "$outDir/$symlink$ext" );
+                        info( 'Symlinking', "$localFile$ext", '<-', "$outDir/$symlink$ext" );
+                        UBOS::Utils::symlink( "$localFile$ext", "$outDir/$symlink$ext" );
                     }
                 }
             }
@@ -114,7 +114,7 @@ sub run {
     if( $ret == 0 ) {
         $run->taskEnded(
                 $self,
-                { 'files'      => [ map { "$fromDir/$_" } keys %localFilesToSymlinks ],
+                { 'files'      => [ map { "$inDir/$_" } keys %localFilesToSymlinks ],
                   'compressed' => \@compressed },
                 $ret );
     } else {

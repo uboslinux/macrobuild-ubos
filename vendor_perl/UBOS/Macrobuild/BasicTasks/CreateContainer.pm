@@ -18,20 +18,6 @@ use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
 
 ##
-# Constructor
-sub new {
-    my $self = shift;
-    my @args = @_;
-
-    unless( ref $self ) {
-        $self = fields::new( $self );
-    }
-    $self->SUPER::new( @args );
-
-    return $self;
-}
-
-##
 # Run this task.
 # $run: the inputs, outputs, settings and possible other context info for the run
 sub run {
@@ -62,10 +48,10 @@ sub run {
     my $tarfile;
     my $errors = 0;
     if( !defined( $updatedPackages ) || @$updatedPackages ) {
-        my $buildId  = UBOS::Utils::time2string( time() );
-        my $repodir  = File::Spec->rel2abs( $run->replaceVariables( $self->{repodir} ));
-        $dir         = File::Spec->rel2abs( $run->replaceVariables( $self->{dir}     ));
-        $tarfile     = File::Spec->rel2abs( $run->replaceVariables( $self->{tarfile} ));
+        my $buildId = UBOS::Utils::time2string( time() );
+        my $repodir = File::Spec->rel2abs( $run->replaceVariables( $self->{repodir} ));
+        $dir        = File::Spec->rel2abs( $run->replaceVariables( $self->{dir}     ));
+        $tarfile    = File::Spec->rel2abs( $run->replaceVariables( $self->{tarfile} ));
 
         Macrobuild::Utils::ensureParentDirectoriesOf( $dir );
         Macrobuild::Utils::ensureParentDirectoriesOf( $tarfile );
@@ -76,7 +62,7 @@ sub run {
             my $out;
             if( UBOS::Utils::myexec( "df --output=fstype '$parentDir'", undef, \$out ) == 0 ) {
                if( $out =~ m!btrfs! ) {
-                   if( UBOS::Utils::myexec( "sudo btrfs subvolume create '$dir'" ) != 0 ) {
+                   if( UBOS::Utils::myexec( "sudo btrfs subvolume create '$dir' > /dev/null 2>&1" ) != 0 ) { # no output please
                        error( "Failed creating btrfs subvolume '$dir'" );
                    }
                }

@@ -1,6 +1,7 @@
 # 
 # Create a bootable UBOS image.
-# 
+#
+
 use strict;
 use warnings;
 
@@ -13,20 +14,6 @@ use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
 use Macrobuild::Utils;
-
-##
-# Constructor
-sub new {
-    my $self = shift;
-    my @args = @_;
-
-    unless( ref $self ) {
-        $self = fields::new( $self );
-    }
-    $self->SUPER::new( @args );
-
-    return $self;
-}
 
 ##
 # Run this task.

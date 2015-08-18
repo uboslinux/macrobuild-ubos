@@ -8,26 +8,7 @@ use warnings;
 package UBOS::Macrobuild::Utils;
 
 use Cwd;
-
-my @noOverlapDbs = (
-    'os',
-    'hl',
-    'tools',
-    'virt' );
-my @dbs = ( @noOverlapDbs, 'ubos-tools-arch' );
-
-##
-# The list of dbs, currently hard-coded.
-#
-sub dbs {
-    return @dbs;
-}
-
-##
-# The list of dbs that must not have an overlap. Currently hard-coded.
-sub noOverlapDbs {
-    return @noOverlapDbs;
-}
+use UBOS::Logging;
 
 ##
 # Express the second path as a relative path relative to the first. This is
@@ -99,5 +80,70 @@ sub useForThisArch {
     }
     return 0;
 }
+
+##
+# Helper method to extract the list of dbs from the %args
+# $keyword: the keyword, such as 'db'
+# %args: the arguments to a Task
+# $return: array (may be empty) of dbs
+sub determineDbs {
+    my $keyword = shift;
+    my %args    = @_;
+
+    unless( exists( $args{'_settings'} )) {
+        return ();
+    }
+    my $db = $args{'_settings'}->getVariable( $keyword );
+    unless( defined( $db )) {
+        return ();
+    }
+    if( 'ARRAY' eq ref( $db )) {
+        return @$db;
+    } elsif( ref( $db )) {
+        fatal( '_settings member', $keyword, 'is not an ARRAY, is', ref( $db ));
+    } else {
+        return $db;
+    }
+}
+
+##
+# Helper method to convert the list of dbs into a string
+# @dbs: the dbs
+# return: the string
+sub dbsToString {
+    my @dbs = @_;
+    
+    if( @dbs ) {
+        return join( ' ', @dbs );
+    } else {
+        return '<none>';
+    }
+}
+    
+##
+# Helper method to determine the short name of the db
+# $db: the db as returned by determineDbs()
+# return: short db
+sub shortDb {
+    my $db = shift;
+
+    my $ret = $db;
+    $ret =~ s!.*/!!;
+    return $ret;    
+}
+
+##
+# Determine the arch of this system
+sub arch {
+
+    my $ret;
+    UBOS::Utils::myexec( 'uname -m', undef, \$ret );
+    $ret =~ s!^\s+!!;
+    $ret =~ s!\s+$!!;
+    $ret =~ s!(armv[67])l!$1h!;
+
+    return $ret;
+}
+
 
 1;

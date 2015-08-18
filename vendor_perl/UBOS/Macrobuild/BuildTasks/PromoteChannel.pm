@@ -24,23 +24,23 @@ use UBOS::Macrobuild::Utils;
 # Constructor
 sub new {
     my $self = shift;
-    my @args = @_;
+    my %args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
     
-    $self->SUPER::new( @args );
-
-    my @dbs = UBOS::Macrobuild::Utils::dbs();
+    $self->SUPER::new( %args );
 
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
     my $promoteTasks  = {};
+    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
+    my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
 
-    foreach my $db ( @dbs ) {
-        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( '${configdir}/' . $db . '/up' );
-        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( '${configdir}/' . $db . '/us' );
+    foreach my $db ( @dbs, @archDbs ) {
+        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us' );
 
         $promoteTasks->{"promote-$db"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
             'upconfigs' => $repoUpConfigs->{$db},

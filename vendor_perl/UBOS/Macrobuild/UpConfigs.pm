@@ -53,6 +53,11 @@ sub configs {
     unless( $ret ) {
         my $realDir = $settings->replaceVariables( $self->{dir} );
 
+        unless( -d $realDir ) {
+            debug( "Upstream packages config dir not found:", $self->{dir}, 'expanded to', $realDir );
+            return undef;
+        }
+
         my @files = <$realDir/*.json>;
         unless( @files ) {
             debug( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
@@ -113,7 +118,7 @@ sub checkNoOverlap {
     my $settings = shift;
 
     my $all = {};
-    foreach my $name ( UBOS::Macrobuild::Utils::noOverlapDbs() ) {
+    foreach my $name ( keys %$ups ) {
         my $upConfigs = $ups->{$name};
 
         my $configs = $upConfigs->configs( $settings );

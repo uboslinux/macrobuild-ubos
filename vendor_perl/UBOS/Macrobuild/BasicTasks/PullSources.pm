@@ -143,6 +143,7 @@ sub _pullFromGit {
 		$gitCmd .= " --depth 1"; 
 		$gitCmd .= " '$url' '$name'";
 		my $err;
+
 		if( UBOS::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
 			error( "Failed to clone via", $gitCmd );
 		} elsif( $packages ) {
@@ -187,7 +188,7 @@ sub _pullByDownload {
 		if( -e $downloadedNow ) {
 			# Build again from scratch
 			UBOS::Utils::deleteRecursively( "$sourceDir/$name", $downloaded );
-			UBOS::Utils::myExec( "mv '$downloadedNow' '$downloaded'" );
+			UBOS::Utils::myexec( "mv '$downloadedNow' '$downloaded'" );
 			
 		} else {
 		    $dirsNotUpdated->{$name} = [ "" ];

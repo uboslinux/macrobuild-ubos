@@ -19,13 +19,13 @@ use UBOS::Macrobuild::BasicTasks::CompressFiles;
 # Constructor
 sub new {
     my $self = shift;
-    my @args = @_;
+    my %args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
     
-    $self->SUPER::new( @args );
+    $self->SUPER::new( %args );
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
@@ -36,7 +36,7 @@ sub new {
                 'adjustSymlinks' => 1
             ),
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Compress ${channel} images',
+                'name'        => 'Compress images',
                 'fields'      => [ 'files' ] )
         ]
     );
