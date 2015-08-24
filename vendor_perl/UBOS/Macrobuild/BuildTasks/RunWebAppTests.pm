@@ -47,7 +47,7 @@ sub new {
                     'config'       => '${testconfig}',
                     'directory'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-${deviceclass}_LATEST.tardir',
                     'vmdktemplate' => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-${deviceclass}_LATEST.vmdk',
-                    'sourcedir'    => '${builddir}/' . UBOS::Macrobuild::Utils::shortDb( $db ) . '/ups' ),
+                    'sourcedir'    => '${builddir}/dbs/' . UBOS::Macrobuild::Utils::shortDb( $db ) . '/ups' ),
         }
     }
 

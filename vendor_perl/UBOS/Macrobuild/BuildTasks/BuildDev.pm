@@ -15,6 +15,7 @@ use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CheckHavePrivateKey;
 use UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps;
+use UBOS::Macrobuild::BasicTasks::SetupMaven;
 use UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
 use UBOS::Macrobuild::Utils;
 
@@ -29,6 +30,8 @@ sub new {
     }
     
     $self->SUPER::new( %args );
+
+    my $m2BuildDir = '${builddir}/maven';
 
     # only check overlap in UBOS, not arch-tools
     my $ubosRepoUpConfigs = {};
@@ -47,22 +50,22 @@ sub new {
         $ubosRepoUsConfigs->{$db} = $repoUsConfigs->{$db};
 
         $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
-                'name'       => 'Build ' . $db . ' packages',
-                'upconfigs'  => $repoUpConfigs->{$db},
-                'usconfigs'  => $repoUsConfigs->{$db},
-                'db'         => UBOS::Macrobuild::Utils::shortDb( $db ));
+            'name'           => 'Build ' . $db . ' packages',
+            'upconfigs'      => $repoUpConfigs->{$db},
+            'usconfigs'      => $repoUsConfigs->{$db},
+            'db'             => UBOS::Macrobuild::Utils::shortDb( $db ),
+            'm2settingsfile' => $m2BuildDir . '/settings.xml' );
     }
     foreach my $db ( @archDbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', '${localSourcesDir}' );
 
         $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
-                'name'       => 'Build ' . $db . ' packages',
-                'upconfigs'  => $repoUpConfigs->{$db},
-                'usconfigs'  => $repoUsConfigs->{$db},
-                'db'         => UBOS::Macrobuild::Utils::shortDb( $db ));
+            'name'       => 'Build ' . $db . ' packages',
+            'upconfigs'  => $repoUpConfigs->{$db},
+            'usconfigs'  => $repoUsConfigs->{$db},
+            'db'         => UBOS::Macrobuild::Utils::shortDb( $db ));
     }
-    
     
     # create check tasks
     my @checkTasks = (
@@ -77,11 +80,19 @@ sub new {
         }
     }
 
+    # create setup tasks
+    my @setupTasks = (
+        new UBOS::Macrobuild::BasicTasks::SetupMaven(
+            'm2builddir' => $m2BuildDir
+        )
+    );
+
     my @buildTaskNames = keys %$buildTasks;
 
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
         'name'          => 'Build dev dbs ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ) . ', then merge update lists and report',
-        'splitTask'     => new Macrobuild::CompositeTasks::Sequential( 'tasks' => \@checkTasks ),
+        'splitTask'     => new Macrobuild::CompositeTasks::Sequential(
+            'tasks' => [ @checkTasks, @setupTasks ] ),
         'parallelTasks' => $buildTasks,
         'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [

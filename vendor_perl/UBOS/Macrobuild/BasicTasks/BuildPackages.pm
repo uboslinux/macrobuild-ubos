@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::BuildPackages;
 
 use base qw( Macrobuild::Task );
-use fields qw( sourcedir );
+use fields qw( sourcedir m2settingsfile );
 
 use UBOS::Logging;
 
@@ -33,9 +33,14 @@ sub run {
     }
     my $dirsUpdated    = $run->replaceVariables( $in->{'dirs-updated'} );
     my $dirsNotUpdated = $run->replaceVariables( $in->{'dirs-not-updated'} );
-    
+
     my $packageSignKey = $run->getVariable( 'packageSignKey', undef ); # ok if not exists
 
+    my $mvn_opts = '';
+    if( defined( $self->{m2settingsfile} )) {
+        $mvn_opts = '--settings ' . $run->replaceVariables( $self->{m2settingsfile} );
+    }
+    
     my $ret        = 1;
     my $built      = {};
     my $notRebuilt = {};
@@ -52,7 +57,7 @@ sub run {
             my $packageName = _determinePackageName( $dir );
             debug( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
 
-            my $buildResult = $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey );
+            my $buildResult = $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey, $mvn_opts );
             
             if( $buildResult == -1 ) {
                 $ret = -1;
@@ -86,7 +91,7 @@ sub run {
                 if( -e "$dir/$failedstamp" ) {
                     info( "Build of", $packageName, "failed last time, trying again: makepkg in", $dir );
 
-                    my $buildResult = $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey );
+                    my $buildResult = $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey, $mvn_opts );
                     if( $buildResult == -1 ) {
                         $ret = -1;
                         if( $self->{stopOnError} ) {
@@ -133,6 +138,7 @@ sub _buildPackage {
     my $packageName    = shift;
     my $builtRepo      = shift;
     my $packageSignKey = shift;
+    my $mvn_opts       = shift;
 
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
 
@@ -141,6 +147,9 @@ sub _buildPackage {
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=C';
     $cmd    .=   ' GNUPGHOME=$GNUPGHOME';
+    if( defined( $mvn_opts )) {
+        $cmd .= " 'MVN_OPTS=$mvn_opts'";
+    }
     $cmd    .= ' makepkg -c -d -A'; # clean after, no dependency checks, no arch checks
     if( $packageSignKey ) {
         $cmd .= ' --sign --key ' . $packageSignKey;
@@ -148,10 +157,8 @@ sub _buildPackage {
 
     info( 'Building package', $packageName );
 
-    my $out;
-    my $err;
-    my $result = UBOS::Utils::myexec( $cmd, undef, \$out, \$err );
-    my $both = $out . $err;
+    my $both;
+    my $result = UBOS::Utils::myexec( $cmd, undef, \$both, \$both );
     # maven writes errors to stdout :-(
 
     if( $result ) {

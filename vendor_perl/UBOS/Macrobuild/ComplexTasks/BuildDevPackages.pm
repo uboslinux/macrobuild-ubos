@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( upconfigs usconfigs db );
+use fields qw( upconfigs usconfigs db m2settingsfile );
 
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValuesTask;
@@ -48,14 +48,14 @@ sub new {
                         new UBOS::Macrobuild::BasicTasks::DownloadPackageDbs(
                                 'name'        => 'Download package database files from Arch',
                                 'upconfigs'   => $self->{upconfigs},
-                                'downloaddir' => '${builddir}/' . $db . '/upc/${arch}' ),
+                                'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir(
                                 'name'        => 'Determining which packages changed in Arch',
                                 'upconfigs'   => $self->{upconfigs},
-                                'dir'         => '${builddir}/' . $db . '/upc/${arch}' ),
+                                'dir'         => '${builddir}/dbs/' . $db . '/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::FetchPackages(
                                 'name'        => 'Fetching packages downloaded from Arch',
-                                'downloaddir' => '${builddir}/' . $db . '/upc/${arch}' ),
+                                'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'        => 'Stage new packages in local repository',
                                 'stagedir'    => '${repodir}/${arch}/' . $db ),
@@ -65,16 +65,17 @@ sub new {
                     'name'  => 'Build UBOS packages',
                     'tasks' => [
                         new UBOS::Macrobuild::BasicTasks::PullSources(
-                                'name'        => 'Pull the sources that need to be built',
-                                'usconfigs'   => $self->{usconfigs},
-                                'sourcedir'   => '${builddir}/' . $db . '/ups'  ),
+                                'name'           => 'Pull the sources that need to be built',
+                                'usconfigs'      => $self->{usconfigs},
+                                'sourcedir'      => '${builddir}/dbs/' . $db . '/ups'  ),
                         new UBOS::Macrobuild::BasicTasks::BuildPackages(
-                                'name'        => 'Building packages locally',
-                                'sourcedir'   => '${builddir}/' . $db . '/ups',
-                                'stopOnError' => 0 ),
+                                'name'           => 'Building packages locally',
+                                'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
+                                'stopOnError'    => 0,
+                                'm2settingsfile' => $self->{m2settingsfile} ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
-                                'name'        => 'Stage new packages in local repository',
-                                'stagedir'    => '${repodir}/${arch}/' . $db ),
+                                'name'           => 'Stage new packages in local repository',
+                                'stagedir'       => '${repodir}/${arch}/' . $db ),
                     ]                
                 )
             },
