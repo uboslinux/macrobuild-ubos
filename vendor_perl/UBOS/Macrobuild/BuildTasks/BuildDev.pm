@@ -54,7 +54,8 @@ sub new {
             'upconfigs'      => $repoUpConfigs->{$db},
             'usconfigs'      => $repoUsConfigs->{$db},
             'db'             => UBOS::Macrobuild::Utils::shortDb( $db ),
-            'm2settingsfile' => $m2BuildDir . '/settings.xml' );
+            'm2settingsfile' => $m2BuildDir . '/settings.xml',
+            'm2repository'   => $m2BuildDir . '/repository' );
     }
     foreach my $db ( @archDbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );

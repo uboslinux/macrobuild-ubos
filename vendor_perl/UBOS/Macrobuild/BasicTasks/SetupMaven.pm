@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::SetupMaven;
 
 use base qw( Macrobuild::Task );
-use fields qw( m2builddir cleanFirst );
+use fields qw( m2builddir );
 
 use Macrobuild::Utils;
 use UBOS::Logging;
@@ -42,7 +42,7 @@ sub run {
             }
         }
         if( -d $m2BuildDir ) {
-            if( !defined( $self->{cleanFirst} ) || $self->{cleanFirst} ) {
+            if( $run->getVariable( 'cleanFirst', 1 )) { # default is cleanFirst
                 if( opendir( DIR, $m2BuildDir )) {
                     my @files = ();
 
@@ -62,9 +62,10 @@ sub run {
                     error( 'Cannot read directory', $m2BuildDir );
                     $ret = -1;
                 }
+            }
                 
-                # write settings.xml file
-                if( UBOS::Utils::saveFile( "$m2BuildDir/settings.xml", <<CONTENT )) {
+            # write settings.xml file
+            if( UBOS::Utils::saveFile( "$m2BuildDir/settings.xml", <<CONTENT )) {
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
@@ -101,12 +102,11 @@ under the License.
 
 </settings>
 CONTENT
-                    $ret = 0;
+                $ret = 0;
 
-                } else {
-                    error( 'Cannot write Maven settings file', "$m2BuildDir/settings.xml" );
-                    $ret = -1;
-                }
+            } else {
+                error( 'Cannot write Maven settings file', "$m2BuildDir/settings.xml" );
+                $ret = -1;
             }
         }
     }

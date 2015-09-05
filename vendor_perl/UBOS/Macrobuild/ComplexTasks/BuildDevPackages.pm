@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( upconfigs usconfigs db m2settingsfile );
+use fields qw( upconfigs usconfigs db m2settingsfile m2repository );
 
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValuesTask;
@@ -72,7 +72,8 @@ sub new {
                                 'name'           => 'Building packages locally',
                                 'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
                                 'stopOnError'    => 0,
-                                'm2settingsfile' => $self->{m2settingsfile} ),
+                                'm2settingsfile' => $self->{m2settingsfile},
+                                'm2repository'   => $self->{m2repository} ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
                                 'name'           => 'Stage new packages in local repository',
                                 'stagedir'       => '${repodir}/${arch}/' . $db ),

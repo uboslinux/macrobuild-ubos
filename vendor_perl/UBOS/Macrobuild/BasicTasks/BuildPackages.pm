@@ -8,9 +8,10 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::BuildPackages;
 
 use base qw( Macrobuild::Task );
-use fields qw( sourcedir m2settingsfile );
+use fields qw( sourcedir m2settingsfile m2repository );
 
 use UBOS::Logging;
+use UBOS::Utils;
 
 my $failedstamp = ".build-in-progress-or-failed";
 
@@ -36,29 +37,65 @@ sub run {
 
     my $packageSignKey = $run->getVariable( 'packageSignKey', undef ); # ok if not exists
 
-    my $mvn_opts = '';
+    my $mvn_opts = ' -DskipTests';
     if( defined( $self->{m2settingsfile} )) {
-        $mvn_opts = '--settings ' . $run->replaceVariables( $self->{m2settingsfile} );
+        $mvn_opts .= ' --settings ' . $run->replaceVariables( $self->{m2settingsfile} );
+    }
+    # We need these for diet4j invocation in the build-scope Maven repository
+    if( defined( $self->{m2repository} )) {
+        $mvn_opts .= ' -Dmaven.repository=' . $run->replaceVariables( $self->{m2repository} );
     }
     
-    my $ret        = 1;
-    my $built      = {};
-    my $notRebuilt = {};
-    foreach my $repoName ( sort keys  %$dirsUpdated ) {
-        my $repoInfo = $dirsUpdated->{$repoName};
+    my %allDirs = ( %$dirsUpdated, %$dirsNotUpdated );
+    
+    # determine package dependencies    
+    my %dirToRepoName       = ();
+    my %packageDependencies = ();
+    my %packageToDir        = ();
+    foreach my $repoName( keys %allDirs ) {
+        my $repoInfo = $dirsUpdated->{$repoName} || $dirsNotUpdated->{$repoName};
 
-        my $inThisRepo = {};
         foreach my $subdir ( @$repoInfo ) {
             my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
             if( $subdir && $subdir ne '.' ) {
                 $dir .= "/$subdir";
             }
+            $dirToRepoName{$dir} = $repoName;
 
             my $packageName = _determinePackageName( $dir );
-            debug( "dir updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
+            $packageToDir{$packageName} = $dir;
 
-            my $buildResult = $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey, $mvn_opts );
-            
+            my $dependencies = _readDependenciesFromPkgbuild( $dir );
+            $packageDependencies{$packageName} = $dependencies;
+        }
+    }
+
+    debug( sub { "Package dependencies:\n" . join( "\n", map { "    $_ => " . join( ', ', keys %{$packageDependencies{$_}} ) } keys %packageDependencies ) } );
+
+    # determine in which sequence to build
+    my @packageSequence = _determinePackageSequence( \%packageDependencies );
+    my @dirSequence     = map { $packageToDir{$_} } @packageSequence;
+    
+    debug( sub { "Dir sequence is:\n" . join( "\n", map { "    $_" } @dirSequence ) } );
+
+    # do the build, in @dirSequence
+    my $ret        = 1;
+    my $built      = {};
+    my $notRebuilt = {};
+
+    foreach my $dir ( @dirSequence ) {
+
+        my $packageName = _determinePackageName( $dir );
+        my $repoName    = $dirToRepoName{$dir};
+
+        if( exists( $dirsUpdated->{$repoName} ) || -e "$dir/$failedstamp" ) {
+            if( exists( $dirsUpdated->{$repoName} )) {
+                debug( "Dir updated, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
+            } else {
+                debug( "Dir not updated, but failed last time, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
+            }
+            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $packageSignKey, $mvn_opts );
+
             if( $buildResult == -1 ) {
                 $ret = -1;
                 if( $self->{stopOnError} ) {
@@ -68,50 +105,14 @@ sub run {
                 if( $ret == 1 ) {
                     $ret = 0; # say we did something
                 }
-            }
-        }
-        if( %$inThisRepo ) {
-            $built->{$repoName} = $inThisRepo;
-        }
-    }
-    if( $ret != -1 || !$self->{stopOnError} ) {
-        foreach my $repoName ( sort keys %$dirsNotUpdated ) {
-            my $repoInfo = $dirsNotUpdated->{$repoName};
+            } # can also be 1
 
-            my $inThisRepo = {};
-            foreach my $subdir ( @$repoInfo ) {
-                my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
-                if( $subdir ) {
-                    $dir .= "/$subdir";
-                }
-
-                my $packageName = _determinePackageName( $dir );
-                debug( "Dir not updated: reponame '$repoName', subdir '$subdir', dir '$dir', packageName $packageName" );
-
-                if( -e "$dir/$failedstamp" ) {
-                    info( "Build of", $packageName, "failed last time, trying again: makepkg in", $dir );
-
-                    my $buildResult = $self->_buildPackage( $dir, $packageName, $inThisRepo, $packageSignKey, $mvn_opts );
-                    if( $buildResult == -1 ) {
-                        $ret = -1;
-                        if( $self->{stopOnError} ) {
-                            last;
-                        }
-                    } elsif( $buildResult == 0 ) {
-                        if( $ret == 1 ) {
-                            $ret = 0; # say we did something
-                        }
-                    } # can also be 1
-                } else {
-                    my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
-                    if( $mostRecent ) {
-                        $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
-                    } 
-                }
-            }
-            if( %$inThisRepo ) {
-                $built->{$repoName} = $inThisRepo;
-            }
+        } else {
+            # dir not updated, and not failed last time
+            my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
+            if( $mostRecent ) {
+                $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
+            } 
         }
     }
 
@@ -148,7 +149,10 @@ sub _buildPackage {
     $cmd    .=   ' LANG=C';
     $cmd    .=   ' GNUPGHOME=$GNUPGHOME';
     if( defined( $mvn_opts )) {
-        $cmd .= " 'MVN_OPTS=$mvn_opts'";
+        my $trimmed = $mvn_opts;
+        $trimmed =~ s/^\s+//;
+        $trimmed =~ s/\s+$//;
+        $cmd .= " 'MVN_OPTS=$trimmed'";
     }
     $cmd    .= ' makepkg -c -d -A'; # clean after, no dependency checks, no arch checks
     if( $packageSignKey ) {
@@ -194,6 +198,70 @@ sub _determinePackageName {
     my $packageName = $dir;
     $packageName =~ s!.*/!!;
     return $packageName;
+}
+
+sub _readDependenciesFromPkgbuild {
+    my $dir = shift;
+    
+    my $pkgBuild = "$dir/PKGBUILD";
+    unless( -r $pkgBuild ) {
+        error( 'Cannot read PKGBUILD in dir', $dir );
+        return {};
+    }
+    my $out;
+    if( UBOS::Utils::myexec( ". '$dir/PKGBUILD'" . ' && echo ${depends[@]}', undef, \$out )) {
+        error( 'Executing PKGBUILD to find $depends failed in', $dir );
+        return ();
+    }
+    my @packages = split /\s+/, $out;
+    my %ret = ();
+    @ret{@packages} = 0..$#packages;   # per http://stackoverflow.com/questions/2957879/perl-map-need-to-map-an-array-into-a-hash-as-arrayelement-array-index#2957903
+
+    return \%ret;
+}
+
+##
+# Topological sort, with thanks to https://en.wikipedia.org/wiki/Topological_sorting
+#
+sub _determinePackageSequence {
+    my $deps = shift;
+    my %done = ();    
+    my @ret  = ();
+    
+    # we go through %$deps, and find nodes that don't have any more dependencies.
+    # a node doesn't have dependencies if
+    # 1) it has none, or
+    # 2) the dependency is not in %$deps and thus out of scope, or
+    # 3) the dependency is in %done already.
+    
+    while( 1 ) {
+        if( scalar( keys %$deps ) <= scalar( @ret )) { # let's be safe
+            last;
+        }
+        foreach my $current ( keys %$deps ) {
+            if( exists( $done{$current} )) {
+                next;
+            }
+            my $noDeps = 1;
+            
+            foreach my $currentDep ( keys %{$deps->{$current}} ) {
+                unless( exists( $deps->{$currentDep} )) {
+                    next;
+                }
+                if( exists( $done{$currentDep} )) {
+                    next;
+                }
+                $noDeps = 0;
+                last;
+            }
+            
+            if( $noDeps ) {
+                $done{$current} = $current;
+                push @ret, $current;
+            }
+        }
+    }
+    return @ret;
 }
 
 1;
