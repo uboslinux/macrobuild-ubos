@@ -94,6 +94,10 @@ sub run {
             } else {
                 debug( "Dir not updated, but failed last time, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
             }
+            unless( exists( $built->{$repoName} )) {
+                $built->{$repoName} = {};
+            }
+
             my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $packageSignKey, $mvn_opts );
 
             if( $buildResult == -1 ) {
@@ -113,6 +117,12 @@ sub run {
             if( $mostRecent ) {
                 $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
             } 
+        }
+    }
+    # take out empty entries
+    foreach my $key ( keys %$built ) {
+        unless( keys %{$built->{$key}} ) {
+            delete $built->{$key};
         }
     }
 

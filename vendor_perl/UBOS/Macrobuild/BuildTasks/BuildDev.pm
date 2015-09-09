@@ -42,6 +42,10 @@ sub new {
     my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
     my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
 
+    my @buildTasksSequence = ();
+    push @buildTasksSequence, map { "build-$_" } @dbs;
+    push @buildTasksSequence, map { "build-$_" } @archDbs;
+
     # create build tasks
     foreach my $db ( @dbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
@@ -91,11 +95,14 @@ sub new {
     my @buildTaskNames = keys %$buildTasks;
 
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'name'          => 'Build dev dbs ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ) . ', then merge update lists and report',
-        'splitTask'     => new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => [ @checkTasks, @setupTasks ] ),
-        'parallelTasks' => $buildTasks,
-        'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
+        'name'                  => 'Build dev dbs ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ) . ', then merge update lists and report',
+        'splitTask'             => new Macrobuild::CompositeTasks::Sequential(
+            'tasks' => [
+                @checkTasks,
+                @setupTasks ] ),
+        'parallelTasks'         => $buildTasks,
+        'parallelTasksSequence' => \@buildTasksSequence,
+        'joinTask'              => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
                 new Macrobuild::CompositeTasks::MergeValuesTask(
                     'name'         => 'Merge update lists from dev dbs: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
