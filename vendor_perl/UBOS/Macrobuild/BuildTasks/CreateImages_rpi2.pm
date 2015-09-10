@@ -1,11 +1,11 @@
 # 
-# Creates all images for the BeagleBone Black
+# Creates all images for the Raspberry Pi 2.
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateAllImages_bbb;
+package UBOS::Macrobuild::BuildTasks::CreateImages_rpi2;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -25,7 +25,7 @@ sub new {
         $self = fields::new( $self );
     }
     
-    my $deviceClass = 'bbb';
+    my $deviceClass = 'rpi2';
 
     $self->SUPER::new( %args );
 

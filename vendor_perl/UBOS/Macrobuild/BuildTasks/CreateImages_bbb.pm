@@ -1,23 +1,19 @@
 # 
-# Creates all images for the PC
+# Creates all images for the BeagleBone Black
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateAllImages_pc;
+package UBOS::Macrobuild::BuildTasks::CreateImages_bbb;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
-use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::CreateContainer;
 use UBOS::Macrobuild::BasicTasks::CreateImage;
-use UBOS::Macrobuild::BasicTasks::ImagesToVmdk;
 
 ##
 # Constructor
@@ -29,7 +25,7 @@ sub new {
         $self = fields::new( $self );
     }
     
-    my $deviceClass = 'pc';
+    my $deviceClass = 'bbb';
 
     $self->SUPER::new( %args );
 
@@ -46,38 +42,26 @@ sub new {
                         'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_' . $deviceClass . '_${tstamp}.img',
                         'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_' . $deviceClass . '_LATEST.img'
                     ),
-                    'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
-                        'tasks' => [
-                            new UBOS::Macrobuild::BasicTasks::CreateImage(
-                                'name'         => 'Create boot disk image for ${channel} for VirtualBox',
-                                'repodir'      => '${repodir}',
-                                'channel'      => '${channel}',
-                                'deviceclass'  => "vbox-$deviceClass",
-                                'imagesize'    => '3G',
-                                'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-' . $deviceClass . '_${tstamp}.img',
-                                'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-' . $deviceClass . '_LATEST.img' ),
-                            new UBOS::Macrobuild::BasicTasks::ImagesToVmdk()
-                        ]
-                    ),
                     'container' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
                         'name'              => 'Create bootable container for ${channel}',
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
                         'deviceclass'       => $deviceClass,
-                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceClass . '_${tstamp}.tardir',
-                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceClass . '_LATEST',
-                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceClass . '_${tstamp}.tar',
-                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceClass . '_LATEST.tar'
+                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceClass . '_${tstamp}',
+                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceClass . '_LATEST',
+                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceClass . '_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceClass . '_LATEST.tar'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
                         'name'         => 'Merge images list for ${channel}',
-                        'keys'         => [ 'img', 'vbox.img', 'container' ]
+                        'keys'         => [ 'img', 'container' ]
                 )
             ),
+
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report build activity for creating ${channel} images',
-                'fields'      => [ 'images', 'vmdkimages', 'dirs', 'tarfiles' ] )
+                'fields'      => [ 'images', 'dirs', 'tarfiles' ] )
         ]
     );
 
@@ -85,7 +69,3 @@ sub new {
 }
 
 1;
-
-
-
-

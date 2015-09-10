@@ -1,11 +1,11 @@
 # 
-# Creates all images for the Raspberry Pi 2.
+# Creates all images for the pcduino3
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateAllImages_rpi2;
+package UBOS::Macrobuild::BuildTasks::CreateImages_pcduino3;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -24,8 +24,8 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    my $deviceClass = 'rpi2';
+
+    my $deviceClass = 'pcduino3';
 
     $self->SUPER::new( %args );
 

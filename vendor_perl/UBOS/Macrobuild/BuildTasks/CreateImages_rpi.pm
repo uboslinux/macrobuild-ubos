@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateAllImages_rpi;
+package UBOS::Macrobuild::BuildTasks::CreateImages_rpi;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
