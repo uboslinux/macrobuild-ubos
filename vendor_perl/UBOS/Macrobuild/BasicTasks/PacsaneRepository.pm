@@ -22,7 +22,7 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $dbfile = $self->{dbfile};
+    my $dbfile = $run->replaceVariables( $self->{dbfile} );
 
     my $ret = 0;
     if( UBOS::Utils::myexec( "pacsane '$dbfile'" )) {
