@@ -51,7 +51,7 @@ sub new {
                     'name'         => 'Merge purge results from repositories: ' . join( ' ', @dbs ),
                     'keys'         => [ keys %$tasks ] ),
                 new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report pacsane results for repositories: ' . join( ' ', @dbs )
+                    'name'        => 'Report pacsane results for repositories: ' . join( ' ', @dbs ))
             ]
         ));
 
