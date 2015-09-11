@@ -36,7 +36,7 @@ sub new {
                 'adjustSymlinks' => 1
             ),
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Compress images',
+                'name'        => 'Report for compressing images',
                 'fields'      => [ 'files' ] )
         ]
     );
