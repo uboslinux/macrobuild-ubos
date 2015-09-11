@@ -69,8 +69,8 @@ sub run {
         # some of these may be btrfs subvolumes
         $ret = 0;
         foreach my $purge ( @purgeList ) {
-            if( UBOS::Utils::myexec( "sudo btrfs subvolume show '$purge'" ) == 0 ) {
-                unless( UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge'" )) {
+            if( UBOS::Utils::myexec( "sudo btrfs subvolume show '$purge' > /dev/null" ) == 0 ) {
+                if( UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge'" )) {
                     error( 'Failed to delete btrfs subvolume:', $purge );
                     $ret = -1;
                 }
