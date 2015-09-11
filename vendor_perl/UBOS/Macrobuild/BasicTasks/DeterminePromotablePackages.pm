@@ -1,5 +1,5 @@
 # 
-# Determine which packages can be promoted from one repository in
+# Determine which packages can be promoted from one db in
 # one channel to another.
 #
 
@@ -9,7 +9,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages;
 
 use base qw( Macrobuild::Task );
-use fields qw( upconfigs usconfigs fromRepository toRepository );
+use fields qw( upconfigs usconfigs fromDb toDb );
 
 use File::Spec;
 use UBOS::Logging;
@@ -36,8 +36,8 @@ sub run {
 
     $run->taskStarting( $self ); # input ignored
 
-    my $fromRepository = $run->replaceVariables( $self->{fromRepository} );
-    my $toRepository   = $run->replaceVariables( $self->{toRepository} );
+    my $fromDb = $run->replaceVariables( $self->{fromDb} );
+    my $toDb   = $run->replaceVariables( $self->{toDb} );
 
     my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
     my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
@@ -51,7 +51,7 @@ sub run {
         foreach my $packageName ( sort keys %{$upConfig->packages} ) { # make predictable sequence
             my $packageInfo = $upConfig->packages->{$packageName};
 
-            my @candidatePackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromRepository, $arch );
+            my @candidatePackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromDb, $arch );
             my $toPromote;
             if( exists( $packageInfo->{$toChannel}->{version} )) {
                 if( exists( $packageInfo->{$toChannel}->{release} )) {
@@ -64,10 +64,10 @@ sub run {
                 $toPromote = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @candidatePackages );
             }
             if( defined( $toPromote )) {
-                if( -e "$toRepository/$toPromote" ) {
-                    $oldPackages->{$repoName}->{$packageName} = "$fromRepository/$toPromote";
+                if( -e "$toDb/$toPromote" ) {
+                    $oldPackages->{$repoName}->{$packageName} = "$fromDb/$toPromote";
                 } else {
-                    $newPackages->{$repoName}->{$packageName} = "$fromRepository/$toPromote";
+                    $newPackages->{$repoName}->{$packageName} = "$fromDb/$toPromote";
                 }
             }
         }
@@ -80,7 +80,11 @@ sub run {
         foreach my $packageName ( sort keys %{$usConfig->packages} ) {
             my $packageInfo = $usConfig->packages->{$packageName};
 
-            my @candidatePackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromRepository, $arch );
+            if( '.' eq $packageName ) {
+                $packageName = $usConfig->name;
+            }
+
+            my @candidatePackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromDb, $arch );
             my $toPromote;
             if( exists( $packageInfo->{$toChannel}->{version} )) {
                 if( exists( $packageInfo->{$toChannel}->{release} )) {
@@ -93,10 +97,10 @@ sub run {
                 $toPromote = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @candidatePackages );
             }
             if( defined( $toPromote )) {
-                if( -e "$toRepository/$toPromote" ) {
-                    $oldPackages->{$repoName}->{$packageName} = "$fromRepository/$toPromote";
+                if( -e "$toDb/$toPromote" ) {
+                    $oldPackages->{$repoName}->{$packageName} = "$fromDb/$toPromote";
                 } else {
-                    $newPackages->{$repoName}->{$packageName} = "$fromRepository/$toPromote";
+                    $newPackages->{$repoName}->{$packageName} = "$fromDb/$toPromote";
                 }
             }
         }
@@ -117,6 +121,7 @@ sub run {
 
     return $ret;
 }
+
 
 1;
 

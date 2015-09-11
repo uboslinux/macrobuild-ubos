@@ -40,12 +40,12 @@ sub new {
 
     foreach my $db ( @dbs, @archDbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us' );
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', '${localSourcesDir}' );
 
         $promoteTasks->{"promote-$db"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
             'upconfigs' => $repoUpConfigs->{$db},
             'usconfigs' => $repoUsConfigs->{$db},
-            'db'        => $db );
+            'db'        => UBOS::Macrobuild::Utils::shortDb( $db ));
     }
     my @promoteTaskNames = keys %$promoteTasks;
     
@@ -54,10 +54,10 @@ sub new {
         'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
                 new Macrobuild::CompositeTasks::MergeValuesTask(
-                    'name'         => 'Merge promotion lists from repositories: ' . join( ' ', @dbs ),
+                    'name'         => 'Merge promotion lists from repositories: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
                     'keys'         => \@promoteTaskNames ),
                 new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report promotion activity for repositories: ' . join( ' ', @dbs ),
+                    'name'        => 'Report promotion activity for repositories: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
                     'fields'      => [ 'updated-packages' ] )
             ]
         ));
