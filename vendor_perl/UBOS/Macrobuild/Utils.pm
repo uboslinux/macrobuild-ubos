@@ -9,6 +9,7 @@ package UBOS::Macrobuild::Utils;
 
 use Cwd;
 use UBOS::Logging;
+use UBOS::Utils;
 
 ##
 # Express the second path as a relative path relative to the first. This is
