@@ -3,18 +3,20 @@ url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
 pkgver=0.152
-pkgrel=2
+pkgrel=3
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
 depends=(
         'arch-install-scripts'
-        'base-devel'
+        'fakeroot'
         'btrfs-progs'
         'curl'
         'dosfstools'
+        'gcc'
         'git'
         'macrobuild'
+        'make'
         'maven'
         'multipath-tools'
         'parted'
