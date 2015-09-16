@@ -48,7 +48,10 @@ sub configs {
         return undef;
     }
     
-    my $localSourcesDir = $settings->replaceVariables( $self->{localSourcesDir}, undef, 1 );
+    my $localSourcesDir;
+    if( defined( $self->{localSourcesDir} )) {
+        $localSourcesDir = $settings->replaceVariables( $self->{localSourcesDir} );
+    }
 
     my $ret = $self->{settingsConfigsMap}->{$settings->getName};
     unless( $ret ) {

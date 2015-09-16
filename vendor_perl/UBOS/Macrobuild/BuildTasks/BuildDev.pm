@@ -32,6 +32,8 @@ sub new {
     $self->SUPER::new( %args );
 
     my $m2BuildDir = '${builddir}/maven';
+    my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
+
 
     # only check overlap in UBOS, not arch-tools
     my $ubosRepoUpConfigs = {};
@@ -49,7 +51,7 @@ sub new {
     # create build tasks
     foreach my $db ( @dbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', '${localSourcesDir}' );
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
         $ubosRepoUpConfigs->{$db} = $repoUpConfigs->{$db};
         $ubosRepoUsConfigs->{$db} = $repoUsConfigs->{$db};
 
