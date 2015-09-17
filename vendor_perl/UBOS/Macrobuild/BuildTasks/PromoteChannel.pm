@@ -38,9 +38,11 @@ sub new {
     my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
     my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
 
+    my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
+
     foreach my $db ( @dbs, @archDbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', '${localSourcesDir}' );
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir' );
 
         $promoteTasks->{"promote-$db"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
             'upconfigs' => $repoUpConfigs->{$db},

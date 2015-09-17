@@ -65,7 +65,7 @@ sub new {
     }
     foreach my $db ( @archDbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', '${localSourcesDir}' );
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 
         $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
             'name'       => 'Build ' . $db . ' packages',

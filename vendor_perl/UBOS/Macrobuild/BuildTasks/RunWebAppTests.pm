@@ -31,10 +31,11 @@ sub new {
     $self->SUPER::new( %args );
 
     my @dbs = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
+    my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
 
     my %tasks = ();
     foreach my $db ( @dbs ) {
-        my $usConfigsObj = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', '${localSourcesDir}' );
+        my $usConfigsObj = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir' );
         my $usConfigs    = $usConfigsObj->configs( $self->{_settings} );
 
         foreach my $repoName ( keys %$usConfigs ) {
