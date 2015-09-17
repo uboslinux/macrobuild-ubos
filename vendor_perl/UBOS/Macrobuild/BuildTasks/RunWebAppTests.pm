@@ -35,7 +35,7 @@ sub new {
 
     my %tasks = ();
     foreach my $db ( @dbs ) {
-        my $usConfigsObj = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir' );
+        my $usConfigsObj = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
         my $usConfigs    = $usConfigsObj->configs( $self->{_settings} );
 
         foreach my $repoName ( keys %$usConfigs ) {
