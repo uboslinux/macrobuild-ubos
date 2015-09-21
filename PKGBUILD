@@ -3,7 +3,7 @@ url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
 pkgver=0.154
-pkgrel=1
+pkgrel=2
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
@@ -20,6 +20,7 @@ depends=(
         'maven'
         'multipath-tools'
         'parted'
+        'pacsane'
         'perl-http-date'
         'perl-module-build'
         'php'
