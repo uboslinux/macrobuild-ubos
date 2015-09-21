@@ -161,7 +161,7 @@ sub _buildPackage {
     $cmd    .=   ' LANG=C';
 
     if( $gpgHome ) {
-        $cmd .= "GNUPGHOME='$gpgHome' ";
+        $cmd .= " GNUPGHOME='$gpgHome'";
     }
 
     if( defined( $mvn_opts )) {
