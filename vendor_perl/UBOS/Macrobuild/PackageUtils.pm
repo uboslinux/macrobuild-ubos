@@ -215,7 +215,7 @@ sub parsePackageFileName {
         $arch        = $5;
         $compression = $6;
     } else {
-        $@ = "Cannot parse $s into epoch, version and release components";
+        $@ = "Cannot parse $s into package, epoch, version, release, architecture and compression components";
         return undef;
     }
     unless( $epoch ) {
@@ -229,6 +229,35 @@ sub parsePackageFileName {
         'arch'        => $arch,
         'compression' => $compression,
         'original'    => $s
+    };
+}
+
+##
+# Split a version into epoch, version, and release
+# $s: [epoch:]version[-release]
+# return: hash of epoch, version, release
+sub parseVersion {
+    my $s = shift;
+
+    my $epoch;
+    my $version;
+    my $release;
+
+    if( $s =~ m!^(?:([^:]+):)?([^-]+)(?:-([^-]+))$! ) {
+        $epoch       = $1;
+        $version     = $2;
+        $release     = $3;
+    } else {
+        error( "Cannot parse $s into epoch, version and release components" );
+        return undef;
+    }
+    unless( $epoch ) {
+        $epoch = '0';
+    }
+    return {
+        'epoch'       => $epoch,
+        'version'     => $version,
+        'release'     => $release
     };
 }
 
