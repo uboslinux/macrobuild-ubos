@@ -40,6 +40,7 @@ sub run {
     my $channel         = $run->replaceVariables( $self->{channel} );
     my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
     my $imageSignKey    = $run->getVariable( 'imageSignKey', undef ); # ok if not exists
+    my $gpgHome         = $run->getVariable( 'GNUPGHOME',    undef ); # ok if not exists
     my $checkSignatures = $run->getVariable( 'checkSignatures', 'required' );
 
     my $image;
@@ -74,7 +75,11 @@ sub run {
             ++$errors;
 
         } elsif( $imageSignKey ) {
-            my $signCmd = "gpg --detach-sign -u '$imageSignKey'--no-armor '$image'";
+            my $signCmd = '';
+            if( $gpgHome ) {
+                $signCmd .= "GNUPGHOME='$gpgHome' ";
+            }
+            $signCmd .= "gpg --detach-sign -u '$imageSignKey'--no-armor '$image'";
 
             if( UBOS::Utils::myexec( $signCmd, undef, \$out, \$err )) {
                 error( 'image signing failed:', $err );

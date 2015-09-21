@@ -36,6 +36,7 @@ sub run {
     my $dirsNotUpdated = $run->replaceVariables( $in->{'dirs-not-updated'} );
 
     my $packageSignKey = $run->getVariable( 'packageSignKey', undef ); # ok if not exists
+    my $gpgHome        = $run->getVariable( 'GNUPGHOME',      undef ); # ok if not exists
 
     my $mvn_opts = ' -DskipTests';
     if( defined( $self->{m2settingsfile} )) {
@@ -98,7 +99,7 @@ sub run {
                 $built->{$repoName} = {};
             }
 
-            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $packageSignKey, $mvn_opts );
+            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $gpgHome, $packageSignKey, $mvn_opts );
 
             if( $buildResult == -1 ) {
                 $ret = -1;
@@ -148,6 +149,7 @@ sub _buildPackage {
     my $dir            = shift;
     my $packageName    = shift;
     my $builtRepo      = shift;
+    my $gpgHome        = shift;
     my $packageSignKey = shift;
     my $mvn_opts       = shift;
 
@@ -157,7 +159,11 @@ sub _buildPackage {
     $cmd    .= ' env -i';
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=C';
-    $cmd    .=   ' GNUPGHOME=$GNUPGHOME';
+
+    if( $gpgHome ) {
+        $cmd .= "GNUPGHOME='$gpgHome' ";
+    }
+
     if( defined( $mvn_opts )) {
         my $trimmed = $mvn_opts;
         $trimmed =~ s/^\s+//;

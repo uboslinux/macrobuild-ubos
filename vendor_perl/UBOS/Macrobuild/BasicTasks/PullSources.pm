@@ -32,7 +32,7 @@ sub run {
     my $dirsNotUpdated = {};
 
     my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
-    
+    my $ok = 1;
     foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
         my $usConfig = $usConfigs->{$repoName}; 
 
@@ -40,10 +40,10 @@ sub run {
 
         my $type = $usConfig->type;
         if( $type eq 'git' ) {
-			$self->_pullFromGit( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
+			$ok &= $self->_pullFromGit( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
 
 		} elsif( $type eq 'download' ) { 
-			$self->_pullByDownload( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
+			$ok &= $self->_pullByDownload( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
 
 		} else { 
 			warning( "Skipping", $usConfig->name, "type", $type, "not known" );
@@ -51,7 +51,10 @@ sub run {
     }
 
     my $ret = 1;
-    if( keys %$dirsUpdated ) {
+    if( !$ok ) {
+        $ret = -1;
+
+    } elsif( keys %$dirsUpdated ) {
         $ret = 0;
     }
 
@@ -80,6 +83,7 @@ sub _pullFromGit {
 	my $branch   = $usConfig->branch;
 	my $packages = $usConfig->packages; # same name as directories
 
+    my $ret = 1;
 	my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
 	if( -d $sourceSourceDir ) {
 		# Second or later update -- make sure the spec is still the same, if not, delete
@@ -93,6 +97,7 @@ sub _pullFromGit {
 			UBOS::Utils::myexec( "( cd '$sourceSourceDir'; $gitCmd )", undef, \$out, \$err );
             if( $err =~ m!^error!m ) {
                 error( 'Error when attempting to pull git repository:', $url, 'into', $sourceSourceDir, "\n$err" );
+                $ret = 0;
             }
 
 			# Determine which of the directories had changes in them
@@ -146,6 +151,7 @@ sub _pullFromGit {
 
 		if( UBOS::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
 			error( "Failed to clone via", $gitCmd );
+            $ret = 0;
 		} elsif( $packages ) {
             my @keyArray = keys %$packages; # all of them
 			$dirsUpdated->{$name} = \@keyArray;
@@ -153,6 +159,7 @@ sub _pullFromGit {
 			$dirsUpdated->{$name} = [ '' ];
 		}
 	}
+    return $ret;
 }
 
 ##
@@ -168,6 +175,7 @@ sub _pullByDownload {
 	my $url       = $usConfig->url;
     my $sourceDir = $run->replaceVariables( $self->{sourcedir} );
 
+    my $ret = 1;
 	my $ext;
     foreach my $e ( keys %knownExtensions ) {
         if( $url =~ m!\Q$e\E$! ) {
@@ -176,8 +184,8 @@ sub _pullByDownload {
 		}
 	}
 	unless( $ext ) {
-		warning( "Unknown extension in url", $url, "skipping" );
-		return undef;
+		error( "Unknown extension in url", $url, "skipping" );
+		return 0;
 	}
 	
     my $downloaded = "$sourceDir/$name$ext";
@@ -199,10 +207,12 @@ sub _pullByDownload {
 		
 		if( UBOS::Utils::myexec( "cd $sourceDir; " . $knownExtensions{$ext} . " '$name$ext'" )) {
             error( $knownExtensions{$ext} . " failed" );
+            $ret = 0;
         }
 
 		$dirsUpdated->{$name} = [ "" ];
 	}
+    return $ret;
 }
 
 1;
