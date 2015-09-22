@@ -79,7 +79,7 @@ sub run {
             if( $gpgHome ) {
                 $signCmd .= "GNUPGHOME='$gpgHome' ";
             }
-            $signCmd .= "gpg --detach-sign -u '$imageSignKey'--no-armor '$image'";
+            $signCmd .= "gpg --detach-sign -u '$imageSignKey' --no-armor '$image'";
 
             if( UBOS::Utils::myexec( $signCmd, undef, \$out, \$err )) {
                 error( 'image signing failed:', $err );
