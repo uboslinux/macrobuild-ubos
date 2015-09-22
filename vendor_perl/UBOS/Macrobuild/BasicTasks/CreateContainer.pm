@@ -101,7 +101,7 @@ sub run {
                 }
 
                 if( $imageSignKey ) {
-                    my $signCmd = "gpg --detach-sign -u '$imageSignKey'--no-armor '$tarfile'";
+                    my $signCmd = "gpg --detach-sign -u '$imageSignKey' --no-armor '$tarfile'";
 
                     if( UBOS::Utils::myexec( $signCmd, undef, \$out, \$err )) {
                         error( 'image signing failed:', $err );
