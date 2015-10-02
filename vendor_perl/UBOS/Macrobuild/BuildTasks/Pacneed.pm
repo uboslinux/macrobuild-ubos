@@ -26,6 +26,8 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
+    my $ret = 1;
+
     my $localSourcesDir = $run->getVariable( 'localSourcesDir' );
     my $packages        = $run->getVariable( 'package', [] );
     my $dbs             = $run->getVariable( 'dbs',     [] );
@@ -35,51 +37,58 @@ sub run {
     unless( ref( $dbs ) eq 'ARRAY' ) {
         $dbs = [ $dbs ];
     }
+    unless( @$packages ) {
+        error( 'No packages specified.' );
+        $ret = 0;
+    }
 
     # Determine which packages we have in UBOS
     my $havePackages = {}; # key: package name, value: db
     my $needPackages = {}; # key: package name, value: db
 
-    foreach my $db ( @$dbs ) {
-        my $upConfigs = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' )->configs( $run->getSettings );
-        my $usConfigs = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir )->configs( $run->getSettings );
+    if( $ret ) {
+        info( 'Looking into dbs:', @$dbs );
 
-        foreach my $configName ( sort keys %$upConfigs ) {
-            my $upConfig = $upConfigs->{$configName};
-            map { $havePackages->{$_} = $db } keys %{$upConfig->packages};
-        }
-        foreach my $configName ( sort keys %$usConfigs ) {
-            my $usConfig = $usConfigs->{$configName};
-            map { $havePackages->{$_} = $db } keys %{$usConfig->packages};
-        }
-    }
+        foreach my $db ( @$dbs ) {
+            my $upConfigs = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' )->configs( $run->getSettings );
+            my $usConfigs = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir )->configs( $run->getSettings );
 
-    my $ret = 1;
-    foreach my $p ( @$packages ) {
-        $ret &= _process( $p, $havePackages, $needPackages );
-    }
-
-    if( %$needPackages ) {
-        # reverse map, so we can print by repo
-        my $reverseNeedPackages = {};
-        map {
-            my $name = $_;
-            my $repo = $needPackages->{$name};
-
-            unless( exists( $reverseNeedPackages->{$repo} )) {
-                $reverseNeedPackages->{$repo} = [];
+            foreach my $configName ( sort keys %$upConfigs ) {
+                my $upConfig = $upConfigs->{$configName};
+                map { $havePackages->{$_} = $db } keys %{$upConfig->packages};
             }
-            push @{$reverseNeedPackages->{$repo}}, $name;
-            
-        } sort keys %$needPackages;
-        
-        print "Need packages:\n";
-        foreach my $repo ( sort keys %$reverseNeedPackages ) {
-            print "$repo\n";
-            print join( '', map { "    $_\n" } @{$reverseNeedPackages->{$repo}} );
+            foreach my $configName ( sort keys %$usConfigs ) {
+                my $usConfig = $usConfigs->{$configName};
+                map { $havePackages->{$_} = $db } keys %{$usConfig->packages};
+            }
         }
-    } elsif( $ret ) {
-        print "Have all needed packages.\n";
+
+        foreach my $p ( @$packages ) {
+            $ret &= _process( $p, $havePackages, $needPackages );
+        }
+
+        if( %$needPackages ) {
+            # reverse map, so we can print by repo
+            my $reverseNeedPackages = {};
+            map {
+                my $name = $_;
+                my $repo = $needPackages->{$name};
+
+                unless( exists( $reverseNeedPackages->{$repo} )) {
+                    $reverseNeedPackages->{$repo} = [];
+                }
+                push @{$reverseNeedPackages->{$repo}}, $name;
+                
+            } sort keys %$needPackages;
+            
+            print "Need packages:\n";
+            foreach my $repo ( sort keys %$reverseNeedPackages ) {
+                print "$repo\n";
+                print join( '', map { "    $_\n" } @{$reverseNeedPackages->{$repo}} );
+            }
+        } elsif( $ret ) {
+            print "Have all needed packages.\n";
+        }
     }
 
     $run->taskEnded( $self, {}, $ret ? 0 : -1 );
@@ -99,6 +108,7 @@ sub _process {
     my $needPackages = shift;
 
     if( exists( $havePackages->{$p} )) {
+        info( 'Processing package', $p, ': have already' );
         # we have this package
         return 1;
     }
@@ -108,7 +118,8 @@ sub _process {
     }
 
     my $out;
-    if( UBOS::Utils::myexec( "pacman -Si $p 2>/dev/null", undef, \$out )) {
+    my $err;
+    if( UBOS::Utils::myexec( "pacman -Si $p", undef, \$out, \$err )) {
         error( 'Cannot find package', $p );
         return 0;
     }
@@ -129,13 +140,14 @@ sub _process {
         }
     }
     if( $repo ) {
+        info( 'Processing package', $p, ': need' );
         $needPackages->{$p} = $repo;
         my @deps = split /\s+/, $depsContent;
         my $ret = 1;
 
         foreach my $dep ( @deps ) {
             $dep =~ s!\s!!g;
-            $dep =~ s!=.*$!!; # strip off version identifier if there is one
+            $dep =~ s!<?>?=.*$!!; # strip off version identifier if there is one
             unless( $dep eq 'None' ) {
                 $ret &= _process( $dep, $havePackages, $needPackages );
             }
