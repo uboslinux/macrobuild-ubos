@@ -11,6 +11,7 @@ use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use UBOS::Logging;
+use UBOS::Macrobuild::BasicTasks::BurnToUsb;
 
 ##
 # Constructor

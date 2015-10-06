@@ -22,8 +22,8 @@ sub run {
     my $in = $run->taskStarting( $self );
     
     my $ret;
-    my $usbDevice = $self->{usbdevice};
-    my $image     = $self->{image};
+    my $usbDevice = $run->replaceVariables( $self->{usbdevice} );
+    my $image     = $run->replaceVariables( $self->{image} );
 
     if( $usbDevice && $image && -f $image ) {
         if( -b $usbDevice ) {
@@ -34,7 +34,7 @@ sub run {
             } elsif( $out =~ $usbDevice ) {
                 error( 'USB device', $usbDevice, 'is mounted and cannot be used to burn to' );
                 $ret = 1;
-            } elsif( UBOS::Utils::myexec( "sudo dd 'if=$image' 'of=$usbDevice' bs=1M" ) {
+            } elsif( UBOS::Utils::myexec( "sudo dd 'if=$image' 'of=$usbDevice' bs=1M" )) {
                 error( 'Writing image', $image, 'to USB device', $usbDevice, 'failed' );
                 $ret = 1;
             } else {
@@ -49,11 +49,14 @@ sub run {
     } elsif( !$usbDevice ) {
         warning( 'No usbdevice given, skipping burn' );
         $ret = 1;
+    } elsif( $image ) {
+        error( 'Image not readable', $image );
+        $ret = 1;
     } else {
-        warning( 'No image given, or image not readable' );
+        error( 'No image given' );
         $ret = 1;
     }
-    
+
     $run->taskEnded(
             $self,
             {},
