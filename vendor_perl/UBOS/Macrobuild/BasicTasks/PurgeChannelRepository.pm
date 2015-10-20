@@ -150,8 +150,8 @@ sub run {
     $run->taskEnded(
             $self,
             {
-                'purged' => \@purgeList,
-                'kept'   => \@keepList
+                'purged' => \@purgeList
+                # 'kept'   => \@keepList
             },
             $ret );
     return $ret;
