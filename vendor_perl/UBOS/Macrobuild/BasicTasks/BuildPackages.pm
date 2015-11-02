@@ -170,7 +170,10 @@ sub _buildPackage {
         $trimmed =~ s/\s+$//;
         $cmd .= " 'MVN_OPTS=$trimmed'";
     }
-    $cmd    .= ' makepkg -c -d -A'; # clean after, no dependency checks, no arch checks
+    if( $packageSignKey ) {
+        $cmd .= " PACKAGER='$packageSignKey'";
+    }
+    $cmd .= ' makepkg -c -d -A'; # clean after, no dependency checks, no arch checks
     if( $packageSignKey ) {
         $cmd .= ' --sign --key ' . $packageSignKey;
     }
