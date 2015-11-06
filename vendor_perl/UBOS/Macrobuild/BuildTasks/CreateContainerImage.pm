@@ -35,7 +35,7 @@ sub new {
                     'name'              => 'Create bootable container for ${channel}',
                     'repodir'           => '${repodir}',
                     'channel'           => '${channel}',
-                    'deviceclass'       => '${deviceclass}',
+                    'deviceclass'       => 'container-${deviceclass}',
                     'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-${deviceclass}_${tstamp}.tardir',
                     'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-${deviceclass}_LATEST.tardir',
                     'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-${deviceclass}_${tstamp}.tar',
