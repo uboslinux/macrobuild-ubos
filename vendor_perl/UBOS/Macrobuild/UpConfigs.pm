@@ -38,12 +38,7 @@ sub configs {
     my $self     = shift;
     my $settings = shift;
 
-    my $archUpstreamDir = $settings->getVariable( 'archUpstreamDir' );
-    my $arch            = $settings->getVariable( 'arch' );
-    unless( $archUpstreamDir ) {
-        error( 'Variable not set: archUpstreamDir' );
-        return undef;
-    }
+    my $arch = $settings->getVariable( 'arch' );
     unless( $arch ) {
         error( 'Variable not set: arch' );
         return undef;
@@ -81,6 +76,12 @@ sub configs {
                 next;
             }
             
+            my $upstreamDir = $upConfigJson->{upstreamDir};
+            unless( $upstreamDir ) {
+                error( 'Field upstreamDir not set in', $file );
+                next;
+            }
+
             my $packages  = $upConfigJson->{packages};
             # Remove packages not for this arch
             foreach my $packageName ( keys %$packages ) {
@@ -94,7 +95,7 @@ sub configs {
             }
             
             my $directory = $settings->replaceVariables(
-                    $archUpstreamDir,
+                    $upstreamDir,
                     { 'db' => $shortRepoName } );
 
             unless( !defined( $directory ) || ( $directory =~ m!^/! && -d $directory ) || $directory =~ m!^https?://! ) {
