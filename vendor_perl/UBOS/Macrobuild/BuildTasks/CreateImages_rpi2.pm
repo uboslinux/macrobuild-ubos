@@ -49,7 +49,7 @@ sub new {
                         'name'              => 'Create bootable container for ${channel}',
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
-                        'deviceclass'       => "container-$deviceclass",
+                        'deviceclass'       => 'container',
                         'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_${tstamp}',
                         'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_LATEST',
                         'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_${tstamp}.tar',
