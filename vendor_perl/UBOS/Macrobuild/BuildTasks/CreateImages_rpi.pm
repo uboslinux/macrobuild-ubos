@@ -50,8 +50,8 @@ sub new {
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
                         'deviceclass'       => 'container-armv6h',
-                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_${tstamp}',
-                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_LATEST',
+                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_${tstamp}.tardir',
+                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_LATEST.tardir',
                         'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_${tstamp}.tar',
                         'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_LATEST.tar'
                     )
