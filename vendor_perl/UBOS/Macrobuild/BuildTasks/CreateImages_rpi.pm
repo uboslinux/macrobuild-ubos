@@ -42,18 +42,18 @@ sub new {
                         'channel'      => '${channel}',
                         'deviceclass'  => $deviceclass,
                         'imagesize'    => '3G',
-                        'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_' . $deviceclass . '_${tstamp}.img',
-                        'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_' . $deviceclass . '_LATEST.img'
+                        'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_${tstamp}.img',
+                        'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_LATEST.img'
                     ),
                     'container' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
                         'name'              => 'Create bootable container for ${channel}',
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
                         'deviceclass'       => 'container-armv6h',
-                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_${tstamp}.tardir',
-                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_LATEST.tardir',
-                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_${tstamp}.tar',
-                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container_' . $deviceclass . '_LATEST.tar'
+                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_${tstamp}.tardir',
+                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_LATEST.tardir',
+                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_LATEST.tar'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
