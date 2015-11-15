@@ -25,8 +25,12 @@ sub run {
     my $dbfile = $run->replaceVariables( $self->{dbfile} );
 
     my $ret = 0;
-    if( UBOS::Utils::myexec( "pacsane '$dbfile'" )) {
-        $ret = -1;
+    if( -e $dbfile ) {
+        if( UBOS::Utils::myexec( "pacsane '$dbfile'" )) {
+            $ret = -1;
+        }
+    } else {
+        $ret = 1; # e.g. a db that does not exist on this arch
     }
 
     $run->taskEnded(

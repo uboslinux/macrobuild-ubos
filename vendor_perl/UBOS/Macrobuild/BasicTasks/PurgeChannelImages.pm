@@ -82,7 +82,7 @@ sub run {
                 }
 
             } else {
-                unless( UBOS::Utils::deleteFile( $purge )) {
+                unless( "sudo /bin/rm -rf '$purge'" ) {
                     error( 'Failed to purge:', $purge );
                     $ret = -1;
                 }
