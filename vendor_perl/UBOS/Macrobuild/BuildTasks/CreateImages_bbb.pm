@@ -34,32 +34,14 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new Macrobuild::CompositeTasks::SplitJoin( 
-                'parallelTasks' => {
-                    'img' => new UBOS::Macrobuild::BasicTasks::CreateImage(
-                        'name'         => 'Create boot disk image for ${channel}',
-                        'repodir'      => '${repodir}',
-                        'channel'      => '${channel}',
-                        'deviceclass'  => $deviceclass,
-                        'imagesize'    => '3G',
-                        'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_${tstamp}.img',
-                        'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_LATEST.img'
-                    ),
-                    'container' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
-                        'name'              => 'Create bootable container for ${channel}',
-                        'repodir'           => '${repodir}',
-                        'channel'           => '${channel}',
-                        'deviceclass'       => 'container-armv7h',
-                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_${tstamp}.tardir',
-                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_LATEST.tardir',
-                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_${tstamp}.tar',
-                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_LATEST.tar'
-                    )
-                },
-                'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
-                        'name'         => 'Merge images list for ${channel}',
-                        'keys'         => [ 'img', 'container' ]
-                )
+            new UBOS::Macrobuild::BasicTasks::CreateImage(
+                'name'         => 'Create boot disk image for ${channel}',
+                'repodir'      => '${repodir}',
+                'channel'      => '${channel}',
+                'deviceclass'  => $deviceclass,
+                'imagesize'    => '3G',
+                'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_${tstamp}.img',
+                'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_LATEST.img'
             ),
 
             new Macrobuild::BasicTasks::Report(
