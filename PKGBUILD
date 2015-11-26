@@ -3,33 +3,52 @@ url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
 pkgver=0.163
-pkgrel=1
+pkgrel=2
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
 depends=(
         'arch-install-scripts'
-        'base-devel'
+        'autoconf'
+        'automake'
+        'binutils'
+        'bison'
         'btrfs-progs'
         'curl'
         'dosfstools'
+        'fakeroot'
+        'file'
+        'findutils'
+        'flex'
+        'gawk'
         'gcc'
+        'gettext'
         'git'
+        'grep'
+        'gzip'
+        'libtool'
+        'm4'
         'macrobuild'
         'make'
         'maven'
         'multipath-tools'
-        'parted'
+        'pacman'
         'pacsane'
+        'patch'
+        'parted'
         'perl-http-date'
         'perl-module-build'
         'php'
+        'pkg-config'
         'rsync'
+        'sed'
         'setuptools'
+        'sudo'
         'ubos-install'
         'ubos-perl-utils'
         'util-linux'
         'webapptest'
+        'which'
 )
 optdepends=(
         'grub'
