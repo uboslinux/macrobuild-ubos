@@ -52,10 +52,10 @@ sub new {
                                 'name'         => 'Create boot disk image for ${channel} for VirtualBox',
                                 'repodir'      => '${repodir}',
                                 'channel'      => '${channel}',
-                                'deviceclass'  => "vbox-$deviceclass",
+                                'deviceclass'  => "vbox-x86_64",
                                 'imagesize'    => '3G',
-                                'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-' . $deviceclass . '_${tstamp}.img',
-                                'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-' . $deviceclass . '_LATEST.img' ),
+                                'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-x86_64_${tstamp}.img',
+                                'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-x86_64_LATEST.img' ),
                             new UBOS::Macrobuild::BasicTasks::ImagesToVmdk()
                         ]
                     ),
@@ -64,10 +64,10 @@ sub new {
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
                         'deviceclass'       => 'container-x86_64',
-                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_${tstamp}.tardir',
-                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_LATEST.tardir',
-                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_${tstamp}.tar',
-                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $deviceclass . '_LATEST.tar'
+                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_${tstamp}.tardir',
+                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_LATEST.tardir',
+                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_LATEST.tar'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
