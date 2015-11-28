@@ -24,7 +24,7 @@ sub run {
 
     my $ret = 0;
 
-    if( UBOS::Utils::myexec( 'ubos-admin update' )) {
+    if( UBOS::Utils::myexec( 'sudo ubos-admin update' )) {
         $ret = -1;
     }
 
