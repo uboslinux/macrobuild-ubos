@@ -24,7 +24,7 @@ sub packageVersionsInDirectory {
     my $arch        = shift;
 
     my @all = map { s!.*/!!; $_; } <$dir/*>; # strip off directory
-    my @ret = grep { /^\Q$packageName\E-[^-]+-\d+-($arch|any)\.pkg\.tar\.xz$/ } @all;
+    my @ret = grep { /^\Q$packageName\E-[^-]+-\d+(\.\d+)?-($arch|any)\.pkg\.tar\.xz$/ } @all;
 
     return @ret;
 }
