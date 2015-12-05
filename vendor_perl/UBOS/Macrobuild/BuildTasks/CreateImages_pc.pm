@@ -43,8 +43,8 @@ sub new {
                         'channel'      => '${channel}',
                         'deviceclass'  => $deviceclass,
                         'imagesize'    => '3G',
-                        'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_' . $deviceclass . '_${tstamp}.img',
-                        'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_' . $deviceclass . '_LATEST.img'
+                        'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_${tstamp}.img',
+                        'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_LATEST.img'
                     ),
                     'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                         'tasks' => [
