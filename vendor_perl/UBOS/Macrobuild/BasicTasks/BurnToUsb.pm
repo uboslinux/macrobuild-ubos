@@ -38,6 +38,7 @@ sub run {
                 error( 'Writing image', $image, 'to USB device', $usbDevice, 'failed' );
                 $ret = 1;
             } else {
+                UBOS::Utils::myexec( "sync" );
                 $ret = 0;
             }
             
