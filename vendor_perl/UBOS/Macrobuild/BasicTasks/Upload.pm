@@ -31,6 +31,8 @@ sub run {
         my @filesInFrom = <$from/*>;
         # we don't upload hidden files
         if( @filesInFrom ) {
+            UBOS::Utils::saveFile( "$from/LAST_UPLOADED", UBOS::Utils::time2string( time() ) . "\n" );
+
             my $uploadKey = $run->getVariable( 'uploadSshKey' );
 
             # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
