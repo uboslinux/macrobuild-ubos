@@ -47,9 +47,11 @@ sub run {
         @timestamps    = sort @timestamps;
 
         # keep the last one
-        push @keepList, ( "$dir/$prefix" . ( pop @timestamps ) . $postfix );
+        my $lastTs = pop @timestamps;
+        push @keepList, ( "$dir/$prefix" . $lastTs . $postfix );
 
-        my $lastMonthKept = '000000'; # long time ago
+        my $lastMonthKept = ( $lastTs =~ m!^(\d{6})! );
+
         foreach my $ts ( @timestamps ) {
             my $yearMonth = ( $ts =~ m!^(\d{6})! );
             if( $lastMonthKept eq $yearMonth ) {
