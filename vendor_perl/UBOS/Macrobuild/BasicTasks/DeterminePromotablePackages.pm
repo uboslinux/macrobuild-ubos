@@ -23,14 +23,14 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
-    my $arch      = $run->getVariable( 'arch' );
-    my $toChannel = $run->getVariable( 'toChannel' );
+    my $arch    = $run->getVariable( 'arch' );
+    my $channel = $run->getVariable( 'channel' );
     unless( $arch ) {
         error( 'Variable not set: arch' );
         return -1;
     }
-    unless( $toChannel ) {
-        error( 'Variable not set: toChannel' );
+    unless( $channel ) {
+        error( 'Variable not set: channel' );
         return -1;
     }
 
@@ -53,12 +53,12 @@ sub run {
 
             my @candidatePackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromDb, $arch );
             my $toPromote;
-            if( exists( $packageInfo->{$toChannel}->{version} )) {
-                if( exists( $packageInfo->{$toChannel}->{release} )) {
-                    $toPromote = UBOS::Macrobuild::PackageUtils::packageVersionNoLaterThan( $packageInfo->{$toChannel}, @candidatePackages );
+            if( exists( $packageInfo->{$channel}->{version} )) {
+                if( exists( $packageInfo->{$channel}->{release} )) {
+                    $toPromote = UBOS::Macrobuild::PackageUtils::packageVersionNoLaterThan( $packageInfo->{$channel}, @candidatePackages );
 
                 } else {
-                    error( 'Cannot determine whether to promote', $packageName, ': spec unclear for channel', $toChannel );
+                    error( 'Cannot determine whether to promote', $packageName, ': spec unclear for channel', $channel );
                 }
             } else {
                 $toPromote = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @candidatePackages );
@@ -86,12 +86,12 @@ sub run {
 
             my @candidatePackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromDb, $arch );
             my $toPromote;
-            if( exists( $packageInfo->{$toChannel}->{version} )) {
-                if( exists( $packageInfo->{$toChannel}->{release} )) {
-                    $toPromote = UBOS::Macrobuild::PackageUtils::packageVersionNoLaterThan( $packageInfo->{$toChannel}, @candidatePackages );
+            if( exists( $packageInfo->{$channel}->{version} )) {
+                if( exists( $packageInfo->{$channel}->{release} )) {
+                    $toPromote = UBOS::Macrobuild::PackageUtils::packageVersionNoLaterThan( $packageInfo->{$channel}, @candidatePackages );
 
                 } else {
-                    error( 'Cannot determine whether to promote', $packageName, ': spec unclear for channel', $toChannel );
+                    error( 'Cannot determine whether to promote', $packageName, ': spec unclear for channel', $channel );
                 }
             } else {
                 $toPromote = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @candidatePackages );
