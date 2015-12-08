@@ -1,5 +1,5 @@
 # 
-# Check that there are no overlaps in UpConfigs and UsConfigs
+# Check that there are no overlaps in any of the UpConfigs and UsConfigs
 #
 
 use strict;
@@ -25,8 +25,13 @@ sub run {
     my $ret = 0;
 
     # This is a degenerate task, it fatals out if something is wrong
-    UBOS::Macrobuild::UpConfigs::checkNoOverlap( $self->{repoUpConfigs}, $run->getSettings() );
-    UBOS::Macrobuild::UsConfigs::checkNoOverlap( $self->{repoUsConfigs}, $run->getSettings() );
+
+    if( defined( $self->{repoUpConfigs} )) {
+        UBOS::Macrobuild::UpConfigs::checkNoOverlap( $self->{repoUpConfigs}, $run->getSettings() );
+    }
+    if( defined( $self->{repoUsConfigs} )) {
+        UBOS::Macrobuild::UsConfigs::checkNoOverlap( $self->{repoUsConfigs}, $run->getSettings() );
+    }
 
     $run->taskEnded( $self, {}, $ret );
 

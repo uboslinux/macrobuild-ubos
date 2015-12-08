@@ -1,17 +1,19 @@
 # 
-# Builds the repositories in dev, updates packages
+# Builds the repositories in dev
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::BuildDev;
+package UBOS::Macrobuild::BuildTasks::BuildUbosDev;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
+use Macrobuild::CompositeTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
+use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CheckHavePrivateKey;
 use UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps;
@@ -34,11 +36,8 @@ sub new {
     my $m2BuildDir = '${builddir}/maven';
     my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
 
-
     # only check overlap in UBOS, not arch-tools
-    my $ubosRepoUpConfigs = {};
     my $ubosRepoUsConfigs = {};
-    my $repoUpConfigs = {};
     my $repoUsConfigs = {};
     my $buildTasks    = {};
     my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
@@ -50,26 +49,21 @@ sub new {
 
     # create build tasks
     foreach my $db ( @dbs ) {
-        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
-        $ubosRepoUpConfigs->{$db} = $repoUpConfigs->{$db};
         $ubosRepoUsConfigs->{$db} = $repoUsConfigs->{$db};
 
         $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
             'name'           => 'Build ' . $db . ' packages',
-            'upconfigs'      => $repoUpConfigs->{$db},
             'usconfigs'      => $repoUsConfigs->{$db},
             'db'             => UBOS::Macrobuild::Utils::shortDb( $db ),
             'm2settingsfile' => $m2BuildDir . '/settings.xml',
             'm2repository'   => $m2BuildDir . '/repository' );
     }
     foreach my $db ( @archDbs ) {
-        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 
         $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
             'name'       => 'Build ' . $db . ' packages',
-            'upconfigs'  => $repoUpConfigs->{$db},
             'usconfigs'  => $repoUsConfigs->{$db},
             'db'         => UBOS::Macrobuild::Utils::shortDb( $db ));
     }
@@ -77,13 +71,17 @@ sub new {
     # create check tasks
     my @checkTasks = (
         new UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps(
-            'repoUpConfigs' => $ubosRepoUpConfigs,
             'repoUsConfigs' => $ubosRepoUsConfigs ),
     );
     foreach my $keyType ( 'packageSignKey', 'dbSignKey', 'imageSignKey' ) {
         my $keyId = $self->{_settings}->getVariable( $keyType );
         if( $keyId ) {
-            push @checkTasks, new UBOS::Macrobuild::BasicTasks::CheckHavePrivateKey( 'keyId' => $keyId );
+            $keyId = $self->{_settings}->replaceVariables( $keyId );
+        }
+        if( $keyId ) {
+            push @checkTasks, new UBOS::Macrobuild::BasicTasks::CheckHavePrivateKey(
+                    'name'  => 'Checking we have private key of type ' . $keyType . ' for ' . $keyId,
+                    'keyId' => $keyId );
         }
     }
 
@@ -106,7 +104,7 @@ sub new {
         'parallelTasksSequence' => \@buildTasksSequence,
         'joinTask'              => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
-                new Macrobuild::CompositeTasks::MergeValuesTask(
+                new Macrobuild::CompositeTasks::MergeValues(
                     'name'         => 'Merge update lists from dev dbs: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
                     'keys'         => \@buildTaskNames ),
                 new Macrobuild::BasicTasks::Report(

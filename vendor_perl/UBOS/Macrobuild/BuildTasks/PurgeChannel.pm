@@ -11,7 +11,7 @@ use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValuesTask;
+use Macrobuild::CompositeTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
@@ -58,7 +58,7 @@ sub new {
         'parallelTasks' => $purgeTasks,
         'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
-                new Macrobuild::CompositeTasks::MergeValuesTask(
+                new Macrobuild::CompositeTasks::MergeValues(
                     'name'         => 'Merge purge results from repositories: ' . join( ' ', @dbs ) . ' and images',
                     'keys'         => \@purgeTaskNames ),
                 new Macrobuild::BasicTasks::Report(

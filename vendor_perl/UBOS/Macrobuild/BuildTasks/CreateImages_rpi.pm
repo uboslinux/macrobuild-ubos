@@ -11,7 +11,7 @@ use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValuesTask;
+use Macrobuild::CompositeTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
@@ -56,7 +56,7 @@ sub new {
                         'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_LATEST.tar'
                     )
                 },
-                'joinTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
+                'joinTask' => new Macrobuild::CompositeTasks::MergeValues(
                         'name'         => 'Merge images list for ${channel}',
                         'keys'         => [ 'img', 'container' ]
                 )

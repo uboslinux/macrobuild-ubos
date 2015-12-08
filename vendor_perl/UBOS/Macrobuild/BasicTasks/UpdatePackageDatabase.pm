@@ -33,7 +33,12 @@ sub run {
         my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->replaceVariables( $self->{dbfile} ));
         my @packageNames = values %$staged;
 
-        if( $dbFile->addPackages( $run->getVariable( 'dbSignKey', undef ), \@packageNames ) == -1 ) {
+        my $dbSignKey = $run->getVariable( 'dbSignKey', undef );
+        if( $dbSignKey ) {
+            $dbSignKey = $run->replaceVariables( $dbSignKey );
+info( "dbSIognKey is", $dbSignKey );
+        }
+        if( $dbFile->addPackages( $dbSignKey, \@packageNames ) == -1 ) {
             return -1;
         }
         @updated = values %$staged;

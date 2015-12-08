@@ -105,7 +105,7 @@ sub addPackages {
     unless( UBOS::Logging::isDebugActive() ) {
         $cmd .= ' --quiet';
     }
-    if( defined( $dbSignKey )) {
+    if( $dbSignKey ) {
 		$cmd .= ' --sign --key ' . $dbSignKey;
 	}
 	$cmd .= " '" . $self->{filename} . "'";

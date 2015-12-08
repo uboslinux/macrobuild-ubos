@@ -11,6 +11,7 @@ use base qw( Macrobuild::Task );
 use fields qw( sourcedir m2settingsfile m2repository );
 
 use UBOS::Logging;
+use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
 
 my $failedstamp = ".build-in-progress-or-failed";
@@ -37,6 +38,10 @@ sub run {
 
     my $packageSignKey = $run->getVariable( 'packageSignKey', undef ); # ok if not exists
     my $gpgHome        = $run->getVariable( 'GNUPGHOME',      undef ); # ok if not exists
+
+    if( $packageSignKey ) {
+        $packageSignKey = $run->replaceVariables( $packageSignKey );
+    }
 
     my $mvn_opts = ' -DskipTests';
     if( defined( $self->{m2settingsfile} )) {

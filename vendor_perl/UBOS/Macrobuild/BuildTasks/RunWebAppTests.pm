@@ -10,7 +10,7 @@ use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValuesTask;
+use Macrobuild::CompositeTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
@@ -56,7 +56,7 @@ sub new {
         'stopOnError'   => 0,
         'parallelTasks' => \%tasks,
         'joinTask'      => new Macrobuild::CompositeTasks::SplitJoin(
-            'splitTask' => new Macrobuild::CompositeTasks::MergeValuesTask(
+            'splitTask' => new Macrobuild::CompositeTasks::MergeValues(
                     'name'         => 'Merge test results from dbs: ' . join( ' ', @dbs ),
                     'keys'         => [ keys %tasks ]
             ),

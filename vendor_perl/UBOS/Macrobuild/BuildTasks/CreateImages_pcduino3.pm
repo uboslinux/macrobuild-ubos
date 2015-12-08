@@ -11,7 +11,6 @@ use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
 use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValuesTask;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
