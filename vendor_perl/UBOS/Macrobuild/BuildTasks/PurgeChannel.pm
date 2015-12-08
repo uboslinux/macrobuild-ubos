@@ -43,8 +43,9 @@ sub new {
 
     foreach my $db ( @dbs ) {
         $purgeTasks->{"purge-$db"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelRepository(
-                'dir' => '${repodir}/${arch}/' . UBOS::Macrobuild::Utils::shortDb( $db ),
-                'age' => $age );
+                'name' => 'Purge channel repository ' . $db,
+                'dir'  => '${repodir}/${arch}/' . UBOS::Macrobuild::Utils::shortDb( $db ),
+                'age'  => $age );
     }
     $purgeTasks->{"purge-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
             'dir' => '${repodir}/${arch}/images' );

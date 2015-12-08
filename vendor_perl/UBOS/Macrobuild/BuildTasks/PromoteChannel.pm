@@ -45,6 +45,7 @@ sub new {
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 
         $promoteTasks->{"promote-$db"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
+            'name'      => 'Promote channel repository ' . $db,
             'upconfigs' => $repoUpConfigs->{$db},
             'usconfigs' => $repoUsConfigs->{$db},
             'db'        => UBOS::Macrobuild::Utils::shortDb( $db ));

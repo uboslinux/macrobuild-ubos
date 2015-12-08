@@ -37,7 +37,7 @@ sub new {
             new Macrobuild::CompositeTasks::SplitJoin( 
                 'parallelTasks' => {
                     'img' => new UBOS::Macrobuild::BasicTasks::CreateImage(
-                        'name'         => 'Create boot disk image for ${channel}',
+                        'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel}',
                         'repodir'      => '${repodir}',
                         'channel'      => '${channel}',
                         'deviceclass'  => $deviceclass,
@@ -46,7 +46,7 @@ sub new {
                         'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_LATEST.img'
                     ),
                     'container' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
-                        'name'              => 'Create bootable container for ${channel}',
+                        'name'              => 'Create ' . $deviceclass . ' bootable container for ${channel}',
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
                         'deviceclass'       => 'container-armv7h',

@@ -26,6 +26,7 @@ sub new {
     $self->SUPER::new( %args );
 
     $self->{delegate} = new UBOS::Macrobuild::BasicTasks::BurnToUsb(
+        'name'      => 'Burning to ${usbdevice}',
         'usbdevice' => '${usbdevice}',
         'image'     => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-${deviceclass}_LATEST.img',
     );

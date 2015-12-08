@@ -33,16 +33,16 @@ sub new {
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
             'tasks' => [
                 new UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages(
-                        'name'        => 'Determine which packages should be promoted',
+                        'name'        => 'Determine which packages should be promoted in ' . $self->{db},
                         'upconfigs'   => $self->{upconfigs},
                         'usconfigs'   => $self->{usconfigs},
                         'fromDb'      => '${repodir}/${arch}/' . $self->{db},
                         'toDb'        => '${toRepodir}/${arch}/' . $self->{db} ),
                 new UBOS::Macrobuild::BasicTasks::Stage(
-                        'name'        => 'Stage new packages',
+                        'name'        => 'Stage new packages in ' . $self->{db},
                         'stagedir'    => '${toRepodir}/${arch}/' . $self->{db} ),
                 new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
-                        'name'         => 'Update package database with new packages',
+                        'name'         => 'Update package database with new packages in ' . $self->{db},
                         'dbfile'       => '${toRepodir}/${arch}/' . $self->{db} . '/' . $self->{db} . '.db.tar.xz' )
             ]
     );

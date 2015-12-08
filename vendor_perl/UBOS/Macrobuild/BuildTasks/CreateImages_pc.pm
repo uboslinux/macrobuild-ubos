@@ -38,7 +38,7 @@ sub new {
             new Macrobuild::CompositeTasks::SplitJoin( 
                 'parallelTasks' => {
                     'img' => new UBOS::Macrobuild::BasicTasks::CreateImage(
-                        'name'         => 'Create boot disk image for ${channel}',
+                        'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel}',
                         'repodir'      => '${repodir}',
                         'channel'      => '${channel}',
                         'deviceclass'  => $deviceclass,
@@ -49,7 +49,7 @@ sub new {
                     'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
                         'tasks' => [
                             new UBOS::Macrobuild::BasicTasks::CreateImage(
-                                'name'         => 'Create boot disk image for ${channel} for VirtualBox',
+                                'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel} (VirtualBox)',
                                 'repodir'      => '${repodir}',
                                 'channel'      => '${channel}',
                                 'deviceclass'  => "vbox-x86_64",
@@ -60,7 +60,7 @@ sub new {
                         ]
                     ),
                     'container' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
-                        'name'              => 'Create bootable container for ${channel}',
+                        'name'         => 'Create ' . $deviceclass . ' bootable container for ${channel}',
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
                         'deviceclass'       => 'container-x86_64',

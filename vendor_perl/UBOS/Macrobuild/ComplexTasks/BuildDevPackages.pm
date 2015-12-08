@@ -65,17 +65,17 @@ sub new {
                     'name'  => 'Build UBOS packages',
                     'tasks' => [
                         new UBOS::Macrobuild::BasicTasks::PullSources(
-                                'name'           => 'Pull the sources that need to be built',
+                                'name'           => 'Pull the sources that need to be built for db ' . $self->{db},
                                 'usconfigs'      => $self->{usconfigs},
                                 'sourcedir'      => '${builddir}/dbs/' . $db . '/ups'  ),
                         new UBOS::Macrobuild::BasicTasks::BuildPackages(
-                                'name'           => 'Building packages locally',
+                                'name'           => 'Building packages locally for db ' . $self->{db},
                                 'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
                                 'stopOnError'    => 0,
                                 'm2settingsfile' => $self->{m2settingsfile},
                                 'm2repository'   => $self->{m2repository} ),
                         new UBOS::Macrobuild::BasicTasks::Stage(
-                                'name'           => 'Stage new packages in local repository',
+                                'name'           => 'Stage new packages in local repository for db ' . $self->{db},
                                 'stagedir'       => '${repodir}/${arch}/' . $db ),
                     ]                
                 )

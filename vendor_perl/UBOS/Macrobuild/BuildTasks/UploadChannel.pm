@@ -35,9 +35,9 @@ sub new {
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::Upload(
-                'from'        => '${repodir}/${arch}',
-                'to'          => '${uploadDest}/${arch}',
-                'inexclude'   => '${uploadInExclude}' ),
+                'from'      => '${repodir}/${arch}',
+                'to'        => '${uploadDest}/${arch}',
+                'inexclude' => '${uploadInExclude}' ),
 
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report upload activity',

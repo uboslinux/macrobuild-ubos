@@ -30,6 +30,7 @@ sub new {
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::CompressFiles(
+                'name'           => 'Compressing to ${repodir}/${arch}/images',
                 'inDir'          => '${repodir}/${arch}/uncompressed-images',
                 'glob'           => '*.{img,vmdk,tar}',
                 'outDir'         => '${repodir}/${arch}/images',

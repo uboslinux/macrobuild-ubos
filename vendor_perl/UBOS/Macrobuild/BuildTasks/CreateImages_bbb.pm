@@ -35,7 +35,7 @@ sub new {
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::CreateImage(
-                'name'         => 'Create boot disk image for ${channel}',
+                'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel}',
                 'repodir'      => '${repodir}',
                 'channel'      => '${channel}',
                 'deviceclass'  => $deviceclass,
