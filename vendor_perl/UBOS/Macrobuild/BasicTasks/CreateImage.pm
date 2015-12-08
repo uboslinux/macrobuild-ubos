@@ -39,8 +39,6 @@ sub run {
     my $updatedPackages = $in->{'updated-packages'};
     my $channel         = $run->replaceVariables( $self->{channel} );
     my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
-    my $imageSignKey    = $run->getVariable( 'imageSignKey', undef ); # ok if not exists
-    my $gpgHome         = $run->getVariable( 'GNUPGHOME',    undef ); # ok if not exists
     my $checkSignatures = $run->getVariable( 'checkSignatures', 'required' );
 
     my $image;
@@ -73,18 +71,6 @@ sub run {
         if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$err )) {
             error( 'ubos-install failed:', $err );
             ++$errors;
-
-        } elsif( $imageSignKey ) {
-            my $signCmd = '';
-            if( $gpgHome ) {
-                $signCmd .= "GNUPGHOME='$gpgHome' ";
-            }
-            $signCmd .= "gpg --detach-sign -u '$imageSignKey' --no-armor '$image'";
-
-            if( UBOS::Utils::myexec( $signCmd, undef, \$out, \$err )) {
-                error( 'image signing failed:', $err );
-                ++$errors;
-            }
         }
     }
 
