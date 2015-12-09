@@ -42,7 +42,7 @@ sub new {
             my $usConfig = $usConfigs->{$repoName}; 
 
             $tasks{$repoName} = new UBOS::Macrobuild::BasicTasks::RunWebAppTests(
-                    'name'         => 'Run webapptests in ' . $db . ' - ' . $repoName,
+                    'name'         => 'Run webapptests in ' . UBOS::Macrobuild::Utils::shortDb( $db ) . ' - ' . $repoName,
                     'usconfig'     => $usConfig,
                     'scaffold'     => '${scaffold}', # allows us to filter out 'directory parameter if not container, for example
                     'config'       => '${testconfig}',

@@ -34,7 +34,7 @@ sub run {
             } elsif( $out =~ $usbDevice ) {
                 error( 'USB device', $usbDevice, 'is mounted and cannot be used to burn to' );
                 $ret = 1;
-            } elsif( UBOS::Utils::myexec( "sudo dd 'if=$image' 'of=$usbDevice' bs=1M" )) {
+            } elsif( UBOS::Utils::myexec( "sudo dd 'if=$image' 'of=$usbDevice' bs=1M status=none" )) {
                 error( 'Writing image', $image, 'to USB device', $usbDevice, 'failed' );
                 $ret = 1;
             } else {
