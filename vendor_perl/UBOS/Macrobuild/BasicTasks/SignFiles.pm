@@ -28,6 +28,8 @@ sub run {
     my $errors = 0;
     my @signedFiles = ();
     if( $imageSignKey ) {
+        $imageSignKey = $run->replaceVariables( $imageSignKey );
+
         my @allFiles = glob "$inDir/$glob";
         my @toSign   = grep { -f $_ && ! -e "$_.sig" } @allFiles;
 

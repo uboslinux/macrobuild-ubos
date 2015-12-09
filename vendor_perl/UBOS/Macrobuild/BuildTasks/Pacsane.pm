@@ -40,6 +40,7 @@ sub new {
         my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
 
         $tasks->{"pacsane-$db"} = new UBOS::Macrobuild::BasicTasks::PacsaneRepository(
+                'name'   => 'Pacsane on repository ' . $shortDb,
                 'dbfile' => '${repodir}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz' );
     }
     

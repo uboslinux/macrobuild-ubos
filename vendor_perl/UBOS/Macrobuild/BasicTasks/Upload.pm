@@ -51,8 +51,8 @@ sub run {
             info( "Rsync command:", $rsyncCmd );
 
             my $out;
-            if( UBOS::Utils::myexec( $rsyncCmd, undef, UBOS::Logging::isInfoActive() ? undef : \$out )) {
-                error( "rsync failed", $out );
+            if( UBOS::Utils::myexec( $rsyncCmd, undef, \$out )) {
+                error( "rsync failed:", $out );
                 $ret = -1;
             } else {
                 $ret = 0;
