@@ -10,12 +10,11 @@ package UBOS::Macrobuild::BuildTasks::CompressSignImages;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
 
-use Macrobuild::BasicTasks::CompressFiles;
 use Macrobuild::BasicTasks::Report;
-use Macrobuild::BasicTasks::SignFiles;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CompressFiles;
+use UBOS::Macrobuild::BasicTasks::SignFiles;
 
 ##
 # Constructor
