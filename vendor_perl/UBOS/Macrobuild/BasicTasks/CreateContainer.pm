@@ -41,7 +41,6 @@ sub run {
     my $updatedPackages = $in->{'updated-packages'};
     my $channel         = $run->replaceVariables( $self->{channel} );
     my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
-    my $imageSignKey    = $run->getVariable( 'imageSignKey', undef ); # ok if not exists
     my $checkSignatures = $run->getVariable( 'checkSignatures', 'required' );
 
     my $dir;
@@ -98,15 +97,6 @@ sub run {
                 if( UBOS::Utils::myexec( "sudo chown \$(id -u -n):\$(id -g -n) '$tarfile'" )) {
                     error( 'chown failed' );
                     ++$errors;
-                }
-
-                if( $imageSignKey ) {
-                    my $signCmd = "gpg --detach-sign -u '$imageSignKey' --no-armor '$tarfile'";
-
-                    if( UBOS::Utils::myexec( $signCmd, undef, \$out, \$err )) {
-                        error( 'image signing failed:', $err );
-                        ++$errors;
-                    }
                 }
             }
         }
