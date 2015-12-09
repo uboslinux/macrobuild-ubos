@@ -26,7 +26,7 @@ depends=(
         'git'
         'grep'
         'gzip'
-        'libevent
+        'libevent'
         'libtool'
         'm4'
         'macrobuild'
