@@ -32,10 +32,10 @@ sub run {
     if( $imageSignKey ) {
         $imageSignKey = $run->replaceVariables( $imageSignKey );
 
-        my $dir      = $self->{dir};
-        my $glob     = $self->{glob};
+        my $dir      = $run->replaceVariables( $self->{dir} );
+        my $glob     = $run->replaceVariables( $self->{glob} );
         my @allFiles = glob "$dir/$glob";
-        my @toSign   = grep { -f $_ && ! -e "$_.sig" } @allFiles;
+        my @toSign   = grep { -f $_ && ! -l $_ && ( ! -e "$_.sig" || -z "$_.sig" ) } @allFiles;
 
         if( @toSign ) {
             my $signCmd = '';
