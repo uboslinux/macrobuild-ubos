@@ -22,6 +22,8 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
+    $run->taskStarting( $self ); # input ignored
+
     my $imageSignKey = $run->getVariable( 'imageSignKey', undef ); # ok if not exists
     my $gpgHome      = $run->getVariable( 'GNUPGHOME',    undef ); # ok if not exists
 
@@ -43,11 +45,13 @@ sub run {
             $signCmd .= "gpg --detach-sign -u '$imageSignKey' --no-armor";
 
             foreach my $file ( @toSign ) {
+                my $out;
+                my $err;
                 if( UBOS::Utils::myexec( "$signCmd '$file'", undef, \$out, \$err )) {
                     error( 'image signing failed:', $err );
                     ++$errors;
                 } else {
-                    push @signedFiles, @file;
+                    push @signedFiles, $file;
                 }
             }
         }

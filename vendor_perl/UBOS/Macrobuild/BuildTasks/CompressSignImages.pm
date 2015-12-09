@@ -39,11 +39,11 @@ sub new {
             ),
             new UBOS::Macrobuild::BasicTasks::SignFiles(
                 'name'           => 'Signing images in to ${repodir}/${arch}/images',
-                'glob'           => '*.{img,vmdk,tar}',
+                'glob'           => '*.{img,vmdk,tar}.xz',
                 'dir'            => '${repodir}/${arch}/images'
             ),
             new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report for compressing images',
+                'name'        => 'Report for compressing and signing images',
                 'fields'      => [ 'files' ] )
         ]
     );
