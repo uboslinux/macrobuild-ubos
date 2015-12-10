@@ -1,5 +1,5 @@
 # 
-# Promotes uploads a locally staged channel
+# Uploads a locally staged channel
 #
 
 use strict;
