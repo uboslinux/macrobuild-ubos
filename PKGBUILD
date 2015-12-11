@@ -2,8 +2,8 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
-pkgver=0.170
-pkgrel=9
+pkgver=0.171
+pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
@@ -52,6 +52,7 @@ depends=(
         'which'
 )
 optdepends=(
+        'docker'
         'grub'
         'virtualbox'
 )
