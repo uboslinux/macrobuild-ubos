@@ -84,7 +84,7 @@ sub run {
                 }
 
             } else {
-                unless( "sudo /bin/rm -rf '$purge'" ) {
+                unless( UBOS::Utils::myexec( "sudo /bin/rm -rf '$purge'" )) {
                     error( 'Failed to purge:', $purge );
                     $ret = -1;
                 }
