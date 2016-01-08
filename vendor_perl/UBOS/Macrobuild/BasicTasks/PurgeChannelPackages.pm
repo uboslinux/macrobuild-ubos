@@ -1,11 +1,11 @@
 # 
-# Purge a repository in a channel
+# Purge the packages in a channel
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BasicTasks::PurgeChannelRepository;
+package UBOS::Macrobuild::BasicTasks::PurgeChannelPackages;
 
 use base qw( Macrobuild::Task );
 use fields qw( dir age );

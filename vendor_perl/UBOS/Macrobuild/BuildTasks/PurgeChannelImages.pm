@@ -1,11 +1,11 @@
 # 
-# Purges outdated files from a channel.
+# Purges outdated images from a channel.
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::PurgeChannel;
+package UBOS::Macrobuild::BuildTasks::PurgeChannelImages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -16,7 +16,6 @@ use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::PurgeChannelImages;
-use UBOS::Macrobuild::BasicTasks::PurgeChannelRepository;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
 use UBOS::Macrobuild::Utils;
@@ -41,12 +40,6 @@ sub new {
 
     @dbs = ( @dbs, @archDbs );
 
-    foreach my $db ( @dbs ) {
-        $purgeTasks->{"purge-$db"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelRepository(
-                'name' => 'Purge channel repository ' . $db,
-                'dir'  => '${repodir}/${arch}/' . UBOS::Macrobuild::Utils::shortDb( $db ),
-                'age'  => $age );
-    }
     $purgeTasks->{"purge-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
             'dir' => '${repodir}/${arch}/images' );
     $purgeTasks->{"purge-uncompressed-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(

@@ -46,7 +46,7 @@ sub new {
                         'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_${tstamp}.img',
                         'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_LATEST.img'
                     ),
-                    'vbox.img' => new Macrobuild::CompositeTasks::Sequential(
+                    'vbox' => new Macrobuild::CompositeTasks::Sequential(
                         'tasks' => [
                             new UBOS::Macrobuild::BasicTasks::CreateImage(
                                 'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel} (VirtualBox)',
@@ -68,11 +68,20 @@ sub new {
                         'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_LATEST.tardir',
                         'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_${tstamp}.tar',
                         'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_LATEST.tar'
+                    ),
+                    'ec2' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
+                        'name'         => 'Create ' . $deviceclass . ' EC2 image for ${channel}',
+                        'repodir'      => '${repodir}',
+                        'channel'      => '${channel}',
+                        'deviceclass'  => 'ec2-instance',
+                        'imagesize'    => '3G',
+                        'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_ec2_${tstamp}.img',
+                        'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_ec2_LATEST.img' ),
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValues(
                         'name'         => 'Merge images list for ${channel}',
-                        'keys'         => [ 'img', 'vbox.img', 'container' ]
+                        'keys'         => [ 'img', 'vbox', 'container', 'ec2' ]
                 )
             ),
             new Macrobuild::BasicTasks::Report(

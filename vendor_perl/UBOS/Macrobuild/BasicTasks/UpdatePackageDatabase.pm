@@ -36,7 +36,6 @@ sub run {
         my $dbSignKey = $run->getVariable( 'dbSignKey', undef );
         if( $dbSignKey ) {
             $dbSignKey = $run->replaceVariables( $dbSignKey );
-info( "dbSIognKey is", $dbSignKey );
         }
         if( $dbFile->addPackages( $dbSignKey, \@packageNames ) == -1 ) {
             return -1;
