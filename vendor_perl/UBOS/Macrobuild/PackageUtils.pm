@@ -24,8 +24,7 @@ sub packageVersionsInDirectory {
     my $arch        = shift;
 
     my @all = map { s!.*/!!; $_; } <$dir/*>; # strip off directory
-    my @ret = grep { /^\Q$packageName\E-[^-]+-\d+(\.\d+)?-($arch|any)\.pkg\.tar\.xz$/ } @all;
-
+    my @ret = grep { /^\Q$packageName\E-[^-]+-\d+(\.\d+)?-($arch|any)\.pkg\.tar\.(xz|gz)$/ } @all;
     return @ret;
 }
 
@@ -72,7 +71,7 @@ sub mostRecentPackageInDir {
 		warning( 'Cannot read directory', $dir );
 		return undef;
 	}
-	my @packages = grep { /^$packageName-.*\.pkg\.tar\.xz$/ } readdir( $dh );
+	my @packages = grep { /^$packageName-.*\.pkg\.tar\.(xz|gz)$/ } readdir( $dh );
 	closedir $dh;
 
     return mostRecentPackageVersion( @packages );
