@@ -52,11 +52,19 @@ sub run {
                 next;
             } elsif( $file eq "$dbName.tar.xz" ) {
                 next;
+            } elsif( $file eq "$dbName.tar.gz" ) {
+                next;
             } elsif( $file eq "$dbName.tar.xz.old" ) {
+                next;
+            } elsif( $file eq "$dbName.tar.gz.old" ) {
                 next;
             } elsif( $file eq "$dbName.tar.xz.old.sig" ) {
                 next;
+            } elsif( $file eq "$dbName.tar.gz.old.sig" ) {
+                next;
             } elsif( $file eq "$dbName.tar.xz.sig" ) {
+                next;
+            } elsif( $file eq "$dbName.tar.gz.sig" ) {
                 next;
             } elsif( $file =~ m!\.pkg\.tar\.[a-z]+\.sig$! ) {
                 $packageSigFiles{$file} = $file;
