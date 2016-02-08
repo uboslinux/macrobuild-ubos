@@ -68,15 +68,18 @@ sub new {
                         'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_LATEST.tardir',
                         'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_${tstamp}.tar',
                         'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_LATEST.tar'
-                    ),
-                    'ec2' => new UBOS::Macrobuild::BasicTasks::CreateImage(
-                        'name'         => 'Create ' . $deviceclass . ' EC2 image for ${channel}',
-                        'repodir'      => '${repodir}',
-                        'channel'      => '${channel}',
-                        'deviceclass'  => 'ec2-instance',
-                        'imagesize'    => '3G',
-                        'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_ec2_${tstamp}.img',
-                        'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_ec2_LATEST.img'
+                    # ),
+                    #
+                    # Adding this here is not very helpful; it needs to be created and tested on EC2
+                    #
+                    # 'ec2' => new UBOS::Macrobuild::BasicTasks::CreateImage(
+                    #     'name'         => 'Create ' . $deviceclass . ' EC2 image for ${channel}',
+                    #     'repodir'      => '${repodir}',
+                    #     'channel'      => '${channel}',
+                    #     'deviceclass'  => 'ec2-instance',
+                    #     'imagesize'    => '3G',
+                    #     'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_ec2_${tstamp}.img',
+                    #     'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_ec2_LATEST.img'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValues(
