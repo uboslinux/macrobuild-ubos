@@ -45,28 +45,22 @@ sub run {
         my %packageFiles    = (); # hash of packageName to hash of file name to return from parsePackageFileName
         my %packageSigFiles = (); # hash of sig file to sig file
         my %uncategorized   = (); # hash of file to file
-        foreach my $file ( @filesInDir ) {
-            if( $file eq $dbName ) {
-                next;
-            } elsif( $file eq "$dbName.sig" ) {
-                next;
-            } elsif( $file eq "$dbName.tar.xz" ) {
-                next;
-            } elsif( $file eq "$dbName.tar.gz" ) {
-                next;
-            } elsif( $file eq "$dbName.tar.xz.old" ) {
-                next;
-            } elsif( $file eq "$dbName.tar.gz.old" ) {
-                next;
-            } elsif( $file eq "$dbName.tar.xz.old.sig" ) {
-                next;
-            } elsif( $file eq "$dbName.tar.gz.old.sig" ) {
-                next;
-            } elsif( $file eq "$dbName.tar.xz.sig" ) {
-                next;
-            } elsif( $file eq "$dbName.tar.gz.sig" ) {
-                next;
-            } elsif( $file =~ m!\.pkg\.tar\.[a-z]+\.sig$! ) {
+        outer: foreach my $file ( @filesInDir ) {
+            foreach my $mainOrFiles( '', '.files' ) {
+                foreach my $mainOrTar( '', '.tar' ) {
+                    foreach my $mainOrCompressed( '', '.xz', '.gz' ) {
+                        foreach my $mainOrOld( '', '.old' ) {
+                            foreach my $mainOrSig( '', '.sig' ) {
+                                if( $file eq "$dbName$mainOrFiles$mainOrTar$mainOrCompressed$mainOrOld$mainOrSig" ) {
+                                    next outer;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if( $file =~ m!\.pkg\.tar\.[a-z]+\.sig$! ) {
                 $packageSigFiles{$file} = $file;
             } else {
                 my $parsed = UBOS::Macrobuild::PackageUtils::parsePackageFileName( $file );
