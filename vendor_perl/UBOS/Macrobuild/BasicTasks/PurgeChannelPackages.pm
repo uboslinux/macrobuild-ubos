@@ -30,13 +30,13 @@ sub run {
 
     my $dbName = $dir;
     $dbName =~ s!(.*)/!!; # last component of the path
-    $dbName .= '.db';
+    my $dbExt = '.db';
 
     my @keepList  = ();
     my @purgeList = ();
     my $ret       = 1;
 
-    if( -e "$dir/$dbName" ) {
+    if( -e "$dir/$dbName$dbExt" ) {
         # This might be a db not supported on this arch, such as virt on arm
         my @filesInDir = <$dir/*>;
         @filesInDir = map { s!^$dir/!!; $_ } @filesInDir;
@@ -76,7 +76,7 @@ sub run {
         }
 
         # Find what files we should be having
-        my $db       = new UBOS::Macrobuild::PacmanDbFile( "$dir/$dbName" );
+        my $db       = new UBOS::Macrobuild::PacmanDbFile( "$dir/$dbName$dbExt" );
         my $packages = $db->containedPackages;
 
         my $cutoff = time()- $age;
