@@ -46,7 +46,7 @@ sub run {
         my %packageSigFiles = (); # hash of sig file to sig file
         my %uncategorized   = (); # hash of file to file
         outer: foreach my $file ( @filesInDir ) {
-            foreach my $mainOrFiles( '', '.files' ) {
+            foreach my $mainOrFiles( $dbExt, '.files' ) {
                 foreach my $mainOrTar( '', '.tar' ) {
                     foreach my $mainOrCompressed( '', '.xz', '.gz' ) {
                         foreach my $mainOrOld( '', '.old' ) {
