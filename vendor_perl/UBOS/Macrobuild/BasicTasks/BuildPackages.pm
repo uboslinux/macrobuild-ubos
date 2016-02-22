@@ -120,6 +120,8 @@ sub run {
         } else {
             # dir not updated, and not failed last time
             my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
+
+            debug( "Dir not updated, reusing: reponame '$repoName', dir '$dir', packageName $packageName, most recent $mostRecent" );
             if( $mostRecent ) {
                 $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
             } 
