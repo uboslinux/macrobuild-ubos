@@ -235,7 +235,7 @@ sub _readDependenciesFromPkgbuild {
         return {};
     }
     my $out;
-    if( UBOS::Utils::myexec( ". '$dir/PKGBUILD'" . ' && echo ${depends[@]}', undef, \$out )) {
+    if( UBOS::Utils::myexec( ". '$dir/PKGBUILD'" . ' && echo ${depends[@]} ${makedepends[@]}', undef, \$out )) {
         error( 'Executing PKGBUILD to find $depends failed in', $dir );
         return ();
     }
