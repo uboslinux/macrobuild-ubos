@@ -43,15 +43,6 @@ sub run {
         $packageSignKey = $run->replaceVariables( $packageSignKey );
     }
 
-    my $mvn_opts = ' -DskipTests';
-    if( defined( $self->{m2settingsfile} )) {
-        $mvn_opts .= ' --settings ' . $run->replaceVariables( $self->{m2settingsfile} );
-    }
-    # We need these for diet4j invocation in the build-scope Maven repository
-    if( defined( $self->{m2repository} )) {
-        $mvn_opts .= ' -Dmaven.repository=' . $run->replaceVariables( $self->{m2repository} );
-    }
-    
     my %allDirs = ( %$dirsUpdated, %$dirsNotUpdated );
     
     # determine package dependencies    
@@ -104,7 +95,7 @@ sub run {
                 $built->{$repoName} = {};
             }
 
-            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $gpgHome, $packageSignKey, $mvn_opts );
+            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $gpgHome, $packageSignKey );
 
             if( $buildResult == -1 ) {
                 $ret = -1;
@@ -158,14 +149,22 @@ sub _buildPackage {
     my $builtRepo      = shift;
     my $gpgHome        = shift;
     my $packageSignKey = shift;
-    my $mvn_opts       = shift;
 
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
+
+    my $mvn_opts = ' -DskipTests';
+    if( defined( $self->{m2settingsfile} )) {
+        $mvn_opts .= ' --settings ' . $run->replaceVariables( $self->{m2settingsfile} );
+    }
 
     my $cmd  =  "cd $dir;";
     $cmd    .= ' env -i';
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=C';
+
+    if( defined( $self->{m2repository} )) {
+        $cmd .= " DIET4J_REPO='" . $run->replaceVariables( $self->{m2repository} ) . "'";
+    }
 
     if( $gpgHome ) {
         $cmd .= " GNUPGHOME='$gpgHome'";
