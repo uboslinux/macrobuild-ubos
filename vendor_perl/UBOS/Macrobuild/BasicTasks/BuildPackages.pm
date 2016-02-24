@@ -92,7 +92,7 @@ sub run {
                 $built->{$repoName} = {};
             }
 
-            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $run );
+            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $run, $alwaysRebuild );
 
             if( $buildResult == -1 ) {
                 $ret = -1;
@@ -140,11 +140,12 @@ sub run {
 #       0: ok
 #       1: have package already, no need to build
 sub _buildPackage {
-    my $self        = shift;
-    my $dir         = shift;
-    my $packageName = shift;
-    my $builtRepo   = shift;
-    my $run         = shift;
+    my $self          = shift;
+    my $dir           = shift;
+    my $packageName   = shift;
+    my $builtRepo     = shift;
+    my $run           = shift;
+    my $alwaysRebuild = shift;
 
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
 
