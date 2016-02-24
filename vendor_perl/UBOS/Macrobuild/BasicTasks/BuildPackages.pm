@@ -68,6 +68,8 @@ sub run {
     
     debug( sub { "Dir sequence is:\n" . join( "\n", map { "    $_" } @dirSequence ) } );
 
+    my $alwaysRebuild = $run->getVariable( 'alwaysRebuild', 0 );
+
     # do the build, in @dirSequence
     my $ret        = 1;
     my $built      = {};
@@ -78,7 +80,7 @@ sub run {
         my $packageName = _determinePackageName( $dir );
         my $repoName    = $dirToRepoName{$dir};
 
-        if( exists( $dirsUpdated->{$repoName} ) || -e "$dir/$failedstamp" ) {
+        if( $alwaysRebuild || exists( $dirsUpdated->{$repoName} ) || -e "$dir/$failedstamp" ) {
             if( exists( $dirsUpdated->{$repoName} )) {
                 debug( "Dir updated, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
             } else {
