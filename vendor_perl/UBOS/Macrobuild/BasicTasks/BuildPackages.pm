@@ -36,13 +36,6 @@ sub run {
     my $dirsUpdated    = $run->replaceVariables( $in->{'dirs-updated'} );
     my $dirsNotUpdated = $run->replaceVariables( $in->{'dirs-not-updated'} );
 
-    my $packageSignKey = $run->getVariable( 'packageSignKey', undef ); # ok if not exists
-    my $gpgHome        = $run->getVariable( 'GNUPGHOME',      undef ); # ok if not exists
-
-    if( $packageSignKey ) {
-        $packageSignKey = $run->replaceVariables( $packageSignKey );
-    }
-
     my %allDirs = ( %$dirsUpdated, %$dirsNotUpdated );
     
     # determine package dependencies    
@@ -95,7 +88,7 @@ sub run {
                 $built->{$repoName} = {};
             }
 
-            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $gpgHome, $packageSignKey );
+            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $run );
 
             if( $buildResult == -1 ) {
                 $ret = -1;
@@ -143,14 +136,20 @@ sub run {
 #       0: ok
 #       1: have package already, no need to build
 sub _buildPackage {
-    my $self           = shift;
-    my $dir            = shift;
-    my $packageName    = shift;
-    my $builtRepo      = shift;
-    my $gpgHome        = shift;
-    my $packageSignKey = shift;
+    my $self        = shift;
+    my $dir         = shift;
+    my $packageName = shift;
+    my $builtRepo   = shift;
+    my $run         = shift;
 
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
+
+    my $packageSignKey = $run->getVariable( 'packageSignKey', undef ); # ok if not exists
+    my $gpgHome        = $run->getVariable( 'GNUPGHOME',      undef ); # ok if not exists
+
+    if( $packageSignKey ) {
+        $packageSignKey = $run->replaceVariables( $packageSignKey );
+    }
 
     my $mvn_opts = ' -DskipTests';
     if( defined( $self->{m2settingsfile} )) {
