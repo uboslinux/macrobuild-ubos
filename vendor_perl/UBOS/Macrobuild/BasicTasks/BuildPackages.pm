@@ -81,10 +81,12 @@ sub run {
         my $repoName    = $dirToRepoName{$dir};
 
         if( $alwaysRebuild || exists( $dirsUpdated->{$repoName} ) || -e "$dir/$failedstamp" ) {
-            if( exists( $dirsUpdated->{$repoName} )) {
-                debug( "Dir updated, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
-            } else {
+            if( -e "$dir/$failedstamp" ) {
                 debug( "Dir not updated, but failed last time, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
+            } elsif( $alwaysRebuild ) {
+                debug( "alwaysRebuild=1, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
+            } else {
+                debug( "Dir updated, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
             }
             unless( exists( $built->{$repoName} )) {
                 $built->{$repoName} = {};
@@ -181,6 +183,9 @@ sub _buildPackage {
         $cmd .= " PACKAGER='$packageSignKey'";
     }
     $cmd .= ' makepkg -c -d -A'; # clean after, no dependency checks, no arch checks
+    if( $alwaysRebuild ) {
+        $cmd .= ' -f';
+    }
     if( $packageSignKey ) {
         $cmd .= ' --sign --key ' . $packageSignKey;
     }
