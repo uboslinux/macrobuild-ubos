@@ -205,7 +205,7 @@ sub _buildPackage {
             return 1;
 
         } else {
-            error( "makepkg in $dir failed", $both );
+            error( "makepkg in $dir failed: ", $cmd, $both );
 
             return -1;
         }
