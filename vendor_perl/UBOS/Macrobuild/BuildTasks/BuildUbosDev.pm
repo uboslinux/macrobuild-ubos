@@ -63,9 +63,11 @@ sub new {
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 
         $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
-            'name'       => 'Build ' . $db . ' packages',
-            'usconfigs'  => $repoUsConfigs->{$db},
-            'db'         => UBOS::Macrobuild::Utils::shortDb( $db ));
+            'name'           => 'Build ' . $db . ' packages',
+            'usconfigs'      => $repoUsConfigs->{$db},
+            'db'             => UBOS::Macrobuild::Utils::shortDb( $db )),
+            'm2settingsfile' => $m2BuildDir . '/settings.xml',
+            'm2repository'   => $m2BuildDir . '/repository' );
     }
     
     # create check tasks
