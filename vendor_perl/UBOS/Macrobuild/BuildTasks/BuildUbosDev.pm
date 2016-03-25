@@ -65,7 +65,7 @@ sub new {
         $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::BuildDevPackages(
             'name'           => 'Build ' . $db . ' packages',
             'usconfigs'      => $repoUsConfigs->{$db},
-            'db'             => UBOS::Macrobuild::Utils::shortDb( $db )),
+            'db'             => UBOS::Macrobuild::Utils::shortDb( $db ),
             'm2settingsfile' => $m2BuildDir . '/settings.xml',
             'm2repository'   => $m2BuildDir . '/repository' );
     }

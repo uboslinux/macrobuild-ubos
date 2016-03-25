@@ -42,28 +42,6 @@ sub run {
             }
         }
         if( -d $m2BuildDir ) {
-            if( $run->getVariable( 'cleanFirst', 0 )) { # default is not to cleanFirst
-                if( opendir( DIR, $m2BuildDir )) {
-                    my @files = ();
-
-                    while( my $file = readdir( DIR )) {
-                        if( $file eq '.' || $file eq '..' ) {
-                            next;
-                        }
-                        push @files, "$m2BuildDir/$file";
-                    }
-                    closedir( DIR );
-
-                    if( @files && !UBOS::Utils::deleteRecursively( @files )) {
-                        $ret = -1;
-                    }
-
-                } else {
-                    error( 'Cannot read directory', $m2BuildDir );
-                    $ret = -1;
-                }
-            }
-                
             # write settings.xml file
             if( UBOS::Utils::saveFile( "$m2BuildDir/settings.xml", <<CONTENT )) {
 <?xml version="1.0" encoding="UTF-8"?>
