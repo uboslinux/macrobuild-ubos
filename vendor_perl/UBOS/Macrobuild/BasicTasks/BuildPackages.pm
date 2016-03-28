@@ -80,11 +80,15 @@ sub run {
         my $packageName = _determinePackageName( $dir );
         my $repoName    = $dirToRepoName{$dir};
 
-        if( $alwaysRebuild || exists( $dirsUpdated->{$repoName} ) || -e "$dir/$failedstamp" ) {
+        my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
+
+        if( $alwaysRebuild || exists( $dirsUpdated->{$repoName} ) || -e "$dir/$failedstamp" || !$mostRecent ) {
             if( -e "$dir/$failedstamp" ) {
                 debug( "Dir not updated, but failed last time, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
             } elsif( $alwaysRebuild ) {
                 debug( "alwaysRebuild=1, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
+            } elsif( !$mostRecent ) {
+                debug( "Dir not updated, but no package present. Rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
             } else {
                 debug( "Dir updated, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
             }
@@ -107,12 +111,9 @@ sub run {
 
         } else {
             # dir not updated, and not failed last time
-            my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
 
             debug( "Dir not updated, reusing: reponame '$repoName', dir '$dir', packageName $packageName, most recent $mostRecent" );
-            if( $mostRecent ) {
-                $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
-            } 
+            $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
         }
     }
     # take out empty entries
