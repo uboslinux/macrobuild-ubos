@@ -147,7 +147,7 @@ sub _process {
 
         foreach my $dep ( @deps ) {
             $dep =~ s!\s!!g;
-            $dep =~ s!<?>?=.*$!!; # strip off version identifier if there is one
+            $dep =~ s!(<|<=|=|>=|>).*$!!; # strip off version identifier if there is one
             unless( $dep eq 'None' ) {
                 $ret &= _process( $dep, $havePackages, $needPackages );
             }
