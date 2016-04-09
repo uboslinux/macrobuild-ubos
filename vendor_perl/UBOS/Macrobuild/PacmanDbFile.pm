@@ -106,10 +106,10 @@ sub addPackages {
         $cmd .= ' --quiet';
     }
     if( $dbSignKey ) {
-		$cmd .= ' --sign --key ' . $dbSignKey;
-	}
-	$cmd .= " '" . $self->{filename} . "'";
-	$cmd .= ' ' . join( ' ', @$packages );
+        $cmd .= ' --sign --key ' . $dbSignKey;
+    }
+    $cmd .= " '" . $self->{filename} . "'";
+    $cmd .= ' ' . join( ' ', @$packages );
 
     my $result;
     if( UBOS::Logging::isInfoActive() ) {

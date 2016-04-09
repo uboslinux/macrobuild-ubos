@@ -36,11 +36,10 @@ sub new {
     my $repoUsConfigs = {};
     my $promoteTasks  = {};
     my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
-    my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
 
     my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
 
-    foreach my $db ( @dbs, @archDbs ) {
+    foreach my $db ( @dbs ) {
         $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 

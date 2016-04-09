@@ -1,11 +1,11 @@
 # 
-# Fetches the Arch packages into dev
+# Builds packages
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::FetchArchDev;
+package UBOS::Macrobuild::BuildTasks::BuildPackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -18,7 +18,7 @@ use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CheckHavePrivateKey;
 use UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps;
 use UBOS::Macrobuild::BasicTasks::SetupMaven;
-use UBOS::Macrobuild::ComplexTasks::FetchDevPackages;
+use UBOS::Macrobuild::ComplexTasks::PullBuildUpdatePackages;
 use UBOS::Macrobuild::Utils;
 
 ##
@@ -33,39 +33,31 @@ sub new {
     
     $self->SUPER::new( %args );
 
-    my $ubosRepoUpConfigs = {};
-    my $repoUpConfigs = {};
+    my $m2BuildDir = '${builddir}/maven';
+    my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
+
+    my $repoUsConfigs = {};
     my $buildTasks    = {};
     my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
-    my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
 
-    my @buildTasksSequence = ();
-    push @buildTasksSequence, map { "build-$_" } @dbs;
-    push @buildTasksSequence, map { "build-$_" } @archDbs;
+    my @buildTasksSequence = map { "build-$_" } @dbs;
 
-    # create fetch tasks
+    # create build tasks
     foreach my $db ( @dbs ) {
-        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-        $ubosRepoUpConfigs->{$db} = $repoUpConfigs->{$db};
+        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 
-        $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::FetchDevPackages(
-            'name'           => 'Fetch ' . $db . ' packages',
-            'upconfigs'      => $repoUpConfigs->{$db},
-            'db'             => UBOS::Macrobuild::Utils::shortDb( $db ))
-    }
-    foreach my $db ( @archDbs ) {
-        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-
-        $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::FetchDevPackages(
-            'name'       => 'Build ' . $db . ' packages',
-            'upconfigs'  => $repoUpConfigs->{$db},
-            'db'         => UBOS::Macrobuild::Utils::shortDb( $db ));
+        $buildTasks->{"build-$db"} = new UBOS::Macrobuild::ComplexTasks::PullBuildUpdatePackages(
+            'name'           => 'Pull, build and update ' . $db . ' packages',
+            'usconfigs'      => $repoUsConfigs->{$db},
+            'db'             => UBOS::Macrobuild::Utils::shortDb( $db ),
+            'm2settingsfile' => $m2BuildDir . '/settings.xml',
+            'm2repository'   => $m2BuildDir . '/repository' );
     }
     
     # create check tasks
     my @checkTasks = (
         new UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps(
-            'repoUpConfigs' => $ubosRepoUpConfigs ),
+            'repoUsConfigs' => $repoUsConfigs ),
     );
     foreach my $keyType ( 'packageSignKey', 'dbSignKey', 'imageSignKey' ) {
         my $keyId = $self->{_settings}->getVariable( $keyType );
@@ -79,12 +71,21 @@ sub new {
         }
     }
 
+    # create setup tasks
+    my @setupTasks = (
+        new UBOS::Macrobuild::BasicTasks::SetupMaven(
+            'm2builddir' => $m2BuildDir
+        )
+    );
+
     my @buildTaskNames = keys %$buildTasks;
 
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'name'                  => 'Fetch dev dbs ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ) . ', then merge update lists and report',
+        'name'                  => 'Build dev dbs ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ) . ', then merge update lists and report',
         'splitTask'             => new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => \@checkTasks ),
+            'tasks' => [
+                @checkTasks,
+                @setupTasks ] ),
         'parallelTasks'         => $buildTasks,
         'parallelTasksSequence' => \@buildTasksSequence,
         'joinTask'              => new Macrobuild::CompositeTasks::Sequential(

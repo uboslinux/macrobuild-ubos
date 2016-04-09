@@ -29,6 +29,7 @@ sub run {
     }
 
     my @updated = ();
+    my $ret     = 1;
     if( %$staged ) {
         my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->replaceVariables( $self->{dbfile} ));
         my @packageNames = values %$staged;
@@ -38,19 +39,26 @@ sub run {
             $dbSignKey = $run->replaceVariables( $dbSignKey );
         }
         if( $dbFile->addPackages( $dbSignKey, \@packageNames ) == -1 ) {
-            return -1;
+            $ret = -1;
+        } else {
+            @updated = values %$staged;
+            if( @updated ) {
+                $ret = 0;
+            }
         }
-        @updated = values %$staged;
     }
 
-    my $ret = 1;
-    if( @updated ) {
-        $ret = 0;
+    if( $ret ) {
+        $run->taskEnded(
+                $self,
+                {},
+                $ret );
+    } else {
+        $run->taskEnded(
+                $self,
+                { 'updated-packages' => \@updated },
+                $ret );
     }
-    $run->taskEnded(
-            $self,
-            { 'updated-packages' => \@updated },
-            $ret );
 
     return $ret;
 }

@@ -1,11 +1,11 @@
 # 
-# Builds packages in dev
+# Pulls packages, builds them, and updates the package database
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::ComplexTasks::BuildDevPackages;
+package UBOS::Macrobuild::ComplexTasks::PullBuildUpdatePackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields qw( usconfigs db m2settingsfile m2repository );
@@ -34,7 +34,7 @@ sub new {
     my $db = $self->{db};
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'name'  => 'Build UBOS packages',
+        'name'  => 'Pull, build and update UBOS packages',
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::PullSources(
                     'name'           => 'Pull the sources that need to be built for db ' . $self->{db},

@@ -1,11 +1,11 @@
 # 
-# Fetches packages from Arch into dev
+# Fetches packages from Arch and updates the package database
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::ComplexTasks::FetchDevPackages;
+package UBOS::Macrobuild::ComplexTasks::FetchUpdatePackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields qw( upconfigs db );

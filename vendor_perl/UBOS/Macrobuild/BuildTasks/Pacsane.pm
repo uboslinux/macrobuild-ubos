@@ -30,10 +30,7 @@ sub new {
     
     $self->SUPER::new( %args );
 
-    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
-    my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
-
-    @dbs = ( @dbs, @archDbs );
+    my @dbs = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
 
     my $tasks = {};
     foreach my $db ( @dbs ) {

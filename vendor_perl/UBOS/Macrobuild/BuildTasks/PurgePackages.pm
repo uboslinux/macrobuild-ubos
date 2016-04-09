@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::PurgeChannelPackages;
+package UBOS::Macrobuild::BuildTasks::PurgePackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -35,10 +35,7 @@ sub new {
     my $age        = 60*60*24*14; # Two weeks
     my $purgeTasks = {};
 
-    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
-    my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
-
-    @dbs = ( @dbs, @archDbs );
+    my @dbs        = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
 
     foreach my $db ( @dbs ) {
         $purgeTasks->{"purge-$db"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelPackages(

@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::PurgeChannelImages;
+package UBOS::Macrobuild::BuildTasks::PurgeImages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -35,11 +35,6 @@ sub new {
     my $age        = 60*60*24*14; # Two weeks
     my $purgeTasks = {};
 
-    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
-    my @archDbs       = UBOS::Macrobuild::Utils::determineDbs( 'archDbs', %args );
-
-    @dbs = ( @dbs, @archDbs );
-
     $purgeTasks->{"purge-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
             'dir' => '${repodir}/${arch}/images' );
     $purgeTasks->{"purge-uncompressed-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
@@ -52,10 +47,10 @@ sub new {
         'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
                 new Macrobuild::CompositeTasks::MergeValues(
-                    'name'         => 'Merge purge results from repositories: ' . join( ' ', @dbs ) . ' and images',
+                    'name'         => 'Merge image purge results',
                     'keys'         => \@purgeTaskNames ),
                 new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report purge activity for repositories: ' . join( ' ', @dbs ) . ' and images',
+                    'name'        => 'Report image purge activity',
                     'fields'      => [ 'purged', 'kept' ] )
             ]
         ));
