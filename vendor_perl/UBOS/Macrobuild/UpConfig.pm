@@ -7,7 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::UpConfig;
 
-use fields qw( name lastModified directory packages );
+use fields qw( name overlapBucket lastModified directory packages );
 
 use UBOS::Logging;
 use UBOS::Utils;
@@ -30,8 +30,8 @@ sub new {
     $self->{directory}    = $directory;
     $self->{packages}     = $packages;
 
-    if( exists( $configJson->{overlapBucket} )) {
-        $self->{overlapBucket} = $configJson->{overlapBucket};
+    if( exists( $configJson->{'overlap-bucket'} )) {
+        $self->{overlapBucket} = $configJson->{'overlap-bucket'};
     } else {
         $self->{overlapBucket} = 'ubos';
     }

@@ -136,13 +136,13 @@ sub checkNoOverlap {
 
         my @names = sort keys %$bucketContent;
         for( my $i=0 ; $i<@names-1 ; ++$i ) {
-            my $iUp  = $all->{$names[$i]};
+            my $iUp  = $bucketContent->{$names[$i]};
             my $iDir = $iUp->directory();
         
             my @iPackages = keys %{$iUp->packages()};
 
             for( my $j= $i+1 ; $j<@names ; ++$j ) {
-                my $jUp  = $all->{$names[$j]};
+                my $jUp  = $bucketContent->{$names[$j]};
                 my $jDir = $jUp->directory();
 
                 if( $iDir ne $jDir ) {

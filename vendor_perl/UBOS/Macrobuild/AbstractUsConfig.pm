@@ -45,8 +45,8 @@ sub new {
         fatal( 'Packages field must be hash in usConfig', $file, ':', $configJson->{packages} );
     }
 
-    if( exists( $configJson->{overlapBucket} )) {
-        $self->{overlapBucket} = $configJson->{overlapBucket};
+    if( exists( $configJson->{'overlap-bucket'} )) {
+        $self->{overlapBucket} = $configJson->{'overlap-bucket'};
     } else {
         $self->{overlapBucket} = 'ubos';
     }
