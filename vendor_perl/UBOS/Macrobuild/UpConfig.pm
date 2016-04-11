@@ -17,6 +17,7 @@ use UBOS::Utils;
 sub new {
     my $self         = shift;
     my $name         = shift;
+    my $configJson   = shift;
     my $lastModified = shift;
     my $directory    = shift;
     my $packages     = shift;
@@ -29,6 +30,12 @@ sub new {
     $self->{directory}    = $directory;
     $self->{packages}     = $packages;
 
+    if( exists( $configJson->{overlapBucket} )) {
+        $self->{overlapBucket} = $configJson->{overlapBucket};
+    } else {
+        $self->{overlapBucket} = 'ubos';
+    }
+
     return $self;
 }
 
@@ -38,6 +45,15 @@ sub name {
     my $self = shift;
 
     return $self->{name};
+}
+
+##
+# Return a string that defines the scope in which possible package overlap is
+# analyzed.
+sub overlapBucket {
+    my $self = shift;
+
+    return $self->{overlapBucket};
 }
 
 ##

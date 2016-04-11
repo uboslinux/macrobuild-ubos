@@ -103,7 +103,7 @@ sub configs {
                 next;
             }
             my $lastModified = (stat( $file ))[9];
-            $ret->{$shortRepoName} = new UBOS::Macrobuild::UpConfig( $shortRepoName, $lastModified, $directory, $packages );
+            $ret->{$shortRepoName} = new UBOS::Macrobuild::UpConfig( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages );
         }
     }
     return $ret;
@@ -124,31 +124,37 @@ sub checkNoOverlap {
 
         my $configs = $upConfigs->configs( $settings );
         foreach my $configName ( keys %$configs ) {
-            my $upConfig = $configs->{$configName};
+            my $upConfig      = $configs->{$configName};
+            my $overlapBucket = $upConfig->overlapBucket();
 
-            $all->{"$name/$configName"} = $upConfig;
+            $all->{$overlapBucket}->{"$name/$configName"} = $upConfig;
         }
     }
-    my @names = sort keys %$all;
-    for( my $i=0 ; $i<@names-1 ; ++$i ) {
-        my $iUp  = $all->{$names[$i]};
-        my $iDir = $iUp->directory();
+
+    foreach my $overlapBucket ( sort keys %$all ) {
+        my $bucketContent = $all->{$overlapBucket};
+
+        my @names = sort keys %$bucketContent;
+        for( my $i=0 ; $i<@names-1 ; ++$i ) {
+            my $iUp  = $all->{$names[$i]};
+            my $iDir = $iUp->directory();
         
-        my @iPackages = keys %{$iUp->packages()};
+            my @iPackages = keys %{$iUp->packages()};
 
-        for( my $j= $i+1 ; $j<@names ; ++$j ) {
-            my $jUp  = $all->{$names[$j]};
-            my $jDir = $jUp->directory();
+            for( my $j= $i+1 ; $j<@names ; ++$j ) {
+                my $jUp  = $all->{$names[$j]};
+                my $jDir = $jUp->directory();
 
-            if( $iDir ne $jDir ) {
-                next;
-            }
-            my @jPackages = keys %{$jUp->packages()};
+                if( $iDir ne $jDir ) {
+                    next;
+                }
+                my @jPackages = keys %{$jUp->packages()};
 
-            foreach my $iPackage ( @iPackages ) {
-                foreach my $jPackage ( @jPackages ) {
-                    if( $iPackage eq $jPackage ) {
-                        fatal( 'Package overlap:', $iPackage, 'is listed in UpConfigs', $names[$i], 'and', $names[$j] );
+                foreach my $iPackage ( @iPackages ) {
+                    foreach my $jPackage ( @jPackages ) {
+                        if( $iPackage eq $jPackage ) {
+                            fatal( 'Package overlap in overlap bucket', $overlapBucket, ':', $iPackage, 'is listed in UpConfigs', $names[$i], 'and', $names[$j] );
+                        }
                     }
                 }
             }

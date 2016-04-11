@@ -7,7 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::AbstractUsConfig;
 
-use fields qw( name url file packages webapptests );
+use fields qw( name overlapBucket url file packages webapptests );
 
 use UBOS::Logging;
 use UBOS::Utils;
@@ -45,6 +45,12 @@ sub new {
         fatal( 'Packages field must be hash in usConfig', $file, ':', $configJson->{packages} );
     }
 
+    if( exists( $configJson->{overlapBucket} )) {
+        $self->{overlapBucket} = $configJson->{overlapBucket};
+    } else {
+        $self->{overlapBucket} = 'ubos';
+    }
+
     $self->{name}        = $name;
     $self->{file}        = $configJson->{file};
     $self->{packages}    = $configJson->{packages};
@@ -71,10 +77,19 @@ sub name {
 }
 
 ##
+# Return a string that defines the scope in which possible package overlap is
+# analyzed.
+sub overlapBucket {
+    my $self = shift;
+
+    return $self->{overlapBucket};
+}
+
+##
 # Get the type
 sub type {
-	my $self = shift;
-	
+    my $self = shift;
+
     fatal( 'Must override', ref( $self ));
 }
 

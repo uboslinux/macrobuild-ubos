@@ -33,9 +33,9 @@ sub new {
 ##
 # Get the type
 sub type {
-	my $self = shift;
-	
-	return 'download';
+    my $self = shift;
+
+    return 'download';
 }
 
 1;

@@ -85,26 +85,26 @@ sub configs {
                 next;
             }
 
-			if( ! $usConfigJson->{type} ) {
-				warning( "No type given in $file, skipping." );
-				next;
-			} elsif( $usConfigJson->{type} eq 'git' ) {
-				$ret->{$shortSourceName} = new UBOS::Macrobuild::GitUsConfig(
-						$shortSourceName,
-						$usConfigJson,
+            if( ! $usConfigJson->{type} ) {
+                warning( "No type given in $file, skipping." );
+                next;
+            } elsif( $usConfigJson->{type} eq 'git' ) {
+                $ret->{$shortSourceName} = new UBOS::Macrobuild::GitUsConfig(
+                        $shortSourceName,
+                        $usConfigJson,
                         $file,
                         $localSourcesDir );
-				
-			} elsif( $usConfigJson->{type} eq 'download' ) {
-				$ret->{$shortSourceName} = new UBOS::Macrobuild::DownloadUsConfig(
-						$shortSourceName,
-						$usConfigJson,
+
+            } elsif( $usConfigJson->{type} eq 'download' ) {
+                $ret->{$shortSourceName} = new UBOS::Macrobuild::DownloadUsConfig(
+                        $shortSourceName,
+                        $usConfigJson,
                         $file,
                         $localSourcesDir );
-			} else {
-				warning( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
-				next;
-			}
+            } else {
+                warning( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
+                next;
+            }
         }
     }
     return $ret;
@@ -125,41 +125,45 @@ sub checkNoOverlap {
 
         my $configs = $usConfigs->configs( $settings );
         foreach my $configName ( keys %$configs ) {
-            my $usConfig = $configs->{$configName};
+            my $usConfig      = $configs->{$configName};
+            my $overlapBucket = $usConfig->overlapBucket();
 
-            $all->{"$name/$configName"} = $usConfig;
+            $all->{$overlapBucket}->{"$name/$configName"} = $usConfig;
         }
     }
 
-    my @names = sort keys %$all;
-    for( my $i=0 ; $i<@names-1 ; ++$i ) {
-        my $iUs = $all->{$names[$i]};
-        
-        my @iPackages = keys %{$iUs->packages()};
+    foreach my $overlapBucket ( sort keys %$all ) {
+        my $bucketContent = $all->{$overlapBucket};
 
-        for( my $j= $i+1 ; $j<@names ; ++$j ) {
-            my $jUs = $all->{$names[$j]};
-
-            if( ref( $iUs ) ne ref( $jUs )) {
-                # e.g. Github vs Download
-                next;
-            }
-            if( $iUs->url() ne $jUs->url() ) {
-                next;
-            }
+        my @names = sort keys %$bucketContent;
+        for( my $i=0 ; $i<@names-1 ; ++$i ) {
+            my $iUs = $bucketContent->{$names[$i]};
             
-            my @jPackages = keys %{$jUs->packages()};
+            my @iPackages = keys %{$iUs->packages()};
 
-            foreach my $iPackage ( @iPackages ) {
-                foreach my $jPackage ( @jPackages ) {
-                    if( $iPackage eq $jPackage ) {
-                        fatal( 'Package overlap:', $iPackage, 'is listed in UsConfigs', $names[$i], 'and', $names[$j] );
+            for( my $j= $i+1 ; $j<@names ; ++$j ) {
+                my $jUs = $bucketContent->{$names[$j]};
+
+                if( ref( $iUs ) ne ref( $jUs )) {
+                    # e.g. Github vs Download
+                    next;
+                }
+                if( $iUs->url() ne $jUs->url() ) {
+                    next;
+                }
+
+                my @jPackages = keys %{$jUs->packages()};
+
+                foreach my $iPackage ( @iPackages ) {
+                    foreach my $jPackage ( @jPackages ) {
+                        if( $iPackage eq $jPackage ) {
+                            fatal( 'Package overlap in overlap bucket', $overlapBucket, ':', $iPackage, 'is listed in UsConfigs', $names[$i], 'and', $names[$j] );
+                        }
                     }
                 }
             }
         }
     }
 }
-
 
 1;
