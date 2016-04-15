@@ -25,8 +25,9 @@ sub run {
     my $from = $run->replaceVariables( $self->{from} );
     my $to   = $run->replaceVariables( $self->{to} );
 
-    my $ret = 1;
-    
+    my $ret           = 1;
+    my $uploadedFiles = undef;
+
     if( $ret == 1 && -d $from ) {
         my @filesInFrom = <$from/*>;
         # we don't upload hidden files
@@ -55,6 +56,7 @@ sub run {
                 error( "rsync failed:", $out );
                 $ret = -1;
             } else {
+                $uploadedFiles = [ grep { ! /\.\// } split "\n", $out ];
                 $ret = 0;
             }
         }
@@ -66,7 +68,8 @@ sub run {
     if( $ret == 0 ) {
         $run->taskEnded(
                 $self,
-                { 'uploaded-to' => $to },
+                { 'uploaded-to'    => $to,
+                  'uploaded-files' => $uploadedFiles },
                 $ret );
     } else {
         $run->taskEnded(

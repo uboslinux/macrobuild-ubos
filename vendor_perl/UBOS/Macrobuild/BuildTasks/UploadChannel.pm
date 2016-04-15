@@ -39,7 +39,7 @@ sub new {
 
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report upload activity',
-                'fields'      => [ 'uploaded-to' ]
+                'fields'      => [ 'uploaded-to', 'uploaded-files' ]
             )
         ]
     );
