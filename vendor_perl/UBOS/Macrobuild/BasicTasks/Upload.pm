@@ -27,6 +27,7 @@ sub run {
 
     my $ret           = 1;
     my $uploadedFiles = undef;
+    my $deletedFiles  = undef;
 
     if( $ret == 1 && -d $from ) {
         my @filesInFrom = <$from/*>;
@@ -56,7 +57,13 @@ sub run {
                 error( "rsync failed:", $out );
                 $ret = -1;
             } else {
-                $uploadedFiles = [ grep { ! /\.\// } split "\n", $out ];
+                my @fileMessages = grep { ! /building file list/ }
+                            grep { ! /sent.*received.*bytes/ }
+                            grep { ! /total size is/ }
+                            grep { ! /^\s*$/ }
+                            split "\n", $out;
+                $uploadedFiles = [ grep { ! /^deleting\s+\S+/ } grep { ! /\.\// } @fileMessages ];
+                $deletedFiles  = [ map { my $s = $_; $s =~ s/^deleting\s+// ; $s } grep { /^deleting\s+\S+/ } @fileMessages ];
                 $ret = 0;
             }
         }
@@ -69,7 +76,8 @@ sub run {
         $run->taskEnded(
                 $self,
                 { 'uploaded-to'    => $to,
-                  'uploaded-files' => $uploadedFiles },
+                  'uploaded-files' => $uploadedFiles,
+                  'deleted-files'  => $deletedFiles },
                 $ret );
     } else {
         $run->taskEnded(
