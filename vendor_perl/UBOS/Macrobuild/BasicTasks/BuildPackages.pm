@@ -157,7 +157,7 @@ sub _buildPackage {
         $packageSignKey = $run->replaceVariables( $packageSignKey );
     }
 
-    my $mvn_opts = ' -DskipTests';
+    my $mvn_opts = ' -DskipTests -PUBOS';
     if( defined( $self->{m2settingsfile} )) {
         $mvn_opts .= ' --settings ' . $run->replaceVariables( $self->{m2settingsfile} );
     }
