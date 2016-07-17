@@ -21,11 +21,13 @@ sub new {
     my $configJson      = shift;
     my $file            = shift;
     my $localSourcesDir = shift;
+    my $packages        = shift;
+    my $webapptests     = shift;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    $self->SUPER::new( $name, $configJson, $file, $localSourcesDir );
+    $self->SUPER::new( $name, $configJson, $file, $localSourcesDir, $packages, $webapptests );
 
     return $self;
 }

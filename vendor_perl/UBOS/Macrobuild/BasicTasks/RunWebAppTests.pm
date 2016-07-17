@@ -53,10 +53,10 @@ sub run {
     debug( "Now processing upstream source config file", $name );
 
     my $webapptests = $usConfig->webapptests;
-    if( defined( $webapptests ) && @$webapptests ) {
+    if( defined( $webapptests ) && keys %$webapptests ) {
         my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
         if( -d $sourceSourceDir ) {
-            foreach my $test ( @$webapptests ) {
+            foreach my $test ( keys %$webapptests ) {
                 my $testDir;
                 my $file;
                 if( $test =~ m!^(.*)/([^/]+)$! ) {

@@ -83,16 +83,7 @@ sub configs {
             }
 
             my $packages  = $upConfigJson->{packages};
-            # Remove packages not for this arch
-            foreach my $packageName ( keys %$packages ) {
-                my $packageData = $packages->{$packageName};
-                if( defined( $packageData ) && exists( $packageData->{archs} )) {
-                    unless( UBOS::Macrobuild::Utils::useForThisArch( $arch, $packageData->{archs} )) {
-                        delete $packages->{$packageName};
-                        debug( 'Skipping package', $packageName, 'for arch', $arch );
-                    }
-                }
-            }
+            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );
             
             my $directory = $settings->replaceVariables(
                     $upstreamDir,

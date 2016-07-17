@@ -20,6 +20,8 @@ sub new {
     my $configJson      = shift;
     my $file            = shift;
     my $localSourcesDir = shift;
+    my $packages        = shift;
+    my $webapptests     = shift;
 
     unless( ref $self ) {
         $self = fields::new( $self );
@@ -53,8 +55,8 @@ sub new {
 
     $self->{name}        = $name;
     $self->{file}        = $configJson->{file};
-    $self->{packages}    = $configJson->{packages};
-    $self->{webapptests} = $configJson->{webapptests};
+    $self->{packages}    = $packages;
+    $self->{webapptests} = $webapptests;
 
     if( defined( $localSourcesDir )) {
         # use already-exising local copy instead

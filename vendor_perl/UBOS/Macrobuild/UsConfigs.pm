@@ -88,19 +88,29 @@ sub configs {
             if( ! $usConfigJson->{type} ) {
                 warning( "No type given in $file, skipping." );
                 next;
-            } elsif( $usConfigJson->{type} eq 'git' ) {
+            }
+            my $packages    = $upConfigJson->{packages};
+            my $webapptests = $upConfigJson->{webapptests};
+            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );
+            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
+
+            if( $usConfigJson->{type} eq 'git' ) {
                 $ret->{$shortSourceName} = new UBOS::Macrobuild::GitUsConfig(
                         $shortSourceName,
                         $usConfigJson,
                         $file,
-                        $localSourcesDir );
+                        $localSourcesDir,
+                        $packages,
+                        $webapptests );
 
             } elsif( $usConfigJson->{type} eq 'download' ) {
                 $ret->{$shortSourceName} = new UBOS::Macrobuild::DownloadUsConfig(
                         $shortSourceName,
                         $usConfigJson,
                         $file,
-                        $localSourcesDir );
+                        $localSourcesDir,
+                        $packages,
+                        $webapptests );
             } else {
                 warning( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );
                 next;

@@ -146,5 +146,25 @@ sub arch {
     return $ret;
 }
 
+##
+# Given a hash, remove those item not for this arch. An item is for
+# this arch, either if the value does not specify any archs, or the
+# specified archs include our arch.
+# $items: hash of items
+# $arch: our arch
+sub removeItemsNotForThisArch {
+    my $items = shift;
+    my $arch  = shift;
+
+    foreach my $itemName ( keys %$items ) {
+        my $itemData = $items->{$itemName};
+        if( defined( $itemData ) && exists( $itemData->{archs} )) {
+            unless( UBOS::Macrobuild::Utils::useForThisArch( $arch, $itemData->{archs} )) {
+                delete $items->{$itemName};
+                debug( 'Skipping item', $itemName, 'for arch', $arch );
+            }
+        }
+    }
+}
 
 1;
