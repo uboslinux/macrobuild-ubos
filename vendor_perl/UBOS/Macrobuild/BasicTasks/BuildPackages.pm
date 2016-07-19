@@ -198,6 +198,8 @@ sub _buildPackage {
     my $result = UBOS::Utils::myexec( $cmd, undef, \$both, \$both );
     # maven writes errors to stdout :-(
 
+    debug( 'Build command produced output:', $both );
+
     if( $result ) {
         if( $both =~ /ERROR: A package has already been built/ ) {
             if( -e "$dir/$failedstamp" ) {

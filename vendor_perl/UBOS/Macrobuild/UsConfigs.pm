@@ -89,8 +89,8 @@ sub configs {
                 warning( "No type given in $file, skipping." );
                 next;
             }
-            my $packages    = $upConfigJson->{packages};
-            my $webapptests = $upConfigJson->{webapptests};
+            my $packages    = $usConfigJson->{packages};
+            my $webapptests = $usConfigJson->{webapptests};
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
 
