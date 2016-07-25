@@ -53,7 +53,7 @@ sub new {
     }
 
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'stopOnError'   => 0,
+        'stopOnError'   => '${stopOnError}',
         'parallelTasks' => \%tasks,
         'joinTask'      => new Macrobuild::CompositeTasks::SplitJoin(
             'splitTask' => new Macrobuild::CompositeTasks::MergeValues(
