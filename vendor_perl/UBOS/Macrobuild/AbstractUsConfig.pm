@@ -30,7 +30,7 @@ sub new {
     unless( defined( $name )) {
         fatal( 'No name provided for usConfig', $file, ':', $name );
     }
-    unless( $name =~ m!^[-_a-z]+$! ) {
+    unless( $name =~ m!^[-_a-z0-9]+$! ) {
         fatal( 'Invalid name for usConfig', $file, ':', $name );
     }
     unless( defined( $configJson->{url} )) {
