@@ -74,7 +74,7 @@ sub run {
                 my $out;
                 if( UBOS::Utils::myexec( "$testCmd '$testDir/$file'", undef, \$out, \$out )) {
                     $out =~ s!\s+$!!;
-                    error( 'Test', $test, 'failed:', $out );
+                    error( 'Test', $test, 'failed:', $out, ', command was:', "$testCmd '$testDir/$file'" );
                     $testsFailed->{"$name::$test"} = $out;
                 } else {
                     $out =~ s!\s+$!!;
