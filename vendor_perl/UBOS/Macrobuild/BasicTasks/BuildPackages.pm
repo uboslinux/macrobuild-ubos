@@ -219,10 +219,10 @@ sub _buildPackage {
 
         if( $builtPackage =~ m!^\Q$builtPackageName-$builtPackageVersion\E-.+\.pkg\.tar\.(xz|gz)$! ) {
             if( $packageSignKey ) {
-                my $cmd2 = "gpg --detach-sign '$packageSignKey' --use-agent --no-armor '$dir/$builtPackage'";
+                my $cmd2 = "gpg --detach-sign -u '$packageSignKey' --use-agent --no-armor '$dir/$builtPackage'";
                 my $out;
                 if( UBOS::Utils::myexec( $cmd2, undef, \$out, \$out )) {
-                    error( 'gpg --detach-sign', $packageSignKey, 'failed of package', "$dir/$builtPackage", ':', $out );
+                    error( 'gpg failed:', $cmd2, ':', $out );
                     return -1;
                 }
             }
