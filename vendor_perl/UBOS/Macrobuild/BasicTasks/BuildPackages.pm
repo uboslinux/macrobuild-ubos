@@ -188,9 +188,7 @@ sub _buildPackage {
     if( $alwaysRebuild ) {
         $cmd .= ' -f';
     }
-    if( $packageSignKey ) {
-        $cmd .= ' --sign --key ' . $packageSignKey;
-    }
+    # do not invoke --sign --key <key> here, due to https://bbs.archlinux.org/viewtopic.php?id=215045
 
     info( 'Building package', $packageName );
 
@@ -214,10 +212,29 @@ sub _buildPackage {
         }
 
     } elsif( $both =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
-        $builtRepo->{$packageName} = "$dir/" . UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
+        my $builtPackageName    = $1;
+        my $builtPackageVersion = $2;
 
-        if( -e "$dir/$failedstamp" ) {
-            UBOS::Utils::deleteFile( "$dir/$failedstamp" );
+        my $builtPackage = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
+
+        if( $builtPackage =~ m!^\Q$builtPackageName-$builtPackageVersion\E-.+\.pkg\.tar\.(xz|gz)$! ) {
+            if( $packageSignKey ) {
+                my $cmd2 = "gpg --detach-sign '$packageSignKey' --use-agent --no-armor '$dir/$builtPackage'";
+                my $out;
+                if( UBOS::Utils::myexec( $cmd2, undef, \$out, \$out )) {
+                    error( 'gpg --detach-sign', $packageSignKey, 'failed of package', "$dir/$builtPackage", ':', $out );
+                    return -1;
+                }
+            }
+
+            $builtRepo->{$packageName} = "$dir/" . $builtPackage;
+
+            if( -e "$dir/$failedstamp" ) {
+                UBOS::Utils::deleteFile( "$dir/$failedstamp" );
+            }
+        } else {
+            error( "makepkg in $dir supposedly worked, but can't find package:", $packageName, $builtPackage, $builtPackageName, $builtPackageVersion );
+            return -1;
         }
         return 0;
 

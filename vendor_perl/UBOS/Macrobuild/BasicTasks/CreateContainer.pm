@@ -78,19 +78,27 @@ sub run {
         $installCmd .= " --channel $channel";
         $installCmd .= " --repository '$repodir'";
         $installCmd .= " --deviceclass $deviceclass";
-        $installCmd .= " --verbose --verbose"; # for now
         $installCmd .= " --checksignatures $checkSignatures";
+        if( UBOS::Logging::isDebugActive() ) {
+            $installCmd .= " --verbose --verbose";
+        } elsif( UBOS::Logging::isInfoActive() ) {
+            $installCmd .= " --verbose";
+        }
         $installCmd .= " --directory '$dir'";
 
         my $out;
-        my $err;
-        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$err )) {
-            error( 'ubos-install failed:', $err );
+        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out )) {
+            error( 'ubos-install failed:', $out );
             ++$errors;
 
         } else {
-            if( UBOS::Utils::myexec( "sudo tar -c -f '$tarfile' -C '$dir' .", undef, \$out, \$err )) {
-                error( 'tar failed:', $err );
+            if( UBOS::Logging::isInfoActive() ) {
+                # also catch isDebugActive
+                info( 'ubos-install transcript (success)', $out );
+            }
+
+            if( UBOS::Utils::myexec( "sudo tar -c -f '$tarfile' -C '$dir' .", undef, \$out, \$out )) {
+                error( 'tar failed:', $out );
                 ++$errors;
 
             } else {

@@ -63,16 +63,16 @@ sub mostRecentPackageVersion {
 # $packageName: name of the package
 # return: most recent file name, not qualified with dir, or undef;
 sub mostRecentPackageInDir {
-	my $dir         = shift;
-	my $packageName = shift;
+    my $dir         = shift;
+    my $packageName = shift;
 
     my $dh;
     unless( opendir( $dh, $dir )) {
-		warning( 'Cannot read directory', $dir );
-		return undef;
-	}
-	my @packages = grep { /^$packageName-.*\.pkg\.tar\.(xz|gz)$/ } readdir( $dh );
-	closedir $dh;
+        warning( 'Cannot read directory', $dir );
+        return undef;
+    }
+    my @packages = grep { /^$packageName-.*\.pkg\.tar\.(xz|gz)$/ } readdir( $dh );
+    closedir $dh;
 
     return mostRecentPackageVersion( @packages );
 }

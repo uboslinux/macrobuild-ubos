@@ -53,10 +53,9 @@ sub run {
         my $imagesize = $self->{imagesize};
         # Create image file
         my $out;
-        my $err;
-        if( UBOS::Utils::myexec( "dd if=/dev/zero 'of=$image' bs=1 count=0 seek=$imagesize", undef, \$out, \$err )) {
+        if( UBOS::Utils::myexec( "dd if=/dev/zero 'of=$image' bs=1 count=0 seek=$imagesize", undef, \$out, \$out )) {
              # sparse
-             error( "dd failed:", $err );
+             error( "dd failed:", $out );
              ++$errors;
         }
 
@@ -64,13 +63,20 @@ sub run {
         $installCmd .= " --channel $channel";
         $installCmd .= " --repository '$repodir'";
         $installCmd .= " --deviceclass $deviceclass";
-        $installCmd .= " --verbose --verbose"; # for now
         $installCmd .= " --checksignatures $checkSignatures";
+        if( UBOS::Logging::isDebugActive() ) {
+            $installCmd .= " --verbose --verbose";
+        } elsif( UBOS::Logging::isInfoActive() ) {
+            $installCmd .= " --verbose";
+        }
         $installCmd .= " '$image'";
 
-        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$err )) {
-            error( 'ubos-install failed:', $err );
+        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out )) {
+            error( 'ubos-install failed:', $out );
             ++$errors;
+        } elsif( UBOS::Logging::isInfoActive() ) {
+            # also catch isDebugActive
+            info( 'ubos-install transcript (success)', $out );
         }
     }
 
