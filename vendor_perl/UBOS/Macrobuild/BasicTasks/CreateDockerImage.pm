@@ -58,7 +58,7 @@ sub run {
         my $out;
         my $err;
         if( UBOS::Utils::myexec( "sudo docker rmi '$dockerName:$dockerTag'", undef, \$out, \$err )) {
-            unless( "$out$err" =~ m!could not find image! ) {
+            unless( "$out$err" =~ m!No such image! ) {
                 error( 'Failed to delete image', "$dockerName:$dockerTag", $out, $err );
                 ++$errors;
             }
@@ -81,7 +81,7 @@ sub run {
             my $out;
             my $err;
             if( UBOS::Utils::myexec( "sudo docker rmi '$dockerName:latest'", undef, \$out, \$err )) {
-                unless( "$out$err" =~ m!could not find image! ) {
+                unless( "$out$err" =~ m!No such image! ) {
                     error( 'Failed to delete image', "$dockerName:$dockerTag", $out, $err );
                     ++$errors;
                 }
