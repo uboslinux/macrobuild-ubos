@@ -71,12 +71,9 @@ sub run {
         }
         $installCmd .= " '$image'";
 
-        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out )) {
+        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isDebugActive
             error( 'ubos-install failed:', $out );
             ++$errors;
-        } elsif( UBOS::Logging::isInfoActive() ) {
-            # also catch isDebugActive
-            info( 'ubos-install transcript (success)', $out );
         }
     }
 
