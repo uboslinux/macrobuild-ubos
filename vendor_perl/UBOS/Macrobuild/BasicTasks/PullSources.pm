@@ -207,7 +207,7 @@ sub _pullByDownload {
             }
             my $somethingChanged = 0;
             foreach my $package ( @$packages ) {
-                if( UBOS::Utils::slurpFile( "$sourceDir/$name/$package/PKGBUILD" ) ne UBOS::Utils::slurpFile( "$tmpDir/$package/PKGBUILD" )) {
+                if( UBOS::Utils::slurpFile( "$sourceDir/$name/$package/PKGBUILD" ) ne UBOS::Utils::slurpFile( "$tmpdir/$package/PKGBUILD" )) {
                     $somethingChanged = 1;
                     last;
                 }
@@ -220,7 +220,7 @@ sub _pullByDownload {
 
                 foreach my $package ( @packages ) {
                     UBOS::Utils::deleteRecursively( "$sourceDir/$name/$package" );
-                    UBOS::Utils::myexec( "mv '$tmpDir/$package' '$sourceDir/$name/$package'" );
+                    UBOS::Utils::myexec( "mv '$tmpdir/$package' '$sourceDir/$name/$package'" );
 
                     push @{$dirsUpdated->{$name}}, $package;
                 }
