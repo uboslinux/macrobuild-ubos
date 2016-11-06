@@ -218,7 +218,7 @@ sub _pullByDownload {
                 $dirsUpdated->{$name} = [];
                 delete $dirsNotUpdated->{$name};
 
-                foreach my $package ( @packages ) {
+                foreach my $package ( @$packages ) {
                     UBOS::Utils::deleteRecursively( "$sourceDir/$name/$package" );
                     UBOS::Utils::myexec( "mv '$tmpdir/$package' '$sourceDir/$name/$package'" );
 
