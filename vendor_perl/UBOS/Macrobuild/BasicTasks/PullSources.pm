@@ -14,9 +14,9 @@ use Macrobuild::Utils;
 use UBOS::Logging;
 
 my %knownExtensions = (
-	'.tar'    => 'tar xf',
-	'.tar.gz' => 'tar xfz',
-	'.tgz'    => 'tar xfz'
+    '.tar'    => 'tar xf',
+    '.tar.gz' => 'tar xfz',
+    '.tgz'    => 'tar xfz'
 );
 
 ##
@@ -40,14 +40,14 @@ sub run {
 
         my $type = $usConfig->type;
         if( $type eq 'git' ) {
-			$ok &= $self->_pullFromGit( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
+            $ok &= $self->_pullFromGit( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
 
-		} elsif( $type eq 'download' ) { 
-			$ok &= $self->_pullByDownload( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
+        } elsif( $type eq 'download' ) { 
+            $ok &= $self->_pullByDownload( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
 
-		} else { 
-			warning( "Skipping", $usConfig->name, "type", $type, "not known" );
-		}
+        } else { 
+            warning( "Skipping", $usConfig->name, "type", $type, "not known" );
+        }
     }
 
     my $ret = 1;
@@ -72,37 +72,37 @@ sub run {
 ##
 # Do this, for git
 sub _pullFromGit {
-	my $self           = shift;
-	my $usConfig       = shift;
-	my $dirsUpdated    = shift;
-	my $dirsNotUpdated = shift;
-	my $run            = shift;
-	
-	my $name     = $usConfig->name;
-	my $url      = $usConfig->url;
-	my $branch   = $usConfig->branch;
-	my $packages = $usConfig->packages; # same name as directories
+    my $self           = shift;
+    my $usConfig       = shift;
+    my $dirsUpdated    = shift;
+    my $dirsNotUpdated = shift;
+    my $run            = shift;
+    
+    my $name     = $usConfig->name;
+    my $url      = $usConfig->url;
+    my $branch   = $usConfig->branch;
+    my $packages = $usConfig->packages; # same name as directories
 
     my $ret = 1;
-	my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
-	if( -d $sourceSourceDir ) {
-		# Second or later update -- make sure the spec is still the same, if not, delete
-		my $gitCmd = "git remote -v";
-		my $out;
-		my $err;
-		UBOS::Utils::myexec( "cd '$sourceSourceDir'; $gitCmd", undef, \$out );
-		if( $out =~ m!^origin\s+\Q$url\E\s+\(fetch\)! ) {
-			$out = undef;
-			$gitCmd = "git checkout '$branch' ; git pull";
-			UBOS::Utils::myexec( "( cd '$sourceSourceDir'; $gitCmd )", undef, \$out, \$err );
+    my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
+    if( -d $sourceSourceDir ) {
+        # Second or later update -- make sure the spec is still the same, if not, delete
+        my $gitCmd = "git remote -v";
+        my $out;
+        my $err;
+        UBOS::Utils::myexec( "cd '$sourceSourceDir'; $gitCmd", undef, \$out );
+        if( $out =~ m!^origin\s+\Q$url\E\s+\(fetch\)! ) {
+            $out = undef;
+            $gitCmd = "git checkout '$branch' ; git pull";
+            UBOS::Utils::myexec( "( cd '$sourceSourceDir'; $gitCmd )", undef, \$out, \$err );
             if( $err =~ m!^error!m ) {
                 error( 'Error when attempting to pull git repository:', $url, 'into', $sourceSourceDir, "\n$err" );
                 $ret = 0;
             }
 
-			# Determine which of the directories had changes in them
-			my @updated;
-			my @notUpdated;
+            # Determine which of the directories had changes in them
+            my @updated;
+            my @notUpdated;
 
             # This naive approach to parsing does not seem to work under all circumstances, e.g.
             # git might say:
@@ -124,94 +124,119 @@ sub _pullFromGit {
                 push @updated, keys %$packages;
             }
 
-			if( @updated ) {
-				$dirsUpdated->{$name} = \@updated;
-			}
-			if( @notUpdated ) {
-				$dirsNotUpdated->{$name} = \@notUpdated;
-			}
-		} else {
-			debug( "Source spec has changed. Starting over\n" );
-			UBOS::Utils::deleteRecursively( $sourceSourceDir );
-		}
-	}
+            if( @updated ) {
+                $dirsUpdated->{$name} = \@updated;
+            }
+            if( @notUpdated ) {
+                $dirsNotUpdated->{$name} = \@notUpdated;
+            }
+        } else {
+            debug( "Source spec has changed. Starting over\n" );
+            UBOS::Utils::deleteRecursively( $sourceSourceDir );
+        }
+    }
 
-	unless( -d $sourceSourceDir ) {
-		# First-time checkout
+    unless( -d $sourceSourceDir ) {
+        # First-time checkout
 
-		Macrobuild::Utils::ensureParentDirectoriesOf( $sourceSourceDir );
-		
-		my $gitCmd = "git clone";
-		if( $branch ) {
-			$gitCmd .= " --branch $branch"; 
-		}
-		$gitCmd .= " --depth 1"; 
-		$gitCmd .= " '$url' '$name'";
-		my $err;
+        Macrobuild::Utils::ensureParentDirectoriesOf( $sourceSourceDir );
+        
+        my $gitCmd = "git clone";
+        if( $branch ) {
+            $gitCmd .= " --branch $branch"; 
+        }
+        $gitCmd .= " --depth 1"; 
+        $gitCmd .= " '$url' '$name'";
+        my $err;
 
-		if( UBOS::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
-			error( "Failed to clone via", $gitCmd );
+        if( UBOS::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
+            error( "Failed to clone via", $gitCmd );
             $ret = 0;
-		} elsif( $packages ) {
+        } elsif( $packages ) {
             my @keyArray = keys %$packages; # all of them
-			$dirsUpdated->{$name} = \@keyArray;
-		} else {
-			$dirsUpdated->{$name} = [ '' ];
-		}
-	}
+            $dirsUpdated->{$name} = \@keyArray;
+        } else {
+            $dirsUpdated->{$name} = [ '' ];
+        }
+    }
     return $ret;
 }
 
 ##
 # Do this, for a direct download
 sub _pullByDownload {
-	my $self           = shift;
-	my $usConfig       = shift;
-	my $dirsUpdated    = shift;
-	my $dirsNotUpdated = shift;
-	my $run            = shift;
+    my $self           = shift;
+    my $usConfig       = shift;
+    my $dirsUpdated    = shift;
+    my $dirsNotUpdated = shift;
+    my $run            = shift;
 
-	my $name      = $usConfig->name;
-	my $url       = $usConfig->url;
+    my $name      = $usConfig->name;
+    my $url       = $usConfig->url;
     my $sourceDir = $run->replaceVariables( $self->{sourcedir} );
+    my $packages  = $usConfig->packages;
 
     my $ret = 1;
-	my $ext;
+    my $ext;
     foreach my $e ( keys %knownExtensions ) {
         if( $url =~ m!\Q$e\E$! ) {
-			$ext = $e;
-			last;
-		}
-	}
-	unless( $ext ) {
-		error( "Unknown extension in url", $url, "skipping" );
-		return 0;
-	}
-	
+            $ext = $e;
+            last;
+        }
+    }
+    unless( $ext ) {
+        error( "Unknown extension in url", $url, "skipping" );
+        return 0;
+    }
+    
     my $downloaded = "$sourceDir/$name$ext";
     if( -e $downloaded ) {
-		my $downloadedNow = "$downloaded.now"; # don't destroy the previous file if download fails
-		
-		UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloadedNow' -z '$downloaded'" ); 
-		if( -e $downloadedNow ) {
-			# Build again from scratch
-			UBOS::Utils::deleteRecursively( "$sourceDir/$name", $downloaded );
-			UBOS::Utils::myexec( "mv '$downloadedNow' '$downloaded'" );
-			
-		} else {
-		    $dirsNotUpdated->{$name} = [ "" ];
+        $dirsNotUpdated->{$name} = [ "" ]; # override below if that turns out to be not true
+
+        my $downloadedNow = "$sourceDir/$name.now.$ext"; # don't destroy the previous file if download fails
+        
+        UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloadedNow' -z '$downloaded'" ); 
+
+        if( -e $downloadedNow ) {
+            # Unpack into a temp directory, compare whether PGKBUILD changed, and if so,
+            # replace local directory and rebuild.
+            my $tmpdir = File::Temp->newdir(); # willl automatically clean up
+            if( UBOS::Utils::myexec( "cd $tmpdir; " . $knownExtensions{$ext} . " '$name$ext'" )) {
+                error( "Failed to uncompress", $downloadedNow );
+                return 0;
+            }
+            my $somethingChanged = 0;
+            foreach my $package ( @$packages ) {
+                if( UBOS::Utils::slurpFile( "$sourceDir/$name/$package/PKGBUILD" ) ne UBOS::Utils::slurpFile( "$tmpDir/$package/PKGBUILD" )) {
+                    $somethingChanged = 1;
+                    last;
+                }
+            }
+            if( $somethingChanged ) {
+                UBOS::Utils::deleteRecursively( $downloaded );
+                UBOS::Utils::myexec( "mv '$downloadedNow' '$downloaded'" );
+                $dirsUpdated->{$name} = [];
+                delete $dirsNotUpdated->{$name};
+
+                foreach my $package ( @packages ) {
+                    UBOS::Utils::deleteRecursively( "$sourceDir/$name/$package" );
+                    UBOS::Utils::myexec( "mv '$tmpDir/$package' '$sourceDir/$name/$package'" );
+
+                    push @{$dirsUpdated->{$name}}, $package;
+                }
+            }
         }
-	}
-	unless( -e $downloaded ) {
-		UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloaded'" );
-		
-		if( UBOS::Utils::myexec( "cd $sourceDir; " . $knownExtensions{$ext} . " '$name$ext'" )) {
+    }
+    unless( -e $downloaded ) {
+        UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloaded'" );
+        
+        if( UBOS::Utils::myexec( "cd $sourceDir; " . $knownExtensions{$ext} . " '$name$ext'" )) {
             error( $knownExtensions{$ext} . " failed" );
             $ret = 0;
         }
 
-		$dirsUpdated->{$name} = [ "" ];
-	}
+        $dirsUpdated->{$name} = [ "" ];
+    }
     return $ret;
 }
 

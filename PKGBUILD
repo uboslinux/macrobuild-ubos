@@ -3,7 +3,7 @@ url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
 pkgver=0.191
-pkgrel=4
+pkgrel=5
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
@@ -32,7 +32,6 @@ depends=(
         'macrobuild'
         'make'
         'maven'
-        'multipath-tools'
         'npm'
         'pacman'
         'pacsane'
@@ -54,6 +53,7 @@ depends=(
         'util-linux'
         'webapptest'
         'which'
+
 )
 optdepends=(
         'docker'

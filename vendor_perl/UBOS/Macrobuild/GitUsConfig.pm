@@ -44,9 +44,9 @@ sub new {
 ##
 # Get the type
 sub type {
-	my $self = shift;
-	
-	return 'git';
+    my $self = shift;
+
+    return 'git';
 }
 
 ##
