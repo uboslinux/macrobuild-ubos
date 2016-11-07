@@ -87,7 +87,7 @@ sub run {
         $installCmd .= " --directory '$dir'";
 
         my $out;
-        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out )) {
+        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isDebugActive
             error( 'ubos-install failed:', $out );
             ++$errors;
 
