@@ -52,10 +52,10 @@ sub new {
                                 'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel} (VirtualBox)',
                                 'repodir'      => '${repodir}',
                                 'channel'      => '${channel}',
-                                'deviceclass'  => "vbox-x86_64",
+                                'deviceclass'  => "vbox-pc",
                                 'imagesize'    => '3G',
-                                'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-x86_64_${tstamp}.img',
-                                'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-x86_64_LATEST.img' ),
+                                'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-pc_${tstamp}.img',
+                                'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-pc_LATEST.img' ),
                             new UBOS::Macrobuild::BasicTasks::ImagesToVmdk()
                         ]
                     ),
@@ -63,11 +63,11 @@ sub new {
                         'name'         => 'Create ' . $deviceclass . ' bootable container for ${channel}',
                         'repodir'           => '${repodir}',
                         'channel'           => '${channel}',
-                        'deviceclass'       => 'container-x86_64',
-                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_${tstamp}.tardir',
-                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_LATEST.tardir',
-                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_${tstamp}.tar',
-                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-x86_64_LATEST.tar'
+                        'deviceclass'       => 'container-pc',
+                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_${tstamp}.tardir',
+                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_LATEST.tardir',
+                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_LATEST.tar'
                     # ),
                     #
                     # Adding this here is not very helpful; it needs to be created and tested on EC2
