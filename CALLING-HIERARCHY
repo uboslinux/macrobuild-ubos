@@ -1,0 +1,113 @@
+BuildTasks / BuildPackages
+  BasicTasks / CheckPossibleOverlaps
+  BasicTasks / CheckHavePrivateKey (3x)
+  BasicTasks / SetupMaven
+  for all db
+    ComplexTasks / PullBuildUpdatePackages
+      BasicTasks / PullSources           (        -> dirs-updated, dirs-not-updated )
+      BasicTasks / BuildPackages         ( dirs-updated, dirs-not-updated     -> new-packages, old-packages )
+      BasicTasks / Stage                 ( new-packages, old-packages         -> staged-packages )
+      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> updated-packages )
+  BasicTasks / Report
+
+BuildTasks / BurnToUsb
+  BasicTasks / BurnToUsb
+  BasicTasks / Report
+
+BuildTasks / CompressSignImages
+  BasicTasks / CompressFiles
+  BasicTasks / SignFiles
+  BasicTasks / Report
+
+BuildTasks / CreateImages_bbb
+  BasicTasks / CreateImage
+  BasicTasks / Report
+
+BuildTasks / CreateImages_pc
+  BasicTasks / CreateImage
+  BasicTasks / CreateImage
+  BasicTasks / CreateContainer
+  BasicTasks / Report
+
+BuildTasks / CreateImages_pcduino3
+  BasicTasks / CreateImage
+  BasicTasks / Report
+
+BuildTasks / CreateImages_rpi
+  BasicTasks / CreateImage
+  BasicTasks / CreateContainer
+  BasicTasks / Report
+
+BuildTasks / CreateImages_rpi2
+  BasicTasks / CreateImage
+  BasicTasks / CreateContainer
+  BasicTasks / Report
+
+BuildTasks / CreateUploadDockerImage
+  BasicTasks / CreateDockerImage
+  BasicTasks / UploadDockerImage
+  BasicTasks / Report
+
+BuildTasks / DeleteAllVboxVms
+
+BuildTasks / FetchArchPackages
+  BasicTasks / CheckPossibleOverlaps
+  BasicTasks / CheckHavePrivateKey (3x)
+  for all db
+    ComplexTasks / FetchUpdatePackages
+      BasicTasks / DownloadPackageDbs                   (                                    -> all-package-databases, updated-package-databases )
+      BasicTasks / DetermineChangedPackagesFromDbAndDir ( all-package-databases              -> packages-to-download )
+      BasicTasks / FetchPackages                        ( packages-to-download               -> new-packages, old-packages )
+      BasicTasks / Stage                                ( new-packages, old-packages         -> staged-packages )
+      BasicTasks / UpdatePackageDatabase                ( staged-packages, unstaged-packages -> updated-packages )
+  BasicTasks / Report
+
+BuildTasks / Pacneed
+
+BuildTasks / Pacsane
+  for all db
+    BasicTasks / PacsaneRepository
+  BasicTasks / Report
+
+BuildTasks / PromoteChannel
+  for all db
+    ComplexTasks / PromoteChannelRepository
+      BasicTasks / DeterminePromotablePackages
+      BasicTasks / Stage
+      BasicTasks / UpdatePackageDatabase
+  BasicTasks / Report
+
+BuildTasks / PurgeImages
+  BasicTasks / PurgeChannelImages (compressed)
+  BasicTasks / PurgeChannelImages (uncompressed)
+  BasicTasks / Report
+
+BuildTasks / PurgePackages
+  for all db
+    BasicTasks / PurgeChannelPackages
+  BasicTasks / Report
+
+BuildTasks / RemovePackages
+  for all db
+    ComplexTasks / RemoveUpdateBuiltPackages
+      BasicTasks / RemoveBuiltPackages   (                                    -> removed-packages  )
+      BasicTasks / Unstage               ( removed-packages                   -> unstaged-packages )
+      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> updated-packages  )
+    ComplexTasks / RemoveUpdateFetchedPackages
+      BasicTasks / RemoveFetchedPackages (                                    -> removed-packages  )
+      BasicTasks / Unstage               ( removed-packages                   -> unstaged-packages )
+      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> updated-packages  )
+  BasicTasks / Report
+
+BuildTasks / RunWebAppTests
+  for all db
+    for all repo
+      BasicTasks / RunWebAppTests
+  BasicTasks / SaveWebAppTestsResults
+  BasicTasks / Report
+  
+BuildTasks / UpgradeSystem
+
+BuildTasks / UploadChannel
+  BasicTasks / Upload
+  BasicTasks / Report

@@ -93,8 +93,10 @@ sub configs {
                 warning( "No or invalid directory given in $file, skipping: ", $directory );
                 next;
             }
-            my $lastModified = (stat( $file ))[9];
-            $ret->{$shortRepoName} = new UBOS::Macrobuild::UpConfig( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages );
+            my $lastModified   = (stat( $file ))[9];
+            my $removePackages = $upConfigJson->{removePackages};
+
+            $ret->{$shortRepoName} = new UBOS::Macrobuild::UpConfig( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
         }
     }
     return $ret;

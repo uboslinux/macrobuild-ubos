@@ -35,7 +35,7 @@ sub new {
     my $repoUpConfigs = {};
     my $repoUsConfigs = {};
     my $promoteTasks  = {};
-    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
+    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
 
     my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
 

@@ -7,7 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::UpConfig;
 
-use fields qw( name overlapBucket lastModified directory packages );
+use fields qw( name overlapBucket lastModified directory packages removePackages );
 
 use UBOS::Logging;
 use UBOS::Utils;
@@ -15,20 +15,22 @@ use UBOS::Utils;
 ##
 # Constructor
 sub new {
-    my $self         = shift;
-    my $name         = shift;
-    my $configJson   = shift;
-    my $lastModified = shift;
-    my $directory    = shift;
-    my $packages     = shift;
+    my $self           = shift;
+    my $name           = shift;
+    my $configJson     = shift;
+    my $lastModified   = shift;
+    my $directory      = shift;
+    my $packages       = shift;
+    my $removePackages = shift;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    $self->{name}         = $name;
-    $self->{lastModified} = $lastModified;
-    $self->{directory}    = $directory;
-    $self->{packages}     = $packages;
+    $self->{name}           = $name;
+    $self->{lastModified}   = $lastModified;
+    $self->{directory}      = $directory;
+    $self->{packages}       = $packages;
+    $self->{removePackages} = $removePackages;
 
     if( exists( $configJson->{'overlap-bucket'} )) {
         $self->{overlapBucket} = $configJson->{'overlap-bucket'};
@@ -78,6 +80,14 @@ sub packages {
     my $self = shift;
 
     return $self->{packages};
+}
+
+##
+# Get the list of packages to be removed
+sub removePackages {
+    my $self = shift;
+
+    return $self->{removePackages};
 }
 
 ##

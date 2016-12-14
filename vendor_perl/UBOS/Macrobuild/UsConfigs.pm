@@ -89,8 +89,10 @@ sub configs {
                 warning( "No type given in $file, skipping." );
                 next;
             }
-            my $packages    = $usConfigJson->{packages};
-            my $webapptests = $usConfigJson->{webapptests};
+            my $packages       = $usConfigJson->{packages};
+            my $removePackages = $usConfigJson->{removePackages};
+            my $webapptests    = $usConfigJson->{webapptests};
+
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
 
@@ -101,6 +103,7 @@ sub configs {
                         $file,
                         $localSourcesDir,
                         $packages,
+                        $removePackages,
                         $webapptests );
 
             } elsif( $usConfigJson->{type} eq 'download' ) {
@@ -110,6 +113,7 @@ sub configs {
                         $file,
                         $localSourcesDir,
                         $packages,
+                        $removePackages,
                         $webapptests );
             } else {
                 warning( "Unknown type", $usConfigJson->{type}, "given in $file, skipping." );

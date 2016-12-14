@@ -1,5 +1,5 @@
 # 
-# Build one or more packages.
+# Update the package database given newly staged, or removed packages.
 #
 
 use strict;
@@ -22,29 +22,36 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $staged = $in->{'staged-packages'};
-    unless( exists( $in->{'staged-packages'} )) {
-        error( "No staged-packages given in input" );
-        return -1;
-    }
+    my $stagedPackages   = $in->{'staged-packages'}   || {};
+    my $unstagedPackages = $in->{'unstaged-packages'} || {};
 
-    my @updated = ();
-    my $ret     = 1;
-    if( %$staged ) {
+    my @updatedPackageNames = ();
+    my $ret                 = 1;
+    if( %$stagedPackages || %$unstagedPackages ) {
         my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->replaceVariables( $self->{dbfile} ));
-        my @packageNames = values %$staged;
+        my @stagedPackageNames   = values %$stagedPackages;
+        my @unstagedPackageNames = values %$unstagedPackages;
 
         my $dbSignKey = $run->getVariable( 'dbSignKey', undef );
         if( $dbSignKey ) {
             $dbSignKey = $run->replaceVariables( $dbSignKey );
         }
-        if( $dbFile->addPackages( $dbSignKey, \@packageNames ) == -1 ) {
-            $ret = -1;
-        } else {
-            @updated = values %$staged;
-            if( @updated ) {
-                $ret = 0;
+        if( @stagedPackageNames ) {
+            if( $dbFile->addPackages( $dbSignKey, \@stagedPackageNames ) == -1 ) {
+                $ret = -1;
+            } else {
+                @updatedPackageNames = ( @updatedPackageNames, @stagedPackageNames );
             }
+        }
+        if( @unstagedPackageNames ) {
+            if( $dbFile->removePackages( $dbSignKey, \@unstagedPackageNames ) == -1 ) {
+                $ret = -1;
+            } else {
+                @updatedPackageNames = ( @updatedPackageNames, @unstagedPackageNames );
+            }
+        }
+        if( @updatedPackageNames ) {
+            $ret = 0;
         }
     }
 
@@ -56,7 +63,7 @@ sub run {
     } else {
         $run->taskEnded(
                 $self,
-                { 'updated-packages' => \@updated },
+                { 'updated-packages' => \@updatedPackageNames },
                 $ret );
     }
 

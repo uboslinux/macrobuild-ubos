@@ -125,6 +125,35 @@ sub addPackages {
     return 0;
 }
 
+##
+sub removePackages {
+    my $self      = shift;
+    my $dbSignKey = shift;
+    my $packages  = shift;
+    
+    my $cmd = 'repo-remove';
+    unless( UBOS::Logging::isDebugActive() ) {
+        $cmd .= ' --quiet';
+    }
+    if( $dbSignKey ) {
+        $cmd .= ' --sign --key ' . $dbSignKey;
+    }
+    $cmd .= " '" . $self->{filename} . "'";
+    $cmd .= ' ' . join( ' ', @$packages );
+
+    my $result;
+    if( UBOS::Logging::isInfoActive() ) {
+        $result = UBOS::Utils::myexec( $cmd );
+    } else {
+        my $out;
+        $result = UBOS::Utils::myexec( $cmd, undef, \$out );
+    }
+    if( $result ) {
+        error( 'Something went wrong when executing:', $cmd, " -- env was:\n" . join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
+        return -1;
+    }
+    return 0;
+}
 
 1;
 

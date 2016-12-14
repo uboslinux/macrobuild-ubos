@@ -7,7 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::AbstractUsConfig;
 
-use fields qw( name overlapBucket url file packages webapptests );
+use fields qw( name overlapBucket url file packages removePackages webapptests );
 
 use UBOS::Logging;
 use UBOS::Utils;
@@ -21,6 +21,7 @@ sub new {
     my $file            = shift;
     my $localSourcesDir = shift;
     my $packages        = shift;
+    my $removePackages  = shift;
     my $webapptests     = shift;
 
     unless( ref $self ) {
@@ -53,10 +54,11 @@ sub new {
         $self->{overlapBucket} = 'ubos';
     }
 
-    $self->{name}        = $name;
-    $self->{file}        = $configJson->{file};
-    $self->{packages}    = $packages;
-    $self->{webapptests} = $webapptests;
+    $self->{name}           = $name;
+    $self->{file}           = $configJson->{file};
+    $self->{packages}       = $packages;
+    $self->{removePackages} = $removePackages;
+    $self->{webapptests}    = $webapptests;
 
     if( defined( $localSourcesDir )) {
         # use already-exising local copy instead
@@ -109,6 +111,14 @@ sub packages {
     my $self = shift;
 
     return $self->{packages};
+}
+
+##
+# Get the list of packages to be removed
+sub removePackages {
+    my $self = shift;
+
+    return $self->{removePackages};
 }
 
 ##
