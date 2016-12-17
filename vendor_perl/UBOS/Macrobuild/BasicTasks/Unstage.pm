@@ -38,19 +38,22 @@ sub run {
         foreach my $repoName ( sort keys %$removedPackages ) {
             my $repoData = $removedPackages->{$repoName};
 
-            foreach my $packageName ( sort keys %$repoData ) {
-                my $fileName = $repoData->{$packageName};
+            foreach my $packageName ( %$repoData ) {
+                $unstaged->{$packageName} = [];
 
-                my $localFileName = $fileName;
-                $localFileName =~ s!.*/!!;
+                foreach my $fileName ( @{$repoData->{$packageName}} ) {
 
-                UBOS::Utils::myexec( "rm '$destDir/$localFileName'" );
-                if( -e "$destDir/$localFileName.sig" ) {
+                    my $localFileName = $fileName;
+                    $localFileName =~ s!.*/!!;
+
                     UBOS::Utils::myexec( "rm '$destDir/$localFileName'" );
-                }
+                    if( -e "$destDir/$localFileName.sig" ) {
+                        UBOS::Utils::myexec( "rm '$destDir/$localFileName'" );
+                    }
 
-                $unstaged->{$packageName} = "$destDir/$localFileName";
-                debug( "Unstaged:", $unstaged->{$packageName} );
+                    push @{$unstaged->{$packageName}}, "$destDir/$localFileName";
+                }
+                debug( "Unstaged:", $packageName, @{$unstaged->{$packageName}} );
             }
         }
     }

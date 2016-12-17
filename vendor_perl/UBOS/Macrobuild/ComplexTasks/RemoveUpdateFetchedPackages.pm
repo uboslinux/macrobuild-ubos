@@ -1,11 +1,11 @@
 # 
-# Removes packages and updates the package database
+# Removes packages fetched from Arch and updates the package database
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::ComplexTasks::RemoveUpdatePackages;
+package UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields qw( upconfigs db );
@@ -13,7 +13,8 @@ use fields qw( upconfigs db );
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::RemovePackages;
+use UBOS::Macrobuild::BasicTasks::RemoveFetchedPackages;
+use UBOS::Macrobuild::BasicTasks::Unstage;
 use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 use UBOS::Macrobuild::UpConfigs;
 
@@ -36,6 +37,7 @@ sub new {
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::RemoveFetchedPackages(
                     'name'        => 'Removed packages fetched from Arch',
+                    'upconfigs'   => $self->{upconfigs},
                     'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ),
             new UBOS::Macrobuild::BasicTasks::Unstage(
                     'name'        => 'Unstage removed packages in local repository',

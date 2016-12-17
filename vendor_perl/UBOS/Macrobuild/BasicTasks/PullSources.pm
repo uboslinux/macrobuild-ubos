@@ -93,7 +93,7 @@ sub _pullFromGit {
         UBOS::Utils::myexec( "cd '$sourceSourceDir'; $gitCmd", undef, \$out );
         if( $out =~ m!^origin\s+\Q$url\E\s+\(fetch\)! ) {
             $out = undef;
-            $gitCmd = "git checkout '$branch' ; git pull";
+            $gitCmd = "git checkout -- . ; git checkout '$branch' ; git pull";
             UBOS::Utils::myexec( "( cd '$sourceSourceDir'; $gitCmd )", undef, \$out, \$err );
             if( $err =~ m!^error!m ) {
                 error( 'Error when attempting to pull git repository:', $url, 'into', $sourceSourceDir, "\n$err" );

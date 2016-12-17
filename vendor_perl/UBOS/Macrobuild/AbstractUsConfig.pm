@@ -41,13 +41,6 @@ sub new {
         fatal( 'Invalid url field in usConfig', $file, ':', $configJson->{url} );
     }
 
-    unless( defined( $configJson->{packages} )) {
-        fatal( 'No packages field defined in usConfig', $file, ':', $configJson->{packages} );
-    }
-    unless( ref( $configJson->{packages} ) eq 'HASH' ) {
-        fatal( 'Packages field must be hash in usConfig', $file, ':', $configJson->{packages} );
-    }
-
     if( exists( $configJson->{'overlap-bucket'} )) {
         $self->{overlapBucket} = $configJson->{'overlap-bucket'};
     } else {

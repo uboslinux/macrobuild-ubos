@@ -40,15 +40,21 @@ sub run {
         my $usConfig = $usConfigs->{$repoName}; 
 
         my $removePackages = $usConfig->removePackages;
+
         unless( $removePackages ) {
             next;
         }
 
-        foreach my $removePackage ( @$removePackages ) {
-            my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $removePackage, $sourceDir, $arch );
+        foreach my $removePackage ( keys %$removePackages ) {
+            my $dir = "$sourceDir/$repoName";
+            unless( '.' eq $removePackage ) {
+                $dir .= "/$removePackage";
+            }
 
-            UBOS::Utils::deleteFile( @files );
-            $removedPackages->{$removePackage} = \@files;
+            my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $removePackage, $dir, $arch );
+
+            UBOS::Utils::deleteFile( map { "$dir/$_" } @files );
+            $removedPackages->{$repoName}->{$removePackage} = \@files;
         }
     }
 
@@ -94,7 +100,7 @@ sub _pullFromGit {
         UBOS::Utils::myexec( "cd '$sourceSourceDir'; $gitCmd", undef, \$out );
         if( $out =~ m!^origin\s+\Q$url\E\s+\(fetch\)! ) {
             $out = undef;
-            $gitCmd = "git checkout '$branch' ; git pull";
+            $gitCmd = "git checkout -- . ; git checkout '$branch' ; git pull";
             UBOS::Utils::myexec( "( cd '$sourceSourceDir'; $gitCmd )", undef, \$out, \$err );
             if( $err =~ m!^error!m ) {
                 error( 'Error when attempting to pull git repository:', $url, 'into', $sourceSourceDir, "\n$err" );
