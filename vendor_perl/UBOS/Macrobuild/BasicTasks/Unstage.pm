@@ -38,7 +38,7 @@ sub run {
                 foreach my $packageName ( sort keys %$uXConfigData ) {
                     $unstaged->{$packageName} = [];
 
-                    foreach my $fileName ( @{$repoData->{$packageName}} ) {
+                    foreach my $fileName ( @{$uXConfigData->{$packageName}} ) {
 
                         my $localFileName = $fileName;
                         $localFileName =~ s!.*/!!;
