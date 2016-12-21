@@ -153,6 +153,9 @@ sub checkNoOverlap {
         for( my $i=0 ; $i<@names-1 ; ++$i ) {
             my $iUs = $bucketContent->{$names[$i]};
             
+            unless( $iUs->packages() ) {
+                next;
+            }
             my @iPackages = keys %{$iUs->packages()};
 
             for( my $j= $i+1 ; $j<@names ; ++$j ) {
@@ -166,6 +169,9 @@ sub checkNoOverlap {
                     next;
                 }
 
+                unless( $jUs->packages()) {
+                    next;
+                }
                 my @jPackages = keys %{$jUs->packages()};
 
                 foreach my $iPackage ( @iPackages ) {

@@ -1,0 +1,54 @@
+# 
+# Removes packages we built and updates the package database
+#
+
+use strict;
+use warnings;
+
+package UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages;
+
+use base qw( Macrobuild::CompositeTasks::Delegating );
+use fields qw( usconfigs db );
+
+use Macrobuild::BasicTasks::Report;
+use Macrobuild::CompositeTasks::Sequential;
+use UBOS::Logging;
+use UBOS::Macrobuild::BasicTasks::RemoveBuiltPackages;
+use UBOS::Macrobuild::BasicTasks::Unstage;
+use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
+use UBOS::Macrobuild::UpConfigs;
+
+##
+# Constructor
+sub new {
+    my $self = shift;
+    my %args = @_;
+
+    unless( ref $self ) {
+        $self = fields::new( $self );
+    }
+    
+    $self->SUPER::new( %args );
+
+    my $db = $self->{db};
+
+    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
+        'name' => 'Remove packages for db ' . $self->{db},
+        'tasks' => [
+            new UBOS::Macrobuild::BasicTasks::RemoveBuiltPackages(
+                    'name'        => 'Removed built packages',
+                    'usconfigs'   => $self->{usconfigs},
+                    'sourcedir'   => '${builddir}/dbs/' . $db . '/ups'  ),
+            new UBOS::Macrobuild::BasicTasks::Unstage(
+                    'name'        => 'Unstage removed packages in local repository',
+                    'stagedir'    => '${repodir}/${arch}/' . $db ),
+            new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
+                    'name'        => 'Update package database with removed packages',
+                    'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz' )
+        ]
+    );
+
+    return $self;
+}
+
+1;

@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::RemoveFetchedPackages;
 
 use base qw( Macrobuild::Task );
-use fields qw( sourcedir );
+use fields qw( upconfigs downloaddir );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::PackageUtils;
@@ -23,8 +23,8 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $sourceDir = $run->replaceVariables( $self->{sourcedir} );
-    my $arch      = $run->getVariable( 'arch' );
+    my $downloadDir = $run->replaceVariables( $self->{downloaddir} );
+    my $arch        = $run->getVariable( 'arch' );
 
     my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
 
@@ -39,8 +39,9 @@ sub run {
             next;
         }
 
-        foreach my $removePackage ( @$removePackages ) {
-            my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $removePackage, $sourceDir, $arch );
+        foreach my $removePackage ( keys %$removePackages ) {
+print "Attempting to remove package $removePackage in downloadDir $downloadDir\n";
+            my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $removePackage, $downloadDir, $arch );
 
             UBOS::Utils::deleteFile( @files );
             $removedPackages->{$removePackage} = \@files;

@@ -1,11 +1,11 @@
 # 
-# Removes packages marked to be removed
+# Removes packages we built that are marked to be removed
 #
 
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::RemovePackages;
+package UBOS::Macrobuild::BuildTasks::RemoveBuiltPackages;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields;
@@ -15,6 +15,9 @@ use Macrobuild::CompositeTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
+use UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages;
+use UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages;
+use UBOS::Macrobuild::UsConfigs;
 use UBOS::Macrobuild::Utils;
 
 ##
@@ -29,26 +32,23 @@ sub new {
     
     $self->SUPER::new( %args );
 
-    my $repoUsConfigs = {};
-    my $buildTasks    = {};
-    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
+    my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
 
-    my @removePackagesTasksSequences = map { ( "remove-built-packages-$_", "remove-fetched-packages-$_" ) } @dbs;
+    my $repoUsConfigs       = {};
+    my $repoUpConfigs       = {};
+    my $removePackagesTasks = {};
+    my @dbs                 = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
+
+    my @removePackagesTasksSequence = map { ( "remove-built-packages-$_" ) } @dbs;
 
     # create remove packages tasks
     foreach my $db ( @dbs ) {
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
+        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up', $localSourcesDir );
 
         $removePackagesTasks->{"remove-built-packages-$db"} = new UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages(
             'name'           => 'Remove built packages marked as such from ' . $db,
             'usconfigs'      => $repoUsConfigs->{$db},
-            'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
-            'db'             => UBOS::Macrobuild::Utils::shortDb( $db ) );
-
-        $removePackagesTasks->{"remove-fetched-packages-$db"} = new UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages(
-            'name'           => 'Remove fetched packages marked as such from ' . $db,
-            'usconfigs'      => $repoUsConfigs->{$db},
-            'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
             'db'             => UBOS::Macrobuild::Utils::shortDb( $db ) );
     }
     

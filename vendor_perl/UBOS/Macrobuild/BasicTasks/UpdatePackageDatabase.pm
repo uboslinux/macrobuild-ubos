@@ -31,6 +31,7 @@ sub run {
         my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->replaceVariables( $self->{dbfile} ));
         my @stagedPackageNames   = values %$stagedPackages;
         my @unstagedPackageNames = values %$unstagedPackages;
+        my @allUnstagedPackageNames = map { @$_ } @unstagedPackageNames; # there can be multiple versions per package
 
         my $dbSignKey = $run->getVariable( 'dbSignKey', undef );
         if( $dbSignKey ) {
@@ -44,10 +45,10 @@ sub run {
             }
         }
         if( @unstagedPackageNames ) {
-            if( $dbFile->removePackages( $dbSignKey, \@unstagedPackageNames ) == -1 ) {
+            if( $dbFile->removePackages( $dbSignKey, \@allUnstagedPackageNames ) == -1 ) {
                 $ret = -1;
             } else {
-                @updatedPackageNames = ( @updatedPackageNames, @unstagedPackageNames );
+                @updatedPackageNames = ( @updatedPackageNames, @allUnstagedPackageNames );
             }
         }
         if( @updatedPackageNames ) {
