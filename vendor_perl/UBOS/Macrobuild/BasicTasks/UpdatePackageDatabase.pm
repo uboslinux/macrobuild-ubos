@@ -48,7 +48,7 @@ sub run {
                 @addedPackageFiles = @stagedPackageFiles;
             }
         }
-        if( @unstagedPackageNames ) {
+        if( @unstagedPackageFiles ) {
             if( $dbFile->removePackages( $dbSignKey, \@unstagedPackageFiles ) == -1 ) {
                 $ret = -1;
             } else {
