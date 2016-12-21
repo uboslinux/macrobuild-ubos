@@ -96,10 +96,14 @@ sub containedPackages {
 }
 
 ##
+# Add one or more package files to this db. Note: this method uses
+# package file names, not package names like removePackages does.
+# $dbSignKey: if given, sign the package file after update
+# $packageFiles: array of filenames containing the packages to be added
 sub addPackages {
-    my $self      = shift;
-    my $dbSignKey = shift;
-    my $packages  = shift;
+    my $self         = shift;
+    my $dbSignKey    = shift;
+    my $packageFiles = shift;
     
     my $cmd = 'repo-add';
     unless( UBOS::Logging::isDebugActive() ) {
@@ -109,7 +113,7 @@ sub addPackages {
         $cmd .= ' --sign --key ' . $dbSignKey;
     }
     $cmd .= " '" . $self->{filename} . "'";
-    $cmd .= ' ' . join( ' ', @$packages );
+    $cmd .= ' ' . join( ' ', @$packageFiles );
 
     my $result;
     if( UBOS::Logging::isInfoActive() ) {
@@ -126,10 +130,14 @@ sub addPackages {
 }
 
 ##
+# Remove one or more packages from this db. Note: this method uses
+# package names, not package file names like addPackages does.
+# $dbSignKey: if given, sign the package file after update
+# $packageName: array of package names to be removed
 sub removePackages {
-    my $self      = shift;
-    my $dbSignKey = shift;
-    my $packages  = shift;
+    my $self         = shift;
+    my $dbSignKey    = shift;
+    my $packageNames = shift;
     
     my $cmd = 'repo-remove';
     unless( UBOS::Logging::isDebugActive() ) {
@@ -139,7 +147,7 @@ sub removePackages {
         $cmd .= ' --sign --key ' . $dbSignKey;
     }
     $cmd .= " '" . $self->{filename} . "'";
-    $cmd .= ' ' . join( ' ', @$packages );
+    $cmd .= ' ' . join( ' ', @$packageNames );
 
     my $result;
     if( UBOS::Logging::isInfoActive() ) {

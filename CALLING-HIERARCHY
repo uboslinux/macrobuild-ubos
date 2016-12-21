@@ -16,7 +16,7 @@ BuildTasks / BuildPackages
         old-packages:          Map<uXConfigName,Map<packageName,pathToPackage>>
         staged-packages:       Map<packageName,pathToStagedPackage>
         added-package-files:   pathToPackage[]
-        removed-package-files: pathToPackage[]
+        removed-packages:      packageName[]
 
 BuildTasks / BurnToUsb
   BasicTasks / BurnToUsb
@@ -77,7 +77,7 @@ BuildTasks / FetchArchPackages
         old-packages:              Map<uXConfigName,Map<packageName,pathToPackage>>
         staged-packages:           Map<packageName,pathToStagedPackage>
         added-package-files:       pathToPackage[]
-        removed-package-files:     pathToPackage[]
+        removed-packages:          packageName[]
 
 BuildTasks / Pacneed
 
@@ -117,10 +117,10 @@ BuildTasks / RemovePackages
   BasicTasks / Report
 
 
-        removed-packages:      Map<uXConfigName,Map<packageName,pathToPackage[]>>
-        unstaged-packages:     Map<packageName,pathToStagedPackage[]>
-        added-package-files:   pathToPackage[]
-        removed-package-files: pathToPackage[]
+        removed-packages:    Map<uXConfigName,Map<packageName,pathToPackage[]>>
+        unstaged-packages:   Map<packageName,pathToStagedPackage[]>
+        added-package-files: pathToPackage[]
+        removed-packages:    packageName[]
 
 
 BuildTasks / RunWebAppTests

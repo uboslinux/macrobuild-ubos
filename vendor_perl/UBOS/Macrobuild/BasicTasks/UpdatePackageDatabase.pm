@@ -30,12 +30,12 @@ sub run {
     # at the same time, while only one version of the same package is staged at the same time.
 
     my @addedPackageFiles   = ();
-    my @removedPackageFiles = ();
+    my @removedPackageNames = ();
     my $ret                 = 1;
     if( %$stagedPackages || %$unstagedPackages ) {
         my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->replaceVariables( $self->{dbfile} ));
-        my @stagedPackageFiles   = sort values %$stagedPackages;                # single file per package
-        my @unstagedPackageFiles = sort map { @$_ } values %$unstagedPackages;  # multiple files per package
+        my @stagedPackageFiles   = sort values %$stagedPackages;
+        my @unstagedPackageNames = sort keys %$unstagedPackages;
 
         my $dbSignKey = $run->getVariable( 'dbSignKey', undef );
         if( $dbSignKey ) {
@@ -48,14 +48,14 @@ sub run {
                 @addedPackageFiles = @stagedPackageFiles;
             }
         }
-        if( @unstagedPackageFiles ) {
-            if( $dbFile->removePackages( $dbSignKey, \@unstagedPackageFiles ) == -1 ) {
+        if( @unstagedPackageNames ) {
+            if( $dbFile->removePackages( $dbSignKey, \@unstagedPackageNames ) == -1 ) {
                 $ret = -1;
             } else {
-                @removedPackageFiles = @unstagedPackageFiles;
+                @removedPackageNames = @unstagedPackageNames;
             }
         }
-        if( @addedPackageFiles || @removedPackageFiles ) {
+        if( @addedPackageFiles || @removedPackageNames ) {
             $ret = 0;
         }
     }
@@ -69,8 +69,8 @@ sub run {
         $run->taskEnded(
                 $self,
                 {
-                    'added-package-files'   => \@addedPackageFiles,
-                    'removed-package-files' => \@removedPackageFiles
+                    'added-package-files' => \@addedPackageFiles,
+                    'removed-packages'    => \@removedPackageNames
                 },
                 $ret );
     }

@@ -81,7 +81,7 @@ sub new {
                     'keys'         => \@buildTaskNames ),
                 new Macrobuild::BasicTasks::Report(
                     'name'        => 'Report build activity for dev dbs: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
-                    'fields'      => [ 'added-package-files', 'removed-package-files' ] )
+                    'fields'      => [ 'added-package-files', 'removed-packages' ] )
             ]
         ));
     return $self;

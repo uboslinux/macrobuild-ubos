@@ -60,7 +60,7 @@ sub new {
                     'keys'         => \@promoteTaskNames ),
                 new Macrobuild::BasicTasks::Report(
                     'name'        => 'Report promotion activity for repositories: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
-                    'fields'      => [ 'added-package-files', 'removed-package-files' ] )
+                    'fields'      => [ 'added-package-files', 'removed-packages' ] )
         ));
 
     return $self;
