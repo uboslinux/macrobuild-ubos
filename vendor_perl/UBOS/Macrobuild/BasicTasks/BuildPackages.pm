@@ -39,18 +39,18 @@ sub run {
     my %allDirs = ( %$dirsUpdated, %$dirsNotUpdated );
     
     # determine package dependencies    
-    my %dirToRepoName       = ();
+    my %dirToUXConfigName   = ();
     my %packageDependencies = ();
     my %packageToDir        = ();
-    foreach my $repoName( keys %allDirs ) {
-        my $repoInfo = $dirsUpdated->{$repoName} || $dirsNotUpdated->{$repoName};
+    foreach my $uXConfigName ( sort keys %allDirs ) {
+        my $subdirs = $dirsUpdated->{$uXConfigName} || $dirsNotUpdated->{$uXConfigName};
 
-        foreach my $subdir ( @$repoInfo ) {
-            my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$repoName";
+        foreach my $subdir ( @$subdirs ) {
+            my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$uXConfigName";
             if( $subdir && $subdir ne '.' ) {
                 $dir .= "/$subdir";
             }
-            $dirToRepoName{$dir} = $repoName;
+            $dirToUXConfigName{$dir} = $uXConfigName;
 
             my $packageName = _determinePackageName( $dir );
             $packageToDir{$packageName} = $dir;
@@ -77,26 +77,26 @@ sub run {
 
     foreach my $dir ( @dirSequence ) {
 
-        my $packageName = _determinePackageName( $dir );
-        my $repoName    = $dirToRepoName{$dir};
+        my $packageName  = _determinePackageName( $dir );
+        my $uXConfigName = $dirToUXConfigName{$dir};
 
-        my $mostRecent = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
+        my $mostRecentPackage = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
 
-        if( $alwaysRebuild || exists( $dirsUpdated->{$repoName} ) || -e "$dir/$failedstamp" || !$mostRecent ) {
+        if( $alwaysRebuild || exists( $dirsUpdated->{$uXConfigName} ) || -e "$dir/$failedstamp" || !$mostRecentPackage ) {
             if( -e "$dir/$failedstamp" ) {
-                debug( "Dir not updated, but failed last time, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
+                debug( "Dir not updated, but failed last time, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
             } elsif( $alwaysRebuild ) {
-                debug( "alwaysRebuild=1, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
-            } elsif( !$mostRecent ) {
-                debug( "Dir not updated, but no package present. Rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
+                debug( "alwaysRebuild=1, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
+            } elsif( !$mostRecentPackage ) {
+                debug( "Dir not updated, but no package present. Rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
             } else {
-                debug( "Dir updated, rebuilding: reponame '$repoName', dir '$dir', packageName $packageName" );
+                debug( "Dir updated, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
             }
-            unless( exists( $built->{$repoName} )) {
-                $built->{$repoName} = {};
+            unless( exists( $built->{$uXConfigName} )) {
+                $built->{$uXConfigName} = {};
             }
 
-            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$repoName}, $run, $alwaysRebuild );
+            my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$uXConfigName}, $run, $alwaysRebuild );
 
             if( $buildResult == -1 ) {
                 $ret = -1;
@@ -112,8 +112,8 @@ sub run {
         } else {
             # dir not updated, and not failed last time
 
-            debug( "Dir not updated, reusing: reponame '$repoName', dir '$dir', packageName $packageName, most recent $mostRecent" );
-            $notRebuilt->{$repoName}->{$packageName} = "$dir/$mostRecent";
+            debug( "Dir not updated, reusing: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName, most recent package $mostRecentPackage" );
+            $notRebuilt->{$uXConfigName}->{$packageName} = "$dir/$mostRecentPackage";
         }
     }
     # take out empty entries
@@ -144,7 +144,7 @@ sub _buildPackage {
     my $self          = shift;
     my $dir           = shift;
     my $packageName   = shift;
-    my $builtRepo     = shift;
+    my $builtUXConfig = shift;
     my $run           = shift;
     my $alwaysRebuild = shift;
 
@@ -227,7 +227,7 @@ sub _buildPackage {
                 }
             }
 
-            $builtRepo->{$packageName} = "$dir/" . $builtPackage;
+            $builtUXConfig->{$packageName} = "$dir/" . $builtPackage;
 
             if( -e "$dir/$failedstamp" ) {
                 UBOS::Utils::deleteFile( "$dir/$failedstamp" );

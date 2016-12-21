@@ -72,6 +72,7 @@ sub run {
                 'removed-packages' => $removedPackages
             },
             $ret );
+    # Map<repoName,Map<packageName,file[]>>
 
     return $ret;
 }

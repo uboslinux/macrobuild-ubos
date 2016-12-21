@@ -40,11 +40,10 @@ sub run {
         }
 
         foreach my $removePackage ( keys %$removePackages ) {
-print "Attempting to remove package $removePackage in downloadDir $downloadDir\n";
             my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $removePackage, $downloadDir, $arch );
 
             UBOS::Utils::deleteFile( @files );
-            $removedPackages->{$removePackage} = \@files;
+            $removedPackages->{$repoName}->{$removePackage} = \@files;
         }
     }
 
@@ -62,6 +61,7 @@ print "Attempting to remove package $removePackage in downloadDir $downloadDir\n
                 'removed-packages' => $removedPackages
             },
             $ret );
+    # Map<repoName,Map<packageName,file[]>>
 
     return $ret;
 }

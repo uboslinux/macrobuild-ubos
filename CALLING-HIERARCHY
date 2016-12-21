@@ -7,8 +7,16 @@ BuildTasks / BuildPackages
       BasicTasks / PullSources           (        -> dirs-updated, dirs-not-updated )
       BasicTasks / BuildPackages         ( dirs-updated, dirs-not-updated     -> new-packages, old-packages )
       BasicTasks / Stage                 ( new-packages, old-packages         -> staged-packages )
-      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> updated-packages )
+      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> added-package-files, removed-package-files )
   BasicTasks / Report
+
+        dirs-updated:          Map<uXConfigName,dirName[]>
+        dirs-not-updated:      Map<uXConfigName,dirName[]>
+        new-packages:          Map<uXConfigName,Map<packageName,pathToPackage>>
+        old-packages:          Map<uXConfigName,Map<packageName,pathToPackage>>
+        staged-packages:       Map<packageName,pathToStagedPackage>
+        added-package-files:   pathToPackage[]
+        removed-package-files: pathToPackage[]
 
 BuildTasks / BurnToUsb
   BasicTasks / BurnToUsb
@@ -59,8 +67,17 @@ BuildTasks / FetchArchPackages
       BasicTasks / DetermineChangedPackagesFromDbAndDir ( all-package-databases              -> packages-to-download )
       BasicTasks / FetchPackages                        ( packages-to-download               -> new-packages, old-packages )
       BasicTasks / Stage                                ( new-packages, old-packages         -> staged-packages )
-      BasicTasks / UpdatePackageDatabase                ( staged-packages, unstaged-packages -> updated-packages )
+      BasicTasks / UpdatePackageDatabase                ( staged-packages, unstaged-packages -> added-package-files, removed-package-files )
   BasicTasks / Report
+
+        all-package-databases:     Map<upConfigName,PacmanDbFile>
+        updated-package-databases: Map<upConfigName,PacmanDbFile>
+        packages-to-download:      Map<upConfigName,Map<packageName,URL>>
+        new-packages:              Map<uXConfigName,Map<packageName,pathToPackage>>
+        old-packages:              Map<uXConfigName,Map<packageName,pathToPackage>>
+        staged-packages:           Map<packageName,pathToStagedPackage>
+        added-package-files:       pathToPackage[]
+        removed-package-files:     pathToPackage[]
 
 BuildTasks / Pacneed
 
@@ -92,12 +109,19 @@ BuildTasks / RemovePackages
     ComplexTasks / RemoveUpdateBuiltPackages
       BasicTasks / RemoveBuiltPackages   (                                    -> removed-packages  )
       BasicTasks / Unstage               ( removed-packages                   -> unstaged-packages )
-      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> updated-packages  )
+      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> added-package-files, removed-package-files )
     ComplexTasks / RemoveUpdateFetchedPackages
       BasicTasks / RemoveFetchedPackages (                                    -> removed-packages  )
       BasicTasks / Unstage               ( removed-packages                   -> unstaged-packages )
-      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> updated-packages  )
+      BasicTasks / UpdatePackageDatabase ( staged-packages, unstaged-packages -> added-package-files, removed-package-files )
   BasicTasks / Report
+
+
+        removed-packages:      Map<uXConfigName,Map<packageName,pathToPackage[]>>
+        unstaged-packages:     Map<packageName,pathToStagedPackage[]>
+        added-package-files:   pathToPackage[]
+        removed-package-files: pathToPackage[]
+
 
 BuildTasks / RunWebAppTests
   for all db

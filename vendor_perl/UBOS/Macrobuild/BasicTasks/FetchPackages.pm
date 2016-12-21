@@ -30,27 +30,26 @@ sub run {
     my $downloaded  = {};
     my $haveAlready = {};
     if( %$toDownload ) {
-        foreach my $repoName ( sort keys %$toDownload ) {
-            my $repoDownloadData = $toDownload->{$repoName};
-
-            my $repoDownloadDir = $run->{settings}->replaceVariables( $self->{downloaddir} ) . "/$repoName";
+        foreach my $upConfigName ( sort keys %$toDownload ) {
+            my $upConfigDownloadData = $toDownload->{$upConfigName};
+            my $upConfigDownloadDir  = $run->{settings}->replaceVariables( $self->{downloaddir} ) . "/$upConfigName";
             
-            foreach my $packageName ( sort keys %$repoDownloadData ) {
-                my $packageUrl = $repoDownloadData->{$packageName};
+            foreach my $packageName ( sort keys %$upConfigDownloadData ) {
+                my $packageUrl = $upConfigDownloadData->{$packageName};
 
                 my $localName = $packageUrl;
                 $localName =~ s!(.*/)!!;
                 
-                my $fullLocalName = "$repoDownloadDir/$localName";
+                my $fullLocalName = "$upConfigDownloadDir/$localName";
                 if( -e $fullLocalName ) {
                     debug( "Skipping download, exists already:", $fullLocalName );
-                    $haveAlready->{$repoName}->{$packageName} = $fullLocalName;
+                    $haveAlready->{$upConfigName}->{$packageName} = $fullLocalName;
 
                 } else {
                     info( "Fetching package", $packageName );
 
                     unless( UBOS::Utils::myexec( "curl -L -R -s -o '$fullLocalName' '$packageUrl'" )) {
-                        $downloaded->{$repoName}->{$packageName} = $fullLocalName;
+                        $downloaded->{$upConfigName}->{$packageName} = $fullLocalName;
                     } else {
                         error( "Failed to download $packageUrl" );
                         return -1;

@@ -25,33 +25,37 @@ sub run {
     my $stagedPackages   = $in->{'staged-packages'}   || {};
     my $unstagedPackages = $in->{'unstaged-packages'} || {};
 
-    my @updatedPackageNames = ();
+    # While the structure looks the same, staged-packages always points to a single file per package,
+    # while unstaged-packages points to an array: several versions of the same package may be unstaged
+    # at the same time, while only one version of the same package is staged at the same time.
+
+    my @addedPackageFiles   = ();
+    my @removedPackageFiles = ();
     my $ret                 = 1;
     if( %$stagedPackages || %$unstagedPackages ) {
         my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->replaceVariables( $self->{dbfile} ));
-        my @stagedPackageNames   = values %$stagedPackages;
-        my @unstagedPackageNames = values %$unstagedPackages;
-        my @allUnstagedPackageNames = map { @$_ } @unstagedPackageNames; # there can be multiple versions per package
+        my @stagedPackageFiles   = sort values %$stagedPackages;                # single file per package
+        my @unstagedPackageFiles = sort map { @$_ } values %$unstagedPackages;  # multiple files per package
 
         my $dbSignKey = $run->getVariable( 'dbSignKey', undef );
         if( $dbSignKey ) {
             $dbSignKey = $run->replaceVariables( $dbSignKey );
         }
-        if( @stagedPackageNames ) {
-            if( $dbFile->addPackages( $dbSignKey, \@stagedPackageNames ) == -1 ) {
+        if( @stagedPackageFiles ) {
+            if( $dbFile->addPackages( $dbSignKey, \@stagedPackageFiles ) == -1 ) {
                 $ret = -1;
             } else {
-                @updatedPackageNames = ( @updatedPackageNames, @stagedPackageNames );
+                @addedPackageFiles = @stagedPackageFiles;
             }
         }
         if( @unstagedPackageNames ) {
-            if( $dbFile->removePackages( $dbSignKey, \@allUnstagedPackageNames ) == -1 ) {
+            if( $dbFile->removePackages( $dbSignKey, \@unstagedPackageFiles ) == -1 ) {
                 $ret = -1;
             } else {
-                @updatedPackageNames = ( @updatedPackageNames, @allUnstagedPackageNames );
+                @removedPackageFiles = @unstagedPackageFiles;
             }
         }
-        if( @updatedPackageNames ) {
+        if( @addedPackageFiles || @removedPackageFiles ) {
             $ret = 0;
         }
     }
@@ -64,7 +68,10 @@ sub run {
     } else {
         $run->taskEnded(
                 $self,
-                { 'updated-packages' => \@updatedPackageNames },
+                {
+                    'added-package-files'   => \@addedPackageFiles,
+                    'removed-package-files' => \@removedPackageFiles
+                },
                 $ret );
     }
 

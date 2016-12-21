@@ -31,7 +31,7 @@ sub run {
     my $packageDatabases = $in->{'all-package-databases'};
             # This one does not work:
             #     $in->{'updated-package-databases'};
-            # because several repositories access the same upstream repository, and on the
+            # because several uXConfigs access the same upstream repository, and on the
             # second access, it says "not changed" although it might have in the first
             # access during the same build. As a result, some packages won't be updated.
 
@@ -42,17 +42,17 @@ sub run {
     my $toDownload = {};
     if( %$packageDatabases ) {
         my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
-        foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
-            my $upConfig = $upConfigs->{$repoName}; 
+        foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
+            my $upConfig = $upConfigs->{$upConfigName}; 
 
-            debug( 'Determining changed packages in repo', $repoName );
+            debug( 'Determining changed packages in UpConfig', $upConfigName );
             
-            my $packageDatabase = $packageDatabases->{$repoName};
+            my $packageDatabase = $packageDatabases->{$upConfigName};
             unless( $packageDatabase ) {
                 # wasn't updated, nothing to do
                 next;
             }
-            my $repoDir            = "$dir/$repoName";
+            my $upConfigDir        = "$dir/$upConfigName";
             my $packagesInDatabase = $packageDatabase->containedPackages(); # returns name => filename
 
             foreach my $packageName ( sort keys %{$upConfig->packages} ) { # make predictable sequence
@@ -90,7 +90,7 @@ sub run {
                                 $wantVersion ) == 0 )
                             {
                                 my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
-                                $toDownload->{$repoName}->{$packageName} = $url;
+                                $toDownload->{$upConfigName}->{$packageName} = $url;
 
                             } else {
                                 error( 'Package', $packageName, 'found locally (', @packageFileLocalCandidates, ') and upstream (', $packageFileInPackageDatabase, '), but neither in wanted version', $packageInfo->{$channel}->{version} );
@@ -110,7 +110,7 @@ sub run {
                             $wantVersion ) == 0 )
                         {
                             my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
-                            $toDownload->{$repoName}->{$packageName} = $url;
+                            $toDownload->{$upConfigName}->{$packageName} = $url;
 
                         } else {
                             error( 'Package', $packageName, 'found upstream, but as', $packageFileInPackageDatabase, ', not in wanted version', $packageInfo->{$channel}->{version} );
@@ -126,7 +126,7 @@ sub run {
                             my $bestLocalCandidate = UBOS::BasicTasks::PackageUtils::mostRecentPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
                             if( UBOS::BasicTasks::PackageUtils::comparePackageFileNamesByVersion( $bestLocalCandidate, $packageFileInPackageDatabase ) < 0 ) {
                                 my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
-                                $toDownload->{$repoName}->{$packageName} = $url;
+                                $toDownload->{$upConfigName}->{$packageName} = $url;
                             } # else use local
 
                         } else {
@@ -136,7 +136,7 @@ sub run {
                     } else {
                        if( $packageFileInPackageDatabase ) {
                             my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
-                            $toDownload->{$repoName}->{$packageName} = $url;
+                            $toDownload->{$upConfigName}->{$packageName} = $url;
 
                         } else {
                             error( 'No package file found locally or upstream for package', $packageName, 'in any version' );

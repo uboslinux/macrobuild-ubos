@@ -29,18 +29,19 @@ sub run {
 
     my $newPackages = $in->{'new-packages'};
     my $oldPackages = $in->{'old-packages'};
-    my $staged      = {};
+    my $staged      = {}; # Map<packageName,file[]>: Value is an array, so it is symmetric to Unstage,
+                          # which might unstage several package versions at the same time
 
     my $destDir = $run->{settings}->replaceVariables( $self->{stagedir} );
 
     Macrobuild::Utils::ensureDirectories( $destDir );
 
     if( %$newPackages ) {
-        foreach my $repoName ( sort keys %$newPackages ) {
-            my $repoData = $newPackages->{$repoName};
+        foreach my $uXConfigName ( sort keys %$newPackages ) {
+            my $uXConfigData = $newPackages->{$uXConfigName};
 
-            foreach my $packageName ( sort keys %$repoData ) {
-                my $fileName = $repoData->{$packageName};
+            foreach my $packageName ( sort keys %$uXConfigData ) {
+                my $fileName = $uXConfigData->{$packageName};
 
                 my $localFileName = $fileName;
                 $localFileName =~ s!.*/!!;
@@ -48,7 +49,7 @@ sub run {
                 UBOS::Utils::myexec( "cp '$fileName' '$destDir/'" );
                 if( -e "$fileName.sig" ) {
                     UBOS::Utils::myexec( "cp '$fileName.sig' '$destDir/'" );
-				}
+                }
 
                 $staged->{$packageName} = "$destDir/$localFileName";
                 debug( "Staged:", $staged->{$packageName} );
@@ -65,15 +66,15 @@ sub run {
                 my $localFileName = $fileName;
                 $localFileName =~ s!.*/!!;
 
-				unless( -e "$destDir/$localFileName" ) {
-					UBOS::Utils::myexec( "cp '$fileName' '$destDir/'" );
+                unless( -e "$destDir/$localFileName" ) {
+                    UBOS::Utils::myexec( "cp '$fileName' '$destDir/'" );
                     if( -e "$fileName.sig" ) {
                         UBOS::Utils::myexec( "cp '$fileName.sig' '$destDir/'" );
                     }
 
-					$staged->{$packageName} = "$destDir/$localFileName";
-					debug( "Staged again:", $staged->{$packageName} );
-				}
+                    $staged->{$packageName} = "$destDir/$localFileName";
+                    debug( "Staged again:", $staged->{$packageName} );
+                }
             }
         }
     }

@@ -22,38 +22,36 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    unless( exists( $in->{'removed-packages'} )) {
-        error( "No removed-packages given in input" );
-        return -1;
-    }
+    my $unstaged = {};
+    if( exists( $in->{'removed-packages'} )) {
 
-    my $removedPackages = $in->{'removed-packages'};
-    my $unstaged        = {};
+        my $removedPackages = $in->{'removed-packages'};
 
-    my $destDir = $run->{settings}->replaceVariables( $self->{stagedir} );
+        my $destDir = $run->{settings}->replaceVariables( $self->{stagedir} );
 
-    Macrobuild::Utils::ensureDirectories( $destDir );
+        Macrobuild::Utils::ensureDirectories( $destDir );
 
-    if( %$removedPackages ) {
-        foreach my $repoName ( sort keys %$removedPackages ) {
-            my $repoData = $removedPackages->{$repoName};
+        if( %$removedPackages ) {
+            foreach my $uXConfigName ( sort keys %$removedPackages ) {
+                my $uXConfigData = $removedPackages->{$uXConfigName};
 
-            foreach my $packageName ( %$repoData ) {
-                $unstaged->{$packageName} = [];
+                foreach my $packageName ( sort keys %$uXConfigData ) {
+                    $unstaged->{$packageName} = [];
 
-                foreach my $fileName ( @{$repoData->{$packageName}} ) {
+                    foreach my $fileName ( @{$repoData->{$packageName}} ) {
 
-                    my $localFileName = $fileName;
-                    $localFileName =~ s!.*/!!;
+                        my $localFileName = $fileName;
+                        $localFileName =~ s!.*/!!;
 
-                    UBOS::Utils::myexec( "rm '$destDir/$localFileName'" );
-                    if( -e "$destDir/$localFileName.sig" ) {
                         UBOS::Utils::myexec( "rm '$destDir/$localFileName'" );
-                    }
+                        if( -e "$destDir/$localFileName.sig" ) {
+                            UBOS::Utils::myexec( "rm '$destDir/$localFileName'" );
+                        }
 
-                    push @{$unstaged->{$packageName}}, "$destDir/$localFileName";
+                        push @{$unstaged->{$packageName}}, "$destDir/$localFileName";
+                    }
+                    debug( "Unstaged:", $packageName, @{$unstaged->{$packageName}} );
                 }
-                debug( "Unstaged:", $packageName, @{$unstaged->{$packageName}} );
             }
         }
     }

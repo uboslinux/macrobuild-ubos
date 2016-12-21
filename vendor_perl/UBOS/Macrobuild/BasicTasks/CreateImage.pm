@@ -36,45 +36,43 @@ sub run {
     }
 
     my $in              = $run->taskStarting( $self );
-    my $updatedPackages = $in->{'updated-packages'};
     my $channel         = $run->replaceVariables( $self->{channel} );
     my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
     my $checkSignatures = $run->getVariable( 'checkSignatures', 'required' );
 
     my $image;
     my $errors = 0;
-    if( !defined( $updatedPackages ) || @$updatedPackages ) {
-        my $buildId  = UBOS::Utils::time2string( time() );
-        my $repodir  = File::Spec->rel2abs( $run->replaceVariables( $self->{repodir} ));
-        $image       = File::Spec->rel2abs( $run->replaceVariables( $self->{image}   ));
 
-        Macrobuild::Utils::ensureParentDirectoriesOf( $image );
+    my $buildId  = UBOS::Utils::time2string( time() );
+    my $repodir  = File::Spec->rel2abs( $run->replaceVariables( $self->{repodir} ));
+    $image       = File::Spec->rel2abs( $run->replaceVariables( $self->{image}   ));
 
-        my $imagesize = $self->{imagesize};
-        # Create image file
-        my $out;
-        if( UBOS::Utils::myexec( "dd if=/dev/zero 'of=$image' bs=1 count=0 seek=$imagesize", undef, \$out, \$out )) {
-             # sparse
-             error( "dd failed:", $out );
-             ++$errors;
-        }
+    Macrobuild::Utils::ensureParentDirectoriesOf( $image );
 
-        my $installCmd = 'sudo ubos-install';
-        $installCmd .= " --channel $channel";
-        $installCmd .= " --repository '$repodir'";
-        $installCmd .= " --deviceclass $deviceclass";
-        $installCmd .= " --checksignatures $checkSignatures";
-        if( UBOS::Logging::isDebugActive() ) {
-            $installCmd .= " --verbose --verbose";
-        } elsif( UBOS::Logging::isInfoActive() ) {
-            $installCmd .= " --verbose";
-        }
-        $installCmd .= " '$image'";
+    my $imagesize = $self->{imagesize};
+    # Create image file
+    my $out;
+    if( UBOS::Utils::myexec( "dd if=/dev/zero 'of=$image' bs=1 count=0 seek=$imagesize", undef, \$out, \$out )) {
+         # sparse
+         error( "dd failed:", $out );
+         ++$errors;
+    }
 
-        if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isDebugActive
-            error( 'ubos-install failed:', $out );
-            ++$errors;
-        }
+    my $installCmd = 'sudo ubos-install';
+    $installCmd .= " --channel $channel";
+    $installCmd .= " --repository '$repodir'";
+    $installCmd .= " --deviceclass $deviceclass";
+    $installCmd .= " --checksignatures $checkSignatures";
+    if( UBOS::Logging::isDebugActive() ) {
+        $installCmd .= " --verbose --verbose";
+    } elsif( UBOS::Logging::isInfoActive() ) {
+        $installCmd .= " --verbose";
+    }
+    $installCmd .= " '$image'";
+
+    if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isDebugActive
+        error( 'ubos-install failed:', $out );
+        ++$errors;
     }
 
     if( $errors ) {
