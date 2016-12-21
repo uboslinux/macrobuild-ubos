@@ -90,7 +90,7 @@ sub configs {
                 next;
             }
             my $packages       = $usConfigJson->{packages};
-            my $removePackages = $usConfigJson->{removePackages};
+            my $removePackages = $usConfigJson->{'remove-packages'};
             my $webapptests    = $usConfigJson->{webapptests};
 
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );

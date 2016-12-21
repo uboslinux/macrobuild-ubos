@@ -94,7 +94,7 @@ sub configs {
                 next;
             }
             my $lastModified   = (stat( $file ))[9];
-            my $removePackages = $upConfigJson->{removePackages};
+            my $removePackages = $upConfigJson->{'remove-packages'};
 
             $ret->{$shortRepoName} = new UBOS::Macrobuild::UpConfig( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
         }
