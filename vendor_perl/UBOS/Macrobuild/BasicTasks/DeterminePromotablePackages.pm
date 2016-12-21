@@ -45,11 +45,16 @@ sub run {
     my $newPackages = {};
     my $oldPackages = {};
     
-    foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
-        my $upConfig = $upConfigs->{$repoName}; 
+    foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
+        my $upConfig = $upConfigs->{$upConfigName};
+        my $packages = $upConfig->packages();
 
-        foreach my $packageName ( sort keys %{$upConfig->packages} ) { # make predictable sequence
-            my $packageInfo = $upConfig->packages->{$packageName};
+        unless( $packages ) {
+            next;
+        }
+
+        foreach my $packageName ( sort keys %$packages ) {
+            my $packageInfo = $packages->{$packageName};
 
             my @candidatePackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $fromDb, $arch );
             my $toPromote;
@@ -65,20 +70,25 @@ sub run {
             }
             if( defined( $toPromote )) {
                 if( -e "$toDb/$toPromote" ) {
-                    $oldPackages->{$repoName}->{$packageName} = "$fromDb/$toPromote";
+                    $oldPackages->{$upConfigName}->{$packageName} = "$fromDb/$toPromote";
                 } else {
-                    $newPackages->{$repoName}->{$packageName} = "$fromDb/$toPromote";
+                    $newPackages->{$upConfigName}->{$packageName} = "$fromDb/$toPromote";
                 }
             }
         }
     }
 
     # usconfig uses very similar code to upconfig
-    foreach my $usConfig ( values %$usConfigs ) {
-        my $repoName = $usConfig->name;
+    foreach my $usConfigName ( sort keys %$usConfigs ) {
+        my $usConfig = $usConfigs->{$usConfigName};
+        my $packages = $usConfig->packages();
 
-        foreach my $packageName ( sort keys %{$usConfig->packages} ) {
-            my $packageInfo = $usConfig->packages->{$packageName};
+        unless( $packages ) {
+            next;
+        }
+
+        foreach my $packageName ( sort keys %$packages ) {
+            my $packageInfo = $packages->{$packageName};
 
             if( '.' eq $packageName ) {
                 $packageName = $usConfig->name;
@@ -98,9 +108,9 @@ sub run {
             }
             if( defined( $toPromote )) {
                 if( -e "$toDb/$toPromote" ) {
-                    $oldPackages->{$repoName}->{$packageName} = "$fromDb/$toPromote";
+                    $oldPackages->{$usConfigName}->{$packageName} = "$fromDb/$toPromote";
                 } else {
-                    $newPackages->{$repoName}->{$packageName} = "$fromDb/$toPromote";
+                    $newPackages->{$usConfigName}->{$packageName} = "$fromDb/$toPromote";
                 }
             }
         }

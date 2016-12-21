@@ -89,10 +89,12 @@ BuildTasks / Pacsane
 BuildTasks / PromoteChannel
   for all db
     ComplexTasks / PromoteChannelRepository
-      BasicTasks / DeterminePromotablePackages
-      BasicTasks / Stage
-      BasicTasks / UpdatePackageDatabase
+      BasicTasks / DeterminePromotablePackages (                                    -> new-packages, old-packages )
+      BasicTasks / Stage                       ( new-packages, old-packages         -> staged-packages )
+      BasicTasks / UpdatePackageDatabase       ( staged-packages, unstaged-packages -> added-package-files, removed-package-files )
   BasicTasks / Report
+
+
 
 BuildTasks / PurgeImages
   BasicTasks / PurgeChannelImages (compressed)
