@@ -154,7 +154,7 @@ sub removePackages {
         $result = UBOS::Utils::myexec( $cmd );
     } else {
         my $out;
-        $result = UBOS::Utils::myexec( $cmd, undef, \$out );
+        $result = UBOS::Utils::myexec( $cmd, undef, \$out, \$out );
     }
     if( $result ) {
         error( 'Something went wrong when executing:', $cmd, " -- env was:\n" . join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
