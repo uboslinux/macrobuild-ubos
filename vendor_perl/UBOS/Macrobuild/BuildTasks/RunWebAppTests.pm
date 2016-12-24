@@ -46,8 +46,8 @@ sub new {
                     'usconfig'     => $usConfig,
                     'scaffold'     => '${scaffold}', # allows us to filter out 'directory parameter if not container, for example
                     'config'       => '${testconfig}',
-                    'directory'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-${arch}_LATEST.tardir',
-                    'vmdktemplate' => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-${arch}_LATEST.vmdk',
+                    'directory'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-${arch2}_LATEST.tardir',
+                    'vmdktemplate' => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_vbox-${arch2}_LATEST.vmdk',
                     'sourcedir'    => '${builddir}/dbs/' . UBOS::Macrobuild::Utils::shortDb( $db ) . '/ups' ),
         }
     }

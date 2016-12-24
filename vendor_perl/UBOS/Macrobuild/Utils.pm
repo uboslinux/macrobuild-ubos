@@ -147,6 +147,18 @@ sub arch {
 }
 
 ##
+# Determine the alternate arch of this system -- all the same, except that
+# it prints 'pc' instead of 'x86_64'.
+sub arch2 {
+
+    my $ret = arch();
+    if( $ret eq 'x86_64' ) {
+        $ret = 'pc';
+    }
+    return $ret;
+}
+
+##
 # Given a hash, remove those item not for this arch. An item is for
 # this arch, either if the value does not specify any archs, or the
 # specified archs include our arch.
