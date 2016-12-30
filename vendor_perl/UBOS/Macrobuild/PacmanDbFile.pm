@@ -149,12 +149,12 @@ sub removePackages {
     $cmd .= " '" . $self->{filename} . "'";
     $cmd .= ' ' . join( ' ', @$packageNames );
 
-    my $result;
-    if( UBOS::Logging::isInfoActive() ) {
-        $result = UBOS::Utils::myexec( $cmd );
-    } else {
-        my $out;
-        $result = UBOS::Utils::myexec( $cmd, undef, \$out, \$out );
+    my $out;
+    my $result = UBOS::Utils::myexec( $cmd, undef, \$out, \$out );
+    $out = join( "\n", grep { ! /Package matching.*not found/ } split( "\n", $out ));
+        # don't print "==> ERROR: Package matching 'foobar' not found."
+    if( $result && $out ) {
+        error( $out );
     }
     if( $result ) {
         error( 'Something went wrong when executing:', $cmd, " -- env was:\n" . join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
