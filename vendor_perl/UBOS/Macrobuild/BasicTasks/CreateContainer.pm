@@ -90,11 +90,6 @@ sub run {
         ++$errors;
 
     } else {
-        if( UBOS::Logging::isInfoActive() ) {
-            # also catch isDebugActive
-            info( 'ubos-install transcript (success)', $out );
-        }
-
         if( UBOS::Utils::myexec( "sudo tar -c -f '$tarfile' -C '$dir' .", undef, \$out, \$out )) {
             error( 'tar failed:', $out );
             ++$errors;
