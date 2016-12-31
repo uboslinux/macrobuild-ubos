@@ -48,6 +48,7 @@ sub new {
         'name'                  => 'Check signatures from ${channel} dbs ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ) . ', then merge update lists and report',
         'parallelTasks'         => $checkTasks,
         'parallelTasksSequence' => \@checkTasksSequence,
+        'stopOnError'           => 0,
         'joinTask'              => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
                 new Macrobuild::CompositeTasks::MergeValues(
@@ -55,7 +56,7 @@ sub new {
                     'keys'         => \@checkTaskNames ),
                 new Macrobuild::BasicTasks::Report(
                     'name'        => 'Report check activity from ${channel} for dbs: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
-                    'fields'      => [ 'no-signature' ] )
+                    'fields'      => [ 'unsigned' ] )
             ]
         ));
 
