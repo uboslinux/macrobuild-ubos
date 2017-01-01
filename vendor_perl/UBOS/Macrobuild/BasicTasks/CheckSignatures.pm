@@ -30,30 +30,36 @@ sub run {
     my $dir           = $run->replaceVariables( $self->{dir} );
     my $glob          = $run->replaceVariables( $self->{glob} );
     my @allFiles      = glob "$dir/$glob";
-    my @unsignedFiles = grep { -f $_ && ! -l $_ && ( ! -e "$_.sig" || -z "$_.sig" ) } @allFiles;
+    my @unsignedFiles = grep { -f $_ && ! -l $_ && ( ! -e "$_.sig" ||   -z "$_.sig" ) } @allFiles;
+    my @signedFiles   = grep { -f $_ && ! -l $_ && (   -e "$_.sig" && ! -z "$_.sig" ) } @allFiles;
+    my @wrongSig      = ();
+    my $ret = 0;
 
     debug( "Cecking files in $dir/$glob for corresponding signature files" );
 
-    if( @unsignedFiles ) {
-        $run->taskEnded(
-                $self,
-                {
-                    'unsigned' => \@unsignedFiles
-                },
-                -1 );
-
-        return -1;
-
-    } else {
-        $run->taskEnded(
-                $self,
-                {
-                    'unsigned' => \@unsignedFiles
-                },
-                0 );
-
-        return 0;
+    foreach my $signedFile ( @signedFiles ) {
+        my $out;
+        if(    UBOS::Utils::myexec( "gpg --verify '$signedFile.sig' '$signedFile'", undef, \$out, \$out )
+            && ( $out =~ m!buildmaster\@ubos.net! || $out !~ m!No public key! ))
+        {
+            # do not report packages not from US for which we don't have a public key
+            push @wrongSig, $signedFile;
+            $ret = -11;
+        }
     }
+    if( @unsignedFiles ) {
+        $ret = -1;
+    }
+
+    $run->taskEnded(
+            $self,
+            {
+                'unsigned'        => \@unsignedFiles,
+                'wrong-signature' => \@wrongSig
+            },
+            $ret );
+
+    return $ret;
 }
 
 1;

@@ -56,7 +56,7 @@ sub new {
                     'keys'         => \@checkTaskNames ),
                 new Macrobuild::BasicTasks::Report(
                     'name'        => 'Report check activity from ${channel} for dbs: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
-                    'fields'      => [ 'unsigned' ] )
+                    'fields'      => [ 'unsigned', 'wrong-signature' ] )
             ]
         ));
 

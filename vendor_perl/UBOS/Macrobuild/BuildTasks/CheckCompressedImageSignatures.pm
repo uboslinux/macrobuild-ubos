@@ -36,7 +36,7 @@ sub new {
                 'glob'  => '*.tar.xz' ),
             new Macrobuild::BasicTasks::Report(
                 'name'        => 'Report check compressed image signatures from ${channel}',
-                'fields'      => [ 'unsigned' ] )
+                'fields'      => [ 'unsigned', 'wrong-signature' ] )
         ]
     );
 
