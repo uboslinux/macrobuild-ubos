@@ -24,13 +24,14 @@ sub new {
     my $packages        = shift;
     my $removePackages  = shift;
     my $webapptests     = shift;
+    my $branch          = shift;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
     $self->SUPER::new( $name, $configJson, $file, $localSourcesDir, $packages, $removePackages, $webapptests );
 
-    $self->{branch} = $configJson->{branch};
+    $self->{branch} = $branch;
 
     unless( defined( $self->{branch} )) {
         fatal( 'No branch field defined in usConfig', $file );

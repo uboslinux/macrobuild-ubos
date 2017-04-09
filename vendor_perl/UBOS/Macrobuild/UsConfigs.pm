@@ -97,6 +97,8 @@ sub configs {
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
 
             if( $usConfigJson->{type} eq 'git' ) {
+                my $branch = $settings->replaceVariables( usConfigJson->{branch} );
+
                 $ret->{$shortSourceName} = new UBOS::Macrobuild::GitUsConfig(
                         $shortSourceName,
                         $usConfigJson,
@@ -104,7 +106,8 @@ sub configs {
                         $localSourcesDir,
                         $packages,
                         $removePackages,
-                        $webapptests );
+                        $webapptests,
+                        $branch );
 
             } elsif( $usConfigJson->{type} eq 'download' ) {
                 $ret->{$shortSourceName} = new UBOS::Macrobuild::DownloadUsConfig(
