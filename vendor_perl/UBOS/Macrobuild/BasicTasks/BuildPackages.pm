@@ -261,7 +261,7 @@ sub _readDependenciesFromPkgbuild {
         return {};
     }
     my $out;
-    if( UBOS::Utils::myexec( "/usr/share/macrobuild-ubos/bin/ '$dir/PKGBUILD'", undef, \$out )) {
+    if( UBOS::Utils::myexec( "/usr/share/macrobuild-ubos/bin/print-dependencies.sh '$dir/PKGBUILD'", undef, \$out )) {
         error( 'Executing PKGBUILD to find $depends failed in', $dir );
         return ();
     }

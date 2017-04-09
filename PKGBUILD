@@ -71,5 +71,5 @@ package() {
     done
 
     mkdir -p ${pkgdir}/usr/share/macrobuild-ubos/bin
-    install -m755 ${startdir}/bin/print-dependencies.sh ${pkgdir}/usr/share/macrobuild-ubos-bin/
+    install -m755 ${startdir}/bin/print-dependencies.sh ${pkgdir}/usr/share/macrobuild-ubos/bin/
 }
