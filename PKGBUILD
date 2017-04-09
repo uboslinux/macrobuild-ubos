@@ -66,7 +66,10 @@ options=('!strip')
 
 package() {
     for d in Macrobuild Macrobuild/BasicTasks Macrobuild/BuildTasks Macrobuild/ComplexTasks; do
-        mkdir -p $pkgdir/usr/lib/perl5/vendor_perl/UBOS/$d
-        install -m644 $startdir/vendor_perl/UBOS/$d/*.pm $pkgdir/usr/lib/perl5/vendor_perl/UBOS/$d
+        mkdir -p ${pkgdir}/usr/lib/perl5/vendor_perl/UBOS/$d
+        install -m644 ${startdir}/vendor_perl/UBOS/$d/*.pm ${pkgdir}/usr/lib/perl5/vendor_perl/UBOS/$d
     done
+
+    mkdir -p ${pkgdir}/usr/share/macrobuild-ubos/bin
+    install -m755 ${startdir}/bin/print-dependencies.sh ${pkgdir}/usr/share/macrobuild-ubos-bin/
 }
