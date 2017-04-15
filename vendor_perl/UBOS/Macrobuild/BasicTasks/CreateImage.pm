@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CreateImage;
 
 use base qw( Macrobuild::Task );
-use fields qw( channel deviceclass image imagesize linkLatest repodir );
+use fields qw( channel depotRoot deviceclass image imagesize linkLatest repodir );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
@@ -37,6 +37,7 @@ sub run {
 
     my $in              = $run->taskStarting( $self );
     my $channel         = $run->replaceVariables( $self->{channel} );
+    my $depotRoot       = $self->{depotRoot} ? $run->replaceVariables( $self->{depotRoot} ) : undef;
     my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
     my $checkSignatures = $run->getVariable( 'checkSignatures', 'required' );
 
@@ -63,6 +64,9 @@ sub run {
     $installCmd .= " --repository '$repodir'";
     $installCmd .= " --deviceclass $deviceclass";
     $installCmd .= " --checksignatures $checkSignatures";
+    if( $depotRoot ) {
+        $installCmd .= " --depotroot '$depotRoot'";
+    }
     if( UBOS::Logging::isDebugActive() ) {
         $installCmd .= " --verbose --verbose";
     } elsif( UBOS::Logging::isInfoActive() ) {

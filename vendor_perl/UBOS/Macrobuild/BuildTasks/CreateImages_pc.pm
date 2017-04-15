@@ -40,6 +40,7 @@ sub new {
                     'img' => new UBOS::Macrobuild::BasicTasks::CreateImage(
                         'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel}',
                         'repodir'      => '${repodir}',
+                        'depotRoot'    => '${depotRoot}',
                         'channel'      => '${channel}',
                         'deviceclass'  => $deviceclass,
                         'imagesize'    => '3G',
@@ -51,6 +52,7 @@ sub new {
                             new UBOS::Macrobuild::BasicTasks::CreateImage(
                                 'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel} (VirtualBox)',
                                 'repodir'      => '${repodir}',
+                                'depotRoot'    => '${depotRoot}',
                                 'channel'      => '${channel}',
                                 'deviceclass'  => "vbox-pc",
                                 'imagesize'    => '3G',
@@ -62,24 +64,13 @@ sub new {
                     'container' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
                         'name'         => 'Create ' . $deviceclass . ' bootable container for ${channel}',
                         'repodir'           => '${repodir}',
+                        'depotRoot'         => '${depotRoot}',
                         'channel'           => '${channel}',
                         'deviceclass'       => 'container-pc',
                         'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_${tstamp}.tardir',
                         'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_LATEST.tardir',
                         'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_${tstamp}.tar',
                         'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_LATEST.tar'
-                    # ),
-                    #
-                    # Adding this here is not very helpful; it needs to be created and tested on EC2
-                    #
-                    # 'ec2' => new UBOS::Macrobuild::BasicTasks::CreateImage(
-                    #     'name'         => 'Create ' . $deviceclass . ' EC2 image for ${channel}',
-                    #     'repodir'      => '${repodir}',
-                    #     'channel'      => '${channel}',
-                    #     'deviceclass'  => 'ec2-instance',
-                    #     'imagesize'    => '3G',
-                    #     'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_ec2_${tstamp}.img',
-                    #     'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_ec2_LATEST.img'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValues(

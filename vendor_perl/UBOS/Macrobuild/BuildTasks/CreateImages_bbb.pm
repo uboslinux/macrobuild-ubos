@@ -35,6 +35,7 @@ sub new {
             new UBOS::Macrobuild::BasicTasks::CreateImage(
                 'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel}',
                 'repodir'      => '${repodir}',
+                'depotRoot'    => '${depotRoot}',
                 'channel'      => '${channel}',
                 'deviceclass'  => $deviceclass,
                 'imagesize'    => '3G',

@@ -37,6 +37,7 @@ sub new {
                 'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel}',
                 'repodir'      => '${repodir}',
                 'channel'      => '${channel}',
+                'depotRoot'    => '${depotRoot}',
                 'deviceclass'  => $deviceclass,
                 'imagesize'    => '3G',
                 'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_${tstamp}.img',
