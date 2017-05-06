@@ -34,15 +34,34 @@ sub new {
 
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
         'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::CreateImage(
-                'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel}',
-                'repodir'      => '${repodir}',
-                'depotRoot'    => '${depotRoot}',
-                'channel'      => '${channel}',
-                'deviceclass'  => $deviceclass,
-                'imagesize'    => '3G',
-                'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_${tstamp}.img',
-                'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_LATEST.img'
+            new Macrobuild::CompositeTasks::SplitJoin(
+                'parallelTasks' => {
+                    'img' => new UBOS::Macrobuild::BasicTasks::CreateImage(
+                        'name'         => 'Create ' . $deviceclass . ' boot disk image for ${channel}',
+                        'repodir'      => '${repodir}',
+                        'channel'      => '${channel}',
+                        'depotRoot'    => '${depotRoot}',
+                        'deviceclass'  => $deviceclass,
+                        'imagesize'    => '3G',
+                        'image'        => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_${tstamp}.img',
+                        'linkLatest'   => '${repodir}/${arch}/uncompressed-images/ubos_${channel}-' . $deviceclass . '_LATEST.img'
+                    ),
+                    'container' => new UBOS::Macrobuild::BasicTasks::CreateContainer(
+                        'name'              => 'Create ' . $deviceclass . ' bootable container for ${channel}',
+                        'repodir'           => '${repodir}',
+                        'channel'           => '${channel}',
+                        'depotRoot'    => '${depotRoot}',
+                        'deviceclass'       => 'container-armv6h',
+                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_${tstamp}.tardir',
+                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_LATEST.tardir',
+                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_LATEST.tar'
+                    )
+                },
+                'joinTask' => new Macrobuild::CompositeTasks::MergeValues(
+                        'name'         => 'Merge images list for ${channel}',
+                        'keys'         => [ 'img', 'container' ]
+                )
             ),
 
             new Macrobuild::BasicTasks::Report(
