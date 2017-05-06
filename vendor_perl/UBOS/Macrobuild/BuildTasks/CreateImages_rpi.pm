@@ -29,6 +29,7 @@ sub new {
     }
     
     my $deviceclass = 'rpi';
+    my $arch        = 'armv6h';
 
     $self->SUPER::new( %args );
 
@@ -52,10 +53,10 @@ sub new {
                         'channel'           => '${channel}',
                         'depotRoot'    => '${depotRoot}',
                         'deviceclass'       => 'container-armv6h',
-                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_${tstamp}.tardir',
-                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_LATEST.tardir',
-                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_${tstamp}.tar',
-                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-armv6h_LATEST.tar'
+                        'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $arch . '_${tstamp}.tardir',
+                        'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $arch . '_LATEST.tardir',
+                        'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $arch . '_${tstamp}.tar',
+                        'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-' . $arch . '_LATEST.tar'
                     )
                 },
                 'joinTask' => new Macrobuild::CompositeTasks::MergeValues(
