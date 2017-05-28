@@ -2,7 +2,7 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=$developer
 pkgname=macrobuild-ubos
-pkgver=0.210
+pkgver=0.211
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
@@ -27,6 +27,7 @@ depends=(
         'grep'
         'gzip'
         'libevent'
+        'libnetfilter_conntrack'
         'libtool'
         'm4'
         'macrobuild'
