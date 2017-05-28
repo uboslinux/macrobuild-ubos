@@ -29,7 +29,7 @@ sub new {
     }
     
     my $deviceclass = 'rpi2';
-    my $arch        = 'armv7h'
+    my $arch        = 'armv7h';
 
     $self->SUPER::new( %args );
 
