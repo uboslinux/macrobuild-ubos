@@ -10,7 +10,6 @@ package UBOS::Macrobuild::BuildTasks::PullBuildConfigs;
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields qw();
 
-use List::MoreUtils qw(uniq);
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
@@ -40,7 +39,8 @@ sub new {
     my $dbLocations        = $args{_settings}->getVariable( 'dbLocation', [] );
 
     # create git pull tasks
-    foreach my $dbLocation ( uniq @$dbLocations ) {
+    foreach my $dbLocation ( @$dbLocations ) {
+        # may have duplicates, but doesn't matter
         $buildTasks->{"build-$dbLocation"} = new UBOS::Macrobuild::BasicTasks::PullGit(
             'name'           => 'Pull git ' . $dbLocation,
             'dbLocation'     => $dbLocation
