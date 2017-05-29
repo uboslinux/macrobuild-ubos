@@ -8,8 +8,9 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::PullBuildConfigs;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( dbLocation );
+use fields qw();
 
+use List::MoreUtils qw(uniq);
 use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
@@ -17,6 +18,7 @@ use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CheckHavePrivateKey;
 use UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps;
+use UBOS::Macrobuild::BasicTasks::PullGit;
 use UBOS::Macrobuild::BasicTasks::SetupMaven;
 use UBOS::Macrobuild::ComplexTasks::FetchUpdatePackages;
 use UBOS::Macrobuild::Utils;
@@ -35,30 +37,28 @@ sub new {
 
     my $buildTasks         = {};
     my @buildTasksSequence = ();
+    my $dbLocations        = $args{_settings}->getVariable( 'dbLocation', [] );
 
     # create git pull tasks
-    foreach my $dbLocation ( @{$self->{dbLocations}} ) {
+    foreach my $dbLocation ( uniq @$dbLocations ) {
         $buildTasks->{"build-$dbLocation"} = new UBOS::Macrobuild::BasicTasks::PullGit(
             'name'           => 'Pull git ' . $dbLocation,
             'dbLocation'     => $dbLocation
         );
-
-        push @buildTasksSequence, "build-$dbLocation";
     }
 
     my @buildTaskNames = keys %$buildTasks;
 
     $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'name'                  => 'Pull git locations ' . join( ' ', @{$self->{dbLocations}} ),
+        'name'                  => 'Pull git locations ' . join( ' ', @$dbLocations ),
         'parallelTasks'         => $buildTasks,
-        'parallelTasksSequence' => \@buildTasksSequence,
         'joinTask'              => new Macrobuild::CompositeTasks::Sequential(
             'tasks' => [
                 new Macrobuild::CompositeTasks::MergeValues(
-                    'name'         => 'Merge update lists from dbLocations: ' . . join( ' ', @{$self->{dbLocations}} ),
+                    'name'         => 'Merge update lists from dbLocations: ' . join( ' ', @$dbLocations ),
                     'keys'         => \@buildTaskNames ),
                 new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report build activity for dbLocations: ' . . join( ' ', @{$self->{dbLocations}} ),
+                    'name'        => 'Report build activity for dbLocations: ' . join( ' ', @$dbLocations ),
                     'fields'      => [ 'updatedDbLocation' ] )
             ]
         ));
