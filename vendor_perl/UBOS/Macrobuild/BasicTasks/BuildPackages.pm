@@ -165,7 +165,6 @@ sub _buildPackage {
     my $cmd  =  "cd $dir;";
     $cmd    .= ' env -i';
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
-    $cmd    .=   ' LANG=C';
 
     if( defined( $self->{m2repository} )) {
         $cmd .= " DIET4J_REPO='" . $run->replaceVariables( $self->{m2repository} ) . "'";

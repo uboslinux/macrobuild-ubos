@@ -37,6 +37,9 @@ sub new {
     my $buildTasks         = {};
     my @buildTasksSequence = ();
     my $dbLocations        = $args{_settings}->getVariable( 'dbLocation', [] );
+    unless( ref( $dbLocations )) {
+        $dbLocations = [ $dbLocations ]; # Always make it an array
+    }
 
     # create git pull tasks
     foreach my $dbLocation ( @$dbLocations ) {
