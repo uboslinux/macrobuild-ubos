@@ -31,7 +31,7 @@ sub new {
     $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
         'tasks' => [
             new UBOS::Macrobuild::BasicTasks::CreateDockerImage(
-                'image'      => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-${arch}_LATEST.tar',
+                'image'      => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_LATEST.tar',
                 'dockerName' => 'ubos/ubos-${channel}' ),
 
             new UBOS::Macrobuild::BasicTasks::UploadDockerImage(),
