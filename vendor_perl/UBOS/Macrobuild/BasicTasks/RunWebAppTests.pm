@@ -69,23 +69,23 @@ sub run {
 
                 info( "Running test $testDir/$file" );
 
-                push @$testsSequence, "$name::$test";
+                push @$testsSequence, $name . '::' . $test;
 
                 my $out;
                 if( UBOS::Utils::myexec( "$testCmd '$testDir/$file'", undef, \$out, \$out )) {
                     $out =~ s!\s+$!!;
                     error( 'Test', $test, 'failed:', $out, ', command was:', "$testCmd '$testDir/$file'" );
-                    $testsFailed->{"$name::$test"} = $out;
+                    $testsFailed->{$name . '::' . $test} = $out;
                 } else {
                     $out =~ s!\s+$!!;
-                    $testsPassed->{"$name::$test"} = 'Passed.';
+                    $testsPassed->{$name . '::' . $test} = 'Passed.';
                 }
             }
         } else {
             my $msg = "Cannot run webapptests defined in $name. Directory $sourceSourceDir not found.";
             
             error( $msg );
-            map { $testsFailed->{"$name :: $_"} = $msg; } @$webapptests;
+            map { $testsFailed->{$name . '::' . $_} = $msg; } @$webapptests;
         }
     }
 
