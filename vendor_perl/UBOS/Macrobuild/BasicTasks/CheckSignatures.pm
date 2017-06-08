@@ -35,7 +35,7 @@ sub run {
     my @wrongSig      = ();
     my $ret = 0;
 
-    debug( "Cecking files in $dir/$glob for corresponding signature files" );
+    debug( "Checking files in $dir/$glob for corresponding signature files" );
 
     foreach my $signedFile ( @signedFiles ) {
         my $out;
@@ -44,7 +44,7 @@ sub run {
         {
             # do not report packages not from US for which we don't have a public key
             push @wrongSig, $signedFile;
-            $ret = -11;
+            $ret = -1;
         }
     }
     if( @unsignedFiles ) {
