@@ -71,11 +71,12 @@ sub run {
                     my $wantVersion = UBOS::Macrobuild::PackageUtils::parseVersion( $packageInfo->{$channel}->{version} );
 
                     if( @packageFileLocalCandidates ) {
-                        if( grep { UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
+                        my @packageFileLocalCorrectVersions = grep {
+                                UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
                                         UBOS::Macrobuild::PackageUtils::parsePackageFileName( $_ ),
                                         $wantVersion ) == 0
-                                  } @packageFileLocalCandidates )
-                        {
+                                } @packageFileLocalCandidates;
+                        if( @packageFileLocalCorrectVersions ) {
                             # use local one, but emit warning if upstream doesn't have it
                             if( UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
                                     UBOS::Macrobuild::PackageUtils::parsePackageFileName( $packageFileInPackageDatabase ),
@@ -83,7 +84,7 @@ sub run {
                             {
                                 warning( 'Package', $packageName, 'exists locally as wanted version', $packageInfo->{$channel}->{version}, ', but not upstream' );
 
-                                my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
+                                my $url = $upConfig->downloadUrlForPackage( $packageFileLocalCorrectVersions[0] );
                                 $toDownload->{$upConfigName}->{$packageName} = $url; # See warning above about this being misnamed
                             }
 
