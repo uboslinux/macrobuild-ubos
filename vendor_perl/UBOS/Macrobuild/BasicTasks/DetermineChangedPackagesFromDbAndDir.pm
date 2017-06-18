@@ -39,7 +39,9 @@ sub run {
     my $channel = $run->getVariable( 'channel' );
 
     my $ret = 0;
-    my $toDownload = {};
+    my $toDownload = {}; # WARNING: This is misnamed. It contains packages to download, but also those that we have locally already.
+                         # Worse, it may contain (pinned) packages that are local and cannot be found remotely at all
+
     if( %$packageDatabases ) {
         my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
         foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
@@ -62,7 +64,7 @@ sub run {
                 # in which version and whether we need to download something
 
                 my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
-                my @packageFileLocalCandidates   = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $dir, $arch );
+                my @packageFileLocalCandidates   = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $upConfigDir, $arch );
 
                 # It all depends on whether the upConfig specifies a particular version
                 if( exists( $packageInfo->{$channel} ) && exists( $packageInfo->{$channel}->{version} )) {
@@ -80,6 +82,9 @@ sub run {
                                     $wantVersion ) != 0 )
                             {
                                 warning( 'Package', $packageName, 'exists locally as wanted version', $packageInfo->{$channel}->{version}, ', but not upstream' );
+
+                                my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
+                                $toDownload->{$upConfigName}->{$packageName} = $url; # See warning above about this being misnamed
                             }
 
                         } else {
@@ -123,8 +128,8 @@ sub run {
 
                     if( @packageFileLocalCandidates ) {
                        if( $packageFileInPackageDatabase ) {
-                            my $bestLocalCandidate = UBOS::BasicTasks::PackageUtils::mostRecentPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
-                            if( UBOS::BasicTasks::PackageUtils::comparePackageFileNamesByVersion( $bestLocalCandidate, $packageFileInPackageDatabase ) < 0 ) {
+                            my $bestLocalCandidate = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
+                            if( UBOS::Macrobuild::PackageUtils::comparePackageFileNamesByVersion( $bestLocalCandidate, $packageFileInPackageDatabase ) < 0 ) {
                                 my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
                                 $toDownload->{$upConfigName}->{$packageName} = $url;
                             } # else use local
