@@ -1,4 +1,4 @@
-# 
+#
 #
 
 use strict;
@@ -27,7 +27,7 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
+
     $self->SUPER::new( %args );
 
     my @dbs = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
@@ -39,10 +39,11 @@ sub new {
         my $usConfigs    = $usConfigsObj->configs( $self->{_settings} );
 
         foreach my $repoName ( keys %$usConfigs ) {
-            my $usConfig = $usConfigs->{$repoName}; 
+            my $usConfig = $usConfigs->{$repoName};
 
             $tasks{$repoName} = new UBOS::Macrobuild::BasicTasks::RunWebAppTests(
                     'name'         => 'Run webapptests in ' . UBOS::Macrobuild::Utils::shortDb( $db ) . ' - ' . $repoName,
+                    'stopOnError'  => '${stopOnError}',
                     'usconfig'     => $usConfig,
                     'scaffold'     => '${scaffold}', # allows us to filter out 'directory parameter if not container, for example
                     'config'       => '${testconfig}',

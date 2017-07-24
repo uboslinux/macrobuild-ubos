@@ -1,4 +1,4 @@
-# 
+#
 # Run webapptests in ONE usconfig.
 # This does NOT pull sources for the tests; it is assumed that they are current
 # in the right directories.
@@ -83,9 +83,14 @@ sub run {
             }
         } else {
             my $msg = "Cannot run webapptests defined in $name. Directory $sourceSourceDir not found.";
-            
+
             error( $msg );
             map { $testsFailed->{$name . '::' . $_} = $msg; } @$webapptests;
+        }
+
+        if( $self->{stopOnError} && %$testsFailed ) {
+            error( "ERROR in last test and stopOnError is true. Stopping." );
+            last;
         }
     }
 
@@ -95,7 +100,7 @@ sub run {
     } elsif( %$testsPassed ) {
         $ret = 0;
     }
-    
+
     $run->taskEnded(
             $self,
             {
