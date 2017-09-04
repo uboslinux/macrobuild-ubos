@@ -1,4 +1,4 @@
-# 
+#
 # Purge the images in a channel. We keep the most recent, and
 # the first in any given month.
 #
@@ -36,7 +36,7 @@ sub run {
             $categories{$category} = $category;
         }
     }
-    debug( 'Categories', keys %categories );
+    trace( 'Categories', keys %categories );
 
     my @keepList  = ();
     my @purgeList = ();
@@ -63,8 +63,8 @@ sub run {
         }
     }
 
-    debug( 'Keeping', @keepList );
-    debug( 'Purging', @purgeList );
+    trace( 'Keeping', @keepList );
+    trace( 'Purging', @purgeList );
 
     my $ret;
     if( @purgeList ) {
@@ -76,7 +76,7 @@ sub run {
         foreach my $purge ( @purgeList ) {
             # This may or may not work, but that's fine
             UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge/var/lib/machines' > /dev/null 2>&1" );
-            
+
             if( UBOS::Utils::myexec( "sudo btrfs subvolume show '$purge' > /dev/null 2>&1" ) == 0 ) {
                 if( UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge'" )) {
                     error( 'Failed to delete btrfs subvolume:', $purge );
@@ -112,7 +112,7 @@ sub run {
             }
         }
     }
-    
+
     $run->taskEnded(
             $self,
             {

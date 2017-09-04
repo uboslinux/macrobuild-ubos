@@ -1,4 +1,4 @@
-# 
+#
 # Purge the packages in a channel
 #
 
@@ -136,8 +136,8 @@ sub run {
             }
         }
 
-        debug( 'Keeping', @keepList );
-        debug( 'Purging', @purgeList );
+        trace( 'Keeping', @keepList );
+        trace( 'Purging', @purgeList );
 
         if( @purgeList ) {
             if( UBOS::Utils::deleteFile( @purgeList )) {

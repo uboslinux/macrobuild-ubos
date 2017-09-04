@@ -1,4 +1,4 @@
-# 
+#
 # Build one or more packages.
 #
 
@@ -18,7 +18,7 @@ use UBOS::Logging;
 sub run {
     my $self = shift;
     my $run  = shift;
-    
+
     my $in = $run->taskStarting( $self );
 
     unless( exists( $in->{'packages-to-download'} )) {
@@ -26,23 +26,23 @@ sub run {
         return -1;
     }
     my $toDownload = $in->{'packages-to-download'};
-    
+
     my $downloaded  = {};
     my $haveAlready = {};
     if( %$toDownload ) {
         foreach my $upConfigName ( sort keys %$toDownload ) {
             my $upConfigDownloadData = $toDownload->{$upConfigName};
             my $upConfigDownloadDir  = $run->{settings}->replaceVariables( $self->{downloaddir} ) . "/$upConfigName";
-            
+
             foreach my $packageName ( sort keys %$upConfigDownloadData ) {
                 my $packageUrl = $upConfigDownloadData->{$packageName};
 
                 my $localName = $packageUrl;
                 $localName =~ s!(.*/)!!;
-                
+
                 my $fullLocalName = "$upConfigDownloadDir/$localName";
                 if( -e $fullLocalName ) {
-                    debug( "Skipping download, exists already:", $fullLocalName );
+                    trace( "Skipping download, exists already:", $fullLocalName );
                     $haveAlready->{$upConfigName}->{$packageName} = $fullLocalName;
 
                 } else {
@@ -56,10 +56,10 @@ sub run {
                     }
                 }
                 if( -e "$fullLocalName.sig" ) {
-                    debug( "Skipping download, exists already:", "$fullLocalName.sig" );
+                    trace( "Skipping download, exists already:", "$fullLocalName.sig" );
 
                 } else {
-                    debug( "Fetching signature for package", $packageName );
+                    trace( "Fetching signature for package", $packageName );
 
                     if( UBOS::Utils::myexec( "curl -L -R -s -o '$fullLocalName.sig' '$packageUrl.sig'" )) {
                         warning( "Failed to download signature for $packageUrl" );

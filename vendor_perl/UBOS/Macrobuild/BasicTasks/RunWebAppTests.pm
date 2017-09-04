@@ -50,7 +50,7 @@ sub run {
     my $usConfig = $self->{usconfig};
 
     my $name = $usConfig->name;
-    debug( "Now processing upstream source config file", $name );
+    trace( "Now processing upstream source config file", $name );
 
     my $webapptests = $usConfig->webapptests;
     if( defined( $webapptests ) && keys %$webapptests ) {

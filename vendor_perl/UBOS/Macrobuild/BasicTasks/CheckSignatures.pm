@@ -1,4 +1,4 @@
-# 
+#
 # Check that files with a certain naming pattern in a directory
 # have corresponding .sig files.
 #
@@ -35,7 +35,7 @@ sub run {
     my @wrongSig      = ();
     my $ret = 0;
 
-    debug( "Checking files in $dir/$glob for corresponding signature files" );
+    trace( "Checking files in $dir/$glob for corresponding signature files" );
 
     foreach my $signedFile ( @signedFiles ) {
         my $out;

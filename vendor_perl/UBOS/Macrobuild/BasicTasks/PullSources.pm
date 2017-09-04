@@ -1,4 +1,4 @@
-# 
+#
 # Pull the sources of the packages we may have to build
 #
 
@@ -34,7 +34,7 @@ sub run {
     my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
     my $ok = 1;
     foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
-        my $usConfig = $usConfigs->{$repoName}; 
+        my $usConfig = $usConfigs->{$repoName};
 
         info( "Pulling PKGBUILDs/sources for", $usConfig->name );
 
@@ -42,10 +42,10 @@ sub run {
         if( $type eq 'git' ) {
             $ok &= $self->_pullFromGit( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
 
-        } elsif( $type eq 'download' ) { 
+        } elsif( $type eq 'download' ) {
             $ok &= $self->_pullByDownload( $usConfig, $dirsUpdated, $dirsNotUpdated, $run );
 
-        } else { 
+        } else {
             warning( "Skipping", $usConfig->name, "type", $type, "not known" );
         }
     }
@@ -77,7 +77,7 @@ sub _pullFromGit {
     my $dirsUpdated    = shift;
     my $dirsNotUpdated = shift;
     my $run            = shift;
-    
+
     my $name     = $usConfig->name;
     my $url      = $usConfig->url;
     my $branch   = $usConfig->branch;
@@ -131,7 +131,7 @@ sub _pullFromGit {
                 $dirsNotUpdated->{$name} = \@notUpdated;
             }
         } else {
-            debug( "Source spec has changed. Starting over\n" );
+            trace( "Source spec has changed. Starting over\n" );
             UBOS::Utils::deleteRecursively( $sourceSourceDir );
         }
     }
@@ -140,12 +140,12 @@ sub _pullFromGit {
         # First-time checkout
 
         Macrobuild::Utils::ensureParentDirectoriesOf( $sourceSourceDir );
-        
+
         my $gitCmd = "git clone";
         if( $branch ) {
-            $gitCmd .= " --branch $branch"; 
+            $gitCmd .= " --branch $branch";
         }
-        $gitCmd .= " --depth 1"; 
+        $gitCmd .= " --depth 1";
         $gitCmd .= " '$url' '$name'";
         my $err;
 
@@ -188,14 +188,14 @@ sub _pullByDownload {
         error( "Unknown extension in url", $url, "skipping" );
         return 0;
     }
-    
+
     my $downloaded = "$sourceDir/$name$ext";
     if( -e $downloaded ) {
         $dirsNotUpdated->{$name} = [ "" ]; # override below if that turns out to be not true
 
         my $downloadedNow = "$sourceDir/$name.now.$ext"; # don't destroy the previous file if download fails
-        
-        UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloadedNow' -z '$downloaded'" ); 
+
+        UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloadedNow' -z '$downloaded'" );
 
         if( -e $downloadedNow ) {
             # Unpack into a temp directory, compare whether PGKBUILD changed, and if so,
@@ -229,7 +229,7 @@ sub _pullByDownload {
     }
     unless( -e $downloaded ) {
         UBOS::Utils::myexec( "curl '$url' -L -R -s -o '$downloaded'" );
-        
+
         if( UBOS::Utils::myexec( "cd $sourceDir; " . $knownExtensions{$ext} . " '$name$ext'" )) {
             error( $knownExtensions{$ext} . " failed" );
             $ret = 0;

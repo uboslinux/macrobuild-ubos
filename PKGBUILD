@@ -1,8 +1,8 @@
 developer="http://indiecomputing.com/"
 url="http://ubos.net/"
-maintainer=$developer
+maintainer=${developer}
 pkgname=macrobuild-ubos
-pkgver=0.220
+pkgver=0.221
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
@@ -62,15 +62,13 @@ optdepends=(
         'grub'
         'virtualbox'
 )
-
+_vendor_perl=$(perl -V::vendorarch: | sed -e "s![' ]!!g")
 options=('!strip')
 
 package() {
     for d in Macrobuild Macrobuild/BasicTasks Macrobuild/BuildTasks Macrobuild/ComplexTasks; do
-        mkdir -p ${pkgdir}/usr/lib/perl5/vendor_perl/UBOS/$d
-        install -m644 ${startdir}/vendor_perl/UBOS/$d/*.pm ${pkgdir}/usr/lib/perl5/vendor_perl/UBOS/$d
+        install -D -m644 ${startdir}/vendor_perl/UBOS/${d}/*.pm -t ${pkgdir}${_vendor_perl}/UBOS/${d}/
     done
 
-    mkdir -p ${pkgdir}/usr/share/macrobuild-ubos/bin
-    install -m755 ${startdir}/bin/print-dependencies.sh ${pkgdir}/usr/share/macrobuild-ubos/bin/
+    install -D -m755 ${startdir}/bin/print-dependencies.sh -t ${pkgdir}/usr/share/macrobuild-ubos/bin/
 }

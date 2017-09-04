@@ -1,4 +1,4 @@
-# 
+#
 # Unstage removed packages from the stage directory
 #
 
@@ -50,7 +50,7 @@ sub run {
 
                         push @{$unstaged->{$packageName}}, "$destDir/$localFileName";
                     }
-                    debug( "Unstaged:", $packageName, @{$unstaged->{$packageName}} );
+                    trace( "Unstaged:", $packageName, @{$unstaged->{$packageName}} );
                 }
             }
         }

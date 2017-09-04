@@ -1,4 +1,4 @@
-# 
+#
 # Build one or more packages.
 #
 
@@ -37,8 +37,8 @@ sub run {
     my $dirsNotUpdated = $run->replaceVariables( $in->{'dirs-not-updated'} );
 
     my %allDirs = ( %$dirsUpdated, %$dirsNotUpdated );
-    
-    # determine package dependencies    
+
+    # determine package dependencies
     my %dirToUXConfigName   = ();
     my %packageDependencies = ();
     my %packageToDir        = ();
@@ -60,13 +60,13 @@ sub run {
         }
     }
 
-    debug( sub { "Package dependencies:\n" . join( "\n", map { "    $_ => " . join( ', ', keys %{$packageDependencies{$_}} ) } keys %packageDependencies ) } );
+    trace( sub { "Package dependencies:\n" . join( "\n", map { "    $_ => " . join( ', ', keys %{$packageDependencies{$_}} ) } keys %packageDependencies ) } );
 
     # determine in which sequence to build
     my @packageSequence = _determinePackageSequence( \%packageDependencies );
     my @dirSequence     = map { $packageToDir{$_} } @packageSequence;
-    
-    debug( sub { "Dir sequence is:\n" . join( "\n", map { "    $_" } @dirSequence ) } );
+
+    trace( sub { "Dir sequence is:\n" . join( "\n", map { "    $_" } @dirSequence ) } );
 
     my $alwaysRebuild = $run->getVariable( 'alwaysRebuild', 0 );
 
@@ -84,13 +84,13 @@ sub run {
 
         if( $alwaysRebuild || exists( $dirsUpdated->{$uXConfigName} ) || -e "$dir/$failedstamp" || !$mostRecentPackage ) {
             if( -e "$dir/$failedstamp" ) {
-                debug( "Dir not updated, but failed last time, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
+                trace( "Dir not updated, but failed last time, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
             } elsif( $alwaysRebuild ) {
-                debug( "alwaysRebuild=1, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
+                trace( "alwaysRebuild=1, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
             } elsif( !$mostRecentPackage ) {
-                debug( "Dir not updated, but no package present. Rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
+                trace( "Dir not updated, but no package present. Rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
             } else {
-                debug( "Dir updated, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
+                trace( "Dir updated, rebuilding: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName" );
             }
             unless( exists( $built->{$uXConfigName} )) {
                 $built->{$uXConfigName} = {};
@@ -112,7 +112,7 @@ sub run {
         } else {
             # dir not updated, and not failed last time
 
-            debug( "Dir not updated, reusing: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName, most recent package $mostRecentPackage" );
+            trace( "Dir not updated, reusing: uXConfigName '$uXConfigName', dir '$dir', packageName $packageName, most recent package $mostRecentPackage" );
             $notRebuilt->{$uXConfigName}->{$packageName} = "$dir/$mostRecentPackage";
         }
     }
@@ -196,7 +196,7 @@ sub _buildPackage {
     my $result = UBOS::Utils::myexec( $cmd, undef, \$both, \$both );
     # maven writes errors to stdout :-(
 
-    debug( 'Build command produced output:', $both );
+    trace( 'Build command produced output:', $both );
 
     if( $result ) {
         if( $both =~ /ERROR: A package has already been built/ ) {
@@ -254,7 +254,7 @@ sub _determinePackageName {
 
 sub _readDependenciesFromPkgbuild {
     my $dir = shift;
-    
+
     my $pkgBuild = "$dir/PKGBUILD";
     unless( -r $pkgBuild ) {
         error( 'Cannot read PKGBUILD in dir', $dir );
@@ -277,15 +277,15 @@ sub _readDependenciesFromPkgbuild {
 #
 sub _determinePackageSequence {
     my $deps = shift;
-    my %done = ();    
+    my %done = ();
     my @ret  = ();
-    
+
     # we go through %$deps, and find nodes that don't have any more dependencies.
     # a node doesn't have dependencies if
     # 1) it has none, or
     # 2) the dependency is not in %$deps and thus out of scope, or
     # 3) the dependency is in %done already.
-    
+
     while( 1 ) {
         if( scalar( keys %$deps ) <= scalar( @ret )) { # let's be safe
             last;
@@ -295,7 +295,7 @@ sub _determinePackageSequence {
                 next;
             }
             my $noDeps = 1;
-            
+
             foreach my $currentDep ( keys %{$deps->{$current}} ) {
                 unless( exists( $deps->{$currentDep} )) {
                     next;
@@ -306,7 +306,7 @@ sub _determinePackageSequence {
                 $noDeps = 0;
                 last;
             }
-            
+
             if( $noDeps ) {
                 $done{$current} = $current;
                 push @ret, $current;

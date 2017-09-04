@@ -1,4 +1,4 @@
-# 
+#
 # Create a bootable UBOS image.
 #
 
@@ -67,14 +67,14 @@ sub run {
     if( $depotRoot ) {
         $installCmd .= " --depotroot '$depotRoot'";
     }
-    if( UBOS::Logging::isDebugActive() ) {
+    if( UBOS::Logging::isTraceActive() ) {
         $installCmd .= " --verbose --verbose";
     } elsif( UBOS::Logging::isInfoActive() ) {
         $installCmd .= " --verbose";
     }
     $installCmd .= " '$image'";
 
-    if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isDebugActive
+    if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isTraceActive
         error( 'ubos-install failed:', $out );
         ++$errors;
     }

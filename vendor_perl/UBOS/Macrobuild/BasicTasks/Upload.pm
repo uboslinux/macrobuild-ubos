@@ -1,4 +1,4 @@
-# 
+#
 # Upload something to the depot
 #
 
@@ -69,7 +69,7 @@ sub run {
         }
     }
     if( $ret == 1 ) {
-        debug( 'Skipped uploading', $from, $to, 'nothing to do' );
+        trace( 'Skipped uploading', $from, $to, 'nothing to do' );
     }
 
     if( $ret == 0 ) {

@@ -1,4 +1,4 @@
-# 
+#
 # Stage downloaded packages in a stage directory
 #
 
@@ -52,7 +52,7 @@ sub run {
                 }
 
                 $staged->{$packageName} = "$destDir/$localFileName";
-                debug( "Staged:", $staged->{$packageName} );
+                trace( "Staged:", $staged->{$packageName} );
             }
         }
     }
@@ -73,7 +73,7 @@ sub run {
                     }
 
                     $staged->{$packageName} = "$destDir/$localFileName";
-                    debug( "Staged again:", $staged->{$packageName} );
+                    trace( "Staged again:", $staged->{$packageName} );
                 }
             }
         }

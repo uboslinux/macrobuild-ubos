@@ -1,4 +1,4 @@
-# 
+#
 # Build one or more packages.
 #
 
@@ -23,7 +23,7 @@ use Time::Local;
 sub run {
     my $self = shift;
     my $run  = shift;
-    
+
     my $in = $run->taskStarting( $self );
 
     my $allPackageDatabases     = {};
@@ -31,9 +31,9 @@ sub run {
     my $upConfigs               = $self->{upconfigs}->configs( $run->{settings} );
 
     foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
-        my $upConfig = $upConfigs->{$repoName}; 
+        my $upConfig = $upConfigs->{$repoName};
 
-        debug( "Now processing upstream config file", $upConfig->name );
+        trace( "Now processing upstream config file", $upConfig->name );
 
         my $name      = $upConfig->name;
         my $directory = $upConfig->directory;
@@ -53,11 +53,11 @@ sub run {
         } else {
             $ifModifiedSinceHeader = '';
         }
-        
-        my $cachedNow = "$upcRepoPackageDb.now"; # don't destroy the previous file if download fails
-        my $cmd       = "curl '$directory/$name.db' -L -R -s -o '$cachedNow'$ifModifiedSinceHeader"; 
 
-        debug( "Download command:", $cmd );
+        my $cachedNow = "$upcRepoPackageDb.now"; # don't destroy the previous file if download fails
+        my $cmd       = "curl '$directory/$name.db' -L -R -s -o '$cachedNow'$ifModifiedSinceHeader";
+
+        trace( "Download command:", $cmd );
 
         if( UBOS::Utils::myexec( $cmd )) {
             error( "Downloading failed:", $directory );
@@ -67,10 +67,10 @@ sub run {
             }
             return -1;
         }
-        
+
         $allPackageDatabases->{$name} = new UBOS::Macrobuild::PacmanDbFile( $upcRepoPackageDb );
         if( -e $cachedNow ) {
-            debug( "Have downloaded:", $cachedNow );
+            trace( "Have downloaded:", $cachedNow );
             if( -e $upcRepoPackageDb ) {
                 UBOS::Utils::deleteFile( $upcRepoPackageDb );
             }
@@ -80,10 +80,10 @@ sub run {
         } elsif( $upConfig->lastModified > (stat($upcRepoPackageDb ))[9] ) {
             # Configuration has changed since package database was updated
             $updatedPackageDatabases->{$name} = $allPackageDatabases->{$name};
-            debug( "Upconfig updated" );
-            
+            trace( "Upconfig updated" );
+
         } else {
-            debug( "Skipped download, not updated" );
+            trace( "Skipped download, not updated" );
         }
     }
 

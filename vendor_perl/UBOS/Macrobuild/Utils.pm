@@ -1,4 +1,4 @@
-# 
+#
 # File and other utilities.
 #
 
@@ -33,7 +33,7 @@ sub relPath {
     } elsif( $from !~ m!^/! ) {
         $from = getcwd . '/' . $from;
     }
-    
+
     my @toPath   = split /\//, $to;
     my @fromPath = split /\//, $from;
 
@@ -52,7 +52,7 @@ sub relPath {
     if( $i<@toPath ) {
         $toRelPath .= $toPath[$i];
         ++$i;
-        
+
         while( $i<@toPath ) {
             $toRelPath .= '/' . $toPath[$i];
             ++$i;
@@ -113,14 +113,14 @@ sub determineDbs {
 # return: the string
 sub dbsToString {
     my @dbs = @_;
-    
+
     if( @dbs ) {
         return join( ' ', @dbs );
     } else {
         return '<none>';
     }
 }
-    
+
 ##
 # Helper method to determine the short name of the db
 # $db: the db as returned by determineDbs()
@@ -130,7 +130,7 @@ sub shortDb {
 
     my $ret = $db;
     $ret =~ s!.*/!!;
-    return $ret;    
+    return $ret;
 }
 
 ##
@@ -173,7 +173,7 @@ sub removeItemsNotForThisArch {
         if( defined( $itemData ) && exists( $itemData->{archs} )) {
             unless( UBOS::Macrobuild::Utils::useForThisArch( $arch, $itemData->{archs} )) {
                 delete $items->{$itemName};
-                debug( 'Skipping item', $itemName, 'for arch', $arch );
+                trace( 'Skipping item', $itemName, 'for arch', $arch );
             }
         }
     }

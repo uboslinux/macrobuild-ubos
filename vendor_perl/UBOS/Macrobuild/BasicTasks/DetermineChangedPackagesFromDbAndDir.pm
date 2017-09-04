@@ -1,4 +1,4 @@
-# 
+#
 # Determine which packages, of the ones we want, have new versions
 #
 
@@ -45,10 +45,10 @@ sub run {
     if( %$packageDatabases ) {
         my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
         foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
-            my $upConfig = $upConfigs->{$upConfigName}; 
+            my $upConfig = $upConfigs->{$upConfigName};
 
-            debug( 'Determining changed packages in UpConfig', $upConfigName );
-            
+            trace( 'Determining changed packages in UpConfig', $upConfigName );
+
             my $packageDatabase = $packageDatabases->{$upConfigName};
             unless( $packageDatabase ) {
                 # wasn't updated, nothing to do

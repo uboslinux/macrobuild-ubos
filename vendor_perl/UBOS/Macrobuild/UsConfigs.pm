@@ -1,4 +1,4 @@
-# 
+#
 # Applicable UsConfigs. This is only resolved after construction.
 #
 
@@ -47,7 +47,7 @@ sub configs {
         error( 'Variable not set: arch' );
         return undef;
     }
-    
+
     my $localSourcesDir;
     if( defined( $self->{localSourcesDir} )) {
         $localSourcesDir = $settings->replaceVariables( $self->{localSourcesDir} );
@@ -58,13 +58,13 @@ sub configs {
         my $realDir = $settings->replaceVariables( $self->{dir} );
 
         unless( -d $realDir ) {
-            debug( "Upstream sources config dir not found:", $self->{dir}, 'expanded to', $realDir );
+            trace( "Upstream sources config dir not found:", $self->{dir}, 'expanded to', $realDir );
             return undef;
         }
 
         my @files = <$realDir/*.json>;
         unless( @files ) {
-            debug( "No config files found in upstream sources config dir:", $self->{dir}, 'expanded to', $realDir );
+            trace( "No config files found in upstream sources config dir:", $self->{dir}, 'expanded to', $realDir );
             return undef;
         }
 
@@ -72,7 +72,7 @@ sub configs {
         $self->{settingsConfigsMap}->{$settings->getName} = $ret;
 
         foreach my $file ( @files ) {
-            debug( "Now reading upstream sources config file", $file );
+            trace( "Now reading upstream sources config file", $file );
             my $shortSourceName = $file;
             $shortSourceName =~ s!.*/!!;
             $shortSourceName =~ s!\.json$!!;
@@ -81,7 +81,7 @@ sub configs {
             my $archs        = $usConfigJson->{archs};
 
             if( exists( $usConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $usConfigJson->{archs} )) {
-                debug( 'Skipping', $file, 'for arch', $arch );
+                trace( 'Skipping', $file, 'for arch', $arch );
                 next;
             }
 
@@ -155,7 +155,7 @@ sub checkNoOverlap {
         my @names = sort keys %$bucketContent;
         for( my $i=0 ; $i<@names-1 ; ++$i ) {
             my $iUs = $bucketContent->{$names[$i]};
-            
+
             unless( $iUs->packages() ) {
                 next;
             }

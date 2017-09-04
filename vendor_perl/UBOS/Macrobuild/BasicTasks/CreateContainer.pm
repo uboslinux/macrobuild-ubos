@@ -1,8 +1,8 @@
-# 
+#
 # Create a directory hierarchy that can be booted in a Linux container.
 # dir is the name of the directory
 # tarfile is the tar file into which is being archived
-# 
+#
 use strict;
 use warnings;
 
@@ -68,7 +68,7 @@ sub run {
             error( "df failed on '$parentDir'" );
         }
     }
-            
+
     unless( -d $dir ) {
         UBOS::Utils::mkdir( $dir );
     }
@@ -81,7 +81,7 @@ sub run {
     if( $depotRoot ) {
         $installCmd .= " --depotroot '$depotRoot'";
     }
-    if( UBOS::Logging::isDebugActive() ) {
+    if( UBOS::Logging::isTraceActive() ) {
         $installCmd .= " --verbose --verbose";
     } elsif( UBOS::Logging::isInfoActive() ) {
         $installCmd .= " --verbose";
@@ -89,7 +89,7 @@ sub run {
     $installCmd .= " --directory '$dir'";
 
     my $out;
-    if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isDebugActive
+    if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isTraceActive
         error( 'ubos-install failed:', $out );
         ++$errors;
 
@@ -174,7 +174,7 @@ sub run {
         } else {
             $result->{'linkLatest-tarfiles'} = [];
         }
-            
+
 
         $run->taskEnded(
                 $self,

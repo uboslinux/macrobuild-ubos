@@ -77,7 +77,7 @@ sub containedPackages {
                 if( $path =~ m!^(.*)-([^-]+)-([^-]+)/desc$! ) {
                     my $name    = $1;
                     my $content = $file->get_content;
-        
+
                     if( $content =~ m!\%FILENAME\%\n(\S+)! ) {
                         my $packageArchive = $1;
 
@@ -104,9 +104,9 @@ sub addPackages {
     my $self         = shift;
     my $dbSignKey    = shift;
     my $packageFiles = shift;
-    
+
     my $cmd = 'repo-add';
-    unless( UBOS::Logging::isDebugActive() ) {
+    unless( UBOS::Logging::isTraceActive() ) {
         $cmd .= ' --quiet';
     }
     if( $dbSignKey ) {
@@ -138,9 +138,9 @@ sub removePackages {
     my $self         = shift;
     my $dbSignKey    = shift;
     my $packageNames = shift;
-    
+
     my $cmd = 'repo-remove';
-    unless( UBOS::Logging::isDebugActive() ) {
+    unless( UBOS::Logging::isTraceActive() ) {
         $cmd .= ' --quiet';
     }
     if( $dbSignKey ) {

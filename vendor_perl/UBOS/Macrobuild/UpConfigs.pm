@@ -1,4 +1,4 @@
-# 
+#
 # Applicable UpConfigs. This is only resolved after construction.
 #
 
@@ -49,13 +49,13 @@ sub configs {
         my $realDir = $settings->replaceVariables( $self->{dir} );
 
         unless( -d $realDir ) {
-            debug( "Upstream packages config dir not found:", $self->{dir}, 'expanded to', $realDir );
+            trace( "Upstream packages config dir not found:", $self->{dir}, 'expanded to', $realDir );
             return undef;
         }
 
         my @files = <$realDir/*.json>;
         unless( @files ) {
-            debug( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
+            trace( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
             return undef;
         }
 
@@ -63,7 +63,7 @@ sub configs {
         $self->{settingsConfigsMap}->{$settings->getName} = $ret;
 
         foreach my $file ( @files ) {
-            debug( "Now reading upstream packages config file", $file );
+            trace( "Now reading upstream packages config file", $file );
             my $shortRepoName = $file;
             $shortRepoName =~ s!.*/!!;
             $shortRepoName =~ s!\.json$!!;
@@ -72,10 +72,10 @@ sub configs {
             my $archs        = $upConfigJson->{archs};
 
             if( exists( $upConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $upConfigJson->{archs} )) {
-                debug( 'Skipping', $file, 'for arch', $arch );
+                trace( 'Skipping', $file, 'for arch', $arch );
                 next;
             }
-            
+
             my $upstreamDir = $upConfigJson->{upstreamDir};
             unless( $upstreamDir ) {
                 error( 'Field upstreamDir not set in', $file );
@@ -84,7 +84,7 @@ sub configs {
 
             my $packages  = $upConfigJson->{packages};
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );
-            
+
             my $directory = $settings->replaceVariables(
                     $upstreamDir,
                     { 'db' => $shortRepoName } );
@@ -131,7 +131,7 @@ sub checkNoOverlap {
         for( my $i=0 ; $i<@names-1 ; ++$i ) {
             my $iUp  = $bucketContent->{$names[$i]};
             my $iDir = $iUp->directory();
-        
+
             my @iPackages = keys %{$iUp->packages()};
 
             for( my $j= $i+1 ; $j<@names ; ++$j ) {
