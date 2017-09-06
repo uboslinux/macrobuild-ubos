@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::PullGit;
 
 use base qw( Macrobuild::Task );
-use fields qw( dbLocation );
+use fields qw( dbLocation branch );
 
 use Macrobuild::Utils;
 use UBOS::Logging;
@@ -22,11 +22,14 @@ sub run {
 
     my $in = $run->taskStarting( $self );
 
-    my $gitCmd     = 'git pull';
     my $dbLocation = $self->{dbLocation};
+    my $branch     = $self->{branch};
+
     my $out;
     my $err;
     my $ret = 1;
+
+    my $gitCmd = "git checkout -- . ; git checkout '$branch' ; git pull";
 
     UBOS::Utils::myexec( "( cd '$dbLocation'; $gitCmd )", undef, \$out, \$err );
     if( $err =~ m!^error!m ) {

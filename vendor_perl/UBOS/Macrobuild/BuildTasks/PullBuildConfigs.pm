@@ -37,6 +37,8 @@ sub new {
     my $buildTasks         = {};
     my @buildTasksSequence = ();
     my $dbLocations        = $args{_settings}->getVariable( 'dbLocation', [] );
+    my $branch             = $args{_settings}->getVariable( 'branch', 'master' );
+
     unless( ref( $dbLocations )) {
         $dbLocations = [ $dbLocations ]; # Always make it an array
     }
@@ -46,7 +48,8 @@ sub new {
         # may have duplicates, but doesn't matter
         $buildTasks->{"build-$dbLocation"} = new UBOS::Macrobuild::BasicTasks::PullGit(
             'name'           => 'Pull git ' . $dbLocation,
-            'dbLocation'     => $dbLocation
+            'dbLocation'     => $dbLocation,
+            'branch'         => $branch
         );
     }
 
