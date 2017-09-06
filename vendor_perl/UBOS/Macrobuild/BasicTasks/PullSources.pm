@@ -145,10 +145,10 @@ sub _pullFromGit {
         if( $branch ) {
             $gitCmd .= " --branch $branch";
         }
-        $gitCmd .= " --depth 1";
+        $gitCmd .= " --depth 1 --no-single-branch";
         $gitCmd .= " '$url' '$name'";
-        my $err;
 
+        my $err;
         if( UBOS::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
             error( "Failed to clone via", $gitCmd );
             $ret = 0;
