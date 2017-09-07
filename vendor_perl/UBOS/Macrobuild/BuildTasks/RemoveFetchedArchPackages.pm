@@ -44,7 +44,7 @@ sub new {
     # create remove packages tasks
     foreach my $db ( @dbs ) {
         $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
-        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up', $localSourcesDir );
+        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
 
         $removePackagesTasks->{"remove-fetched-packages-$db"} = new UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages(
             'name'           => 'Remove fetched packages marked as such from ' . $db,
