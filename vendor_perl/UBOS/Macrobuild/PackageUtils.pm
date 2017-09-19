@@ -1,4 +1,4 @@
-# 
+#
 # Utility methods for packages. Some of the code is directly adapted from
 # libalpm/version.c in pacman.
 #
@@ -17,7 +17,7 @@ use UBOS::Utils;
 # $packageName: the package name
 # $dir: the directory
 # $arch: the arch
-# return: package file names, without path 
+# return: package file names, without path
 sub packageVersionsInDirectory {
     my $packageName = shift;
     my $dir         = shift;
@@ -110,7 +110,7 @@ sub packageVersionNoLaterThan {
                 return undef; # all too new
             }
         }
-            
+
         $ret = $candidate;
     }
     return $ret;
@@ -143,16 +143,16 @@ sub comparePackageFileNamesByVersion($$) {
         error( 'No second package file name given' );
         return 1;
     }
-    
+
     if( $a eq $b ) {
         return 0;
-	}
+    }
 
     my $aParsed = parsePackageFileName( $a );
     unless( $aParsed ) {
         error( $@ );
         return 0; # gotta return something
-    }    
+    }
     my $bParsed = parsePackageFileName( $b );
     unless( $bParsed ) {
         error( $@ );
@@ -190,7 +190,7 @@ sub compareParsedPackageFileNamesByVersion {
 
     return $ret;
 }
-        
+
 ##
 # Split file name into package name, epoch, version, release,
 # architecture, and compression components
@@ -198,7 +198,7 @@ sub compareParsedPackageFileNamesByVersion {
 # return: hash of name, epoch, version, release, arch, compression and their values
 sub parsePackageFileName {
     my $s = shift;
-    
+
     my $name;
     my $epoch;
     my $version;
@@ -271,9 +271,9 @@ sub rpmvercmp {
     my $a = shift;
     my $b = shift;
 
-	my $ret = 0;
+    my $ret = 0;
 
-	# easy comparison to see if versions are identical
+    # easy comparison to see if versions are identical
     if( $a eq $b ) {
         return 0;
     }
@@ -285,127 +285,127 @@ sub rpmvercmp {
     my $two = 0;
     my $i1;
     my $i2;
-    
-	# loop through each version segment of str1 and str2 and compare them
-	while( $one < $aLen && $two < $bLen ) {
-		while( $one < $aLen && substr( $a, $one, 1 ) !~ m!\w! ) {
+
+    # loop through each version segment of str1 and str2 and compare them
+    while( $one < $aLen && $two < $bLen ) {
+        while( $one < $aLen && substr( $a, $one, 1 ) !~ m!\w! ) {
             ++$one;
         }
-		while( $two < $bLen && substr( $b, $two, 1 ) !~ m!\w! ) {
+        while( $two < $bLen && substr( $b, $two, 1 ) !~ m!\w! ) {
             ++$two;
         }
 
         # If we ran to the end of either, we are finished with the loop
-		if( $one >= $aLen || $two >= $bLen ) {
+        if( $one >= $aLen || $two >= $bLen ) {
             last;
         }
 
-		# If the separator lengths were different, we are also finished
-		if( $one != $two ) {
-			return ( $one < $two ) ? -1 : 1;
-		}
+        # If the separator lengths were different, we are also finished
+        if( $one != $two ) {
+            return ( $one < $two ) ? -1 : 1;
+        }
 
-		$i1 = $one;
-		$i2 = $two;
+        $i1 = $one;
+        $i2 = $two;
 
-		# grab first completely alpha or completely numeric segment
-		# leave one and two pointing to the start of the alpha or numeric
-		# segment and walk $i1 and $i2 to end of segment
+        # grab first completely alpha or completely numeric segment
+        # leave one and two pointing to the start of the alpha or numeric
+        # segment and walk $i1 and $i2 to end of segment
         my $isnum;
-		if( substr( $a, $i1, 1 ) =~ m!\d! ) {
+        if( substr( $a, $i1, 1 ) =~ m!\d! ) {
             while( $i1 < $aLen && substr( $a, $i1, 1 ) =~ m!\d! ) {
                 ++$i1;
             }
             while( $i2 < $bLen && substr( $b, $i2, 1 ) =~ m!\d! ) {
                 ++$i2;
             }
-			$isnum = 1;
+            $isnum = 1;
 
-		} else {
+        } else {
             while( $i1 < $aLen && substr( $a, $i1, 1 ) =~ m![a-z]!i ) {
                 ++$i1;
             }
             while( $i2 < $bLen && substr( $b, $i2, 1 ) =~ m![a-z]!i ) {
                 ++$i2;
             }
-			$isnum = 0;
-		}
+            $isnum = 0;
+        }
 
-		# this cannot happen, as we previously tested to make sure that
-		# the first string has a non-null segment
-		if( $one == $i1) {
-			$ret = -1;	# arbitrary
-			return $ret;
-		}
+        # this cannot happen, as we previously tested to make sure that
+        # the first string has a non-null segment
+        if( $one == $i1) {
+            $ret = -1;  # arbitrary
+            return $ret;
+        }
 
-		# take care of the case where the two version segments are
-		# different types: one numeric, the other alpha (i.e. empty)
-		# numeric segments are always newer than alpha segments
-		# XXX See patch #60884 (and details) from bugzilla #50977.
-		if( $two == $i2 ) {
-			$ret = $isnum ? 1 : -1;
-			return $ret;
-		}
+        # take care of the case where the two version segments are
+        # different types: one numeric, the other alpha (i.e. empty)
+        # numeric segments are always newer than alpha segments
+        # XXX See patch #60884 (and details) from bugzilla #50977.
+        if( $two == $i2 ) {
+            $ret = $isnum ? 1 : -1;
+            return $ret;
+        }
 
-		if( $isnum ) {
-			# this used to be done by converting the digit segments
-			# to ints using atoi() - it's changed because long
-			# digit segments can overflow an int - this should fix that.
+        if( $isnum ) {
+            # this used to be done by converting the digit segments
+            # to ints using atoi() - it's changed because long
+            # digit segments can overflow an int - this should fix that.
 
-			# throw away any leading zeros - it's a number, right? */
-			while( substr( $a, $one, 1 ) eq '0') {
+            # throw away any leading zeros - it's a number, right? */
+            while( substr( $a, $one, 1 ) eq '0') {
                 $one++;
             }
-			while( substr( $b, $two, 1 ) eq '0') {
+            while( substr( $b, $two, 1 ) eq '0') {
                 $two++;
             }
 
-			# whichever number has more digits wins
-			if( $i1 - $one > $i2 - $two ) {
-				$ret = 1;
+            # whichever number has more digits wins
+            if( $i1 - $one > $i2 - $two ) {
+                $ret = 1;
                 return $ret;
-			}
-			if( $i2 - $two > $i1 - $one ) {
-				$ret = -1;
+            }
+            if( $i2 - $two > $i1 - $one ) {
+                $ret = -1;
                 return $ret;
-			}
-		}
+            }
+        }
 
-		# strcmp will return which one is greater - even if the two
-		# segments are alpha or if they are numeric.  don't return
-		# if they are equal because there might be more segments to
-		# compare
-		my $rc = substr( $a, $one, $i1-$one ) cmp substr( $b, $two, $i2-$two );
-		if( $rc ) {
-			$ret = $rc < 1 ? -1 : 1;
+        # strcmp will return which one is greater - even if the two
+        # segments are alpha or if they are numeric.  don't return
+        # if they are equal because there might be more segments to
+        # compare
+        my $rc = substr( $a, $one, $i1-$one ) cmp substr( $b, $two, $i2-$two );
+        if( $rc ) {
+            $ret = $rc < 1 ? -1 : 1;
             return $ret;
-		}
+        }
 
         $one = $i1;
         $two = $i2;
-	}
+    }
 
-	# this catches the case where all numeric and alpha segments have */
-	# compared identically but the segment separating characters were */
-	# different */
-	if( $one == $aLen && $two == $bLen ) {
-		$ret = 0;
+    # this catches the case where all numeric and alpha segments have */
+    # compared identically but the segment separating characters were */
+    # different */
+    if( $one == $aLen && $two == $bLen ) {
+        $ret = 0;
         return $ret;
-	}
+    }
 
-	# the final showdown. we never want a remaining alpha string to
+    # the final showdown. we never want a remaining alpha string to
     # beat an empty string. the logic is a bit weird, but:
     # - if one is empty and two is not an alpha, two is newer.
     # - if one is an alpha, two is newer.
     # - otherwise one is newer.
-	if(    ( $one == $aLen && substr( $b, $two, 1 ) !~ m![a-z]!i )
+    if(    ( $one == $aLen && substr( $b, $two, 1 ) !~ m![a-z]!i )
         || substr( $a, $one, 1 ) =~ m![a-z]!i )
     {
-		$ret = -1;
-	} else {
-		$ret = 1;
-	}
-	return $ret;
+        $ret = -1;
+    } else {
+        $ret = 1;
+    }
+    return $ret;
 }
 
 1;

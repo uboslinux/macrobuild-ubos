@@ -1,5 +1,5 @@
-# 
-# Runs pacsane on a channel
+#
+# Runs pacsane on the provided DBs
 #
 
 use strict;
@@ -7,13 +7,13 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::Pacsane;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use base qw( Macrobuild::CompositeTasks::SplitJoin );
+use fields qw( arch channel db repodir );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValues;
+use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::PacsaneRepository;
 use UBOS::Macrobuild::Utils;
@@ -27,31 +27,38 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my @dbs = UBOS::Macrobuild::Utils::determineDbs( 'dbs',     %args );
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    my $tasks = {};
-    foreach my $db ( @dbs ) {
-        my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+                my $dbs = $run->getProperty( 'db' );
+                unless( ref( $dbs )) {
+                    $dbs = [ $dbs ];
+                }
 
-        $tasks->{"pacsane-$db"} = new UBOS::Macrobuild::BasicTasks::PacsaneRepository(
-                'name'   => 'Pacsane on repository ' . $shortDb,
-                'dbfile' => '${repodir}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz' );
-    }
-    
-    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'parallelTasks' => $tasks,
-        'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => [
-                new Macrobuild::CompositeTasks::MergeValues(
-                    'name'         => 'Merge purge results from repositories: ' . join( ' ', @dbs ),
-                    'keys'         => [ keys %$tasks ] ),
-                new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report pacsane results for repositories: ' . join( ' ', @dbs ))
-            ]
-        ));
+                my @taskNames = ();
+
+                foreach my $db ( @$dbs ) {
+                    my $shortDb  = UBOS::Macrobuild::Utils::shortDb( $db );
+                    my $taskName = "pacsane-$shortDb";
+                    push @taskNames, $taskName;
+
+                    $task->addParallelTask(
+                            $taskName,
+                            UBOS::Macrobuild::BasicTasks::PacsaneRepository->new(
+                                    'name'   => 'Pacsane on db ' . $shortDb,
+                                    'dbfile' => '${repodir}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz' ));
+                }
+
+                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+                        'name' => 'Merge pacsane results from repositories: ' . join( ' ', @$dbs ),
+                        'keys' => \@taskNames ));
+
+                return SUCCESS;
+            } );
 
     return $self;
 }

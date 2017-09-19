@@ -1,4 +1,4 @@
-# 
+#
 # Config file for upstream sources obtained by download
 #
 
@@ -14,24 +14,7 @@ use UBOS::Logging;
 use UBOS::Utils;
 
 ##
-# Constructor
-sub new {
-    my $self            = shift;
-    my $name            = shift;
-    my $configJson      = shift;
-    my $file            = shift;
-    my $localSourcesDir = shift;
-    my $packages        = shift;
-    my $removePackages  = shift;
-    my $webapptests     = shift;
-
-    unless( ref $self ) {
-        $self = fields::new( $self );
-    }
-    $self->SUPER::new( $name, $configJson, $file, $localSourcesDir, $packages, $removePackages, $webapptests );
-
-    return $self;
-}
+# Constructor same as super class'
 
 ##
 # Get the type

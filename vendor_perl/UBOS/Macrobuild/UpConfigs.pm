@@ -7,7 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::UpConfigs;
 
-use fields qw( dir settingsConfigsMap );
+use fields qw( dir configsCache );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::UpConfig;
@@ -25,33 +25,31 @@ sub allIn {
         $self = fields::new( $self );
     }
 
-    $self->{dir}                = $dir;
-    $self->{settingsConfigsMap} = {};
+    $self->{dir}          = $dir;
+    $self->{configsCache} = undef;
 
     return $self;
 }
 
 ##
 # Return a hash of UpConfigs, keyed by their short repository name
-# $settings: the settings to use
+# $run: the TaskRun context to use
 sub configs {
-    my $self     = shift;
-    my $settings = shift;
+    my $self = shift;
+    my $run  = shift;
 
-    my $arch = $settings->getVariable( 'arch' );
-    unless( $arch ) {
-        error( 'Variable not set: arch' );
-        return undef;
-    }
+    my $arch = $run->getValue( 'arch' );
 
-    my $ret = $self->{settingsConfigsMap}->{$settings->getName};
+    my $ret = $self->{configsCache};
     unless( $ret ) {
-        my $realDir = $settings->replaceVariables( $self->{dir} );
+        my $realDir = $run->replaceVariables( $self->{dir} );
 
         unless( -d $realDir ) {
             trace( "Upstream packages config dir not found:", $self->{dir}, 'expanded to', $realDir );
             return undef;
         }
+
+print "Loooking for UpConfigs into $realDir\n";
 
         my @files = <$realDir/*.json>;
         unless( @files ) {
@@ -60,7 +58,7 @@ sub configs {
         }
 
         $ret = {};
-        $self->{settingsConfigsMap}->{$settings->getName} = $ret;
+        $self->{configsCache} = $ret;
 
         foreach my $file ( @files ) {
             trace( "Now reading upstream packages config file", $file );
@@ -85,9 +83,10 @@ sub configs {
             my $packages  = $upConfigJson->{packages};
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );
 
-            my $directory = $settings->replaceVariables(
+            my $directory = $run->replaceVariables(
                     $upstreamDir,
-                    { 'db' => $shortRepoName } );
+                    0,
+                    { 'shortdb' => $shortRepoName } );
 
             unless( !defined( $directory ) || ( $directory =~ m!^/! && -d $directory ) || $directory =~ m!^https?://! ) {
                 warning( "No or invalid directory given in $file, skipping: ", $directory );
@@ -96,63 +95,11 @@ sub configs {
             my $lastModified   = (stat( $file ))[9];
             my $removePackages = $upConfigJson->{'remove-packages'};
 
-            $ret->{$shortRepoName} = new UBOS::Macrobuild::UpConfig( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
+            $ret->{$shortRepoName} =
+                    UBOS::Macrobuild::UpConfig->new( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
         }
     }
     return $ret;
-}
-
-##
-# Check that there is no overlap in the the ups
-# $ups: hash of name to UpConfig
-# $settings: settings object
-# will exit with fatal if there is overlap
-sub checkNoOverlap {
-    my $ups      = shift;
-    my $settings = shift;
-
-    my $all = {};
-    foreach my $name ( keys %$ups ) {
-        my $upConfigs = $ups->{$name};
-
-        my $configs = $upConfigs->configs( $settings );
-        foreach my $configName ( keys %$configs ) {
-            my $upConfig      = $configs->{$configName};
-            my $overlapBucket = $upConfig->overlapBucket();
-
-            $all->{$overlapBucket}->{"$name/$configName"} = $upConfig;
-        }
-    }
-
-    foreach my $overlapBucket ( sort keys %$all ) {
-        my $bucketContent = $all->{$overlapBucket};
-
-        my @names = sort keys %$bucketContent;
-        for( my $i=0 ; $i<@names-1 ; ++$i ) {
-            my $iUp  = $bucketContent->{$names[$i]};
-            my $iDir = $iUp->directory();
-
-            my @iPackages = keys %{$iUp->packages()};
-
-            for( my $j= $i+1 ; $j<@names ; ++$j ) {
-                my $jUp  = $bucketContent->{$names[$j]};
-                my $jDir = $jUp->directory();
-
-                if( $iDir ne $jDir ) {
-                    next;
-                }
-                my @jPackages = keys %{$jUp->packages()};
-
-                foreach my $iPackage ( @iPackages ) {
-                    foreach my $jPackage ( @jPackages ) {
-                        if( $iPackage eq $jPackage ) {
-                            fatal( 'Package overlap in overlap bucket', $overlapBucket, ':', $iPackage, 'is listed in UpConfigs', $names[$i], 'and', $names[$j] );
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 1;

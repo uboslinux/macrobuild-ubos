@@ -16,7 +16,6 @@ use UBOS::Utils;
 use fields qw( filename containedPackages );
 
 ##
-# $name: short repository name
 # $filename: filename of the pacman DB file
 sub new {
     my $self     = shift;
@@ -34,7 +33,7 @@ sub new {
 
 ##
 # Obtain the filename of the pacman DB file
-# return filename
+# return: filename
 sub fileName {
     my $self = shift;
 

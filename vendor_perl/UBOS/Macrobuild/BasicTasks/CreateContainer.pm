@@ -9,47 +9,31 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CreateContainer;
 
 use base qw( Macrobuild::Task );
-use fields qw( channel depotRoot deviceclass image dir tarfile linkLatest-dir linkLatest-tarfile repodir );
+use fields qw( arch channel depotRoot deviceclass checkSignatures dir repodir tarfile linkLatest-dir linkLatest-tarfile );
 
 use File::Basename;
+use Macrobuild::Task;
 use Macrobuild::Utils;
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch = $run->getVariable( 'arch' );
-    unless( $arch ) {
-        error( 'Variable not set: arch' );
-        return -1;
-    }
+    my $arch            = $run->getProperty( 'arch' );
+    my $channel         = $run->getProperty( 'channel' );
+    my $depotRoot       = $run->getProperty( 'depotRoot' );
+    my $deviceclass     = $run->getProperty( 'deviceclass' );
+    my $checkSignatures = $run->getPropertyOrDefault( 'checkSignatures', 'required' );
 
-    foreach my $key ( qw( channel deviceclass dir tarfile repodir ) ) {
-        unless( exists( $self->{$key} )) {
-            error( 'Missing parameter', $key );
-            return -1;
-        }
-    }
-
-    my $in              = $run->taskStarting( $self );
-    my $channel         = $run->replaceVariables( $self->{channel} );
-    my $depotRoot       = $self->{depotRoot} ? $run->replaceVariables( $self->{depotRoot} ) : undef;
-    my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
-    my $checkSignatures = $run->getVariable( 'checkSignatures', 'required' );
-
-    my $dir;
-    my $tarfile;
-    my $errors = 0;
-    my $buildId = UBOS::Utils::time2string( time() );
-    my $repodir = File::Spec->rel2abs( $run->replaceVariables( $self->{repodir} ));
-    $dir        = File::Spec->rel2abs( $run->replaceVariables( $self->{dir}     ));
-    $tarfile    = File::Spec->rel2abs( $run->replaceVariables( $self->{tarfile} ));
+    my $errors  = 0;
+    my $repodir = File::Spec->rel2abs( $run->getProperty( 'repodir' ));
+    my $dir     = File::Spec->rel2abs( $run->getProperty( 'dir'     ));
+    my $tarfile = File::Spec->rel2abs( $run->getProperty( 'tarfile' ));
 
     Macrobuild::Utils::ensureParentDirectoriesOf( $dir );
     Macrobuild::Utils::ensureParentDirectoriesOf( $tarfile );
@@ -69,13 +53,12 @@ sub run {
         }
     }
 
-    unless( -d $dir ) {
-        UBOS::Utils::mkdir( $dir );
-    }
+    Macrobuild::Utils::ensureDirectories( $dir );
 
     my $installCmd = 'sudo ubos-install';
     $installCmd .= " --channel $channel";
     $installCmd .= " --repository '$repodir'";
+    $installCmd .= " --arch '$arch'";
     $installCmd .= " --deviceclass $deviceclass";
     $installCmd .= " --checksignatures $checkSignatures";
     if( $depotRoot ) {
@@ -107,23 +90,17 @@ sub run {
     }
 
     if( $errors ) {
-        $run->taskEnded(
-                $self,
-                {
-                    'dirs'                => [],
-                    'tarfiles'            => [],
-                    'linkLatest-dirs'     => [],
-                    'linkLatest-tarfiles' => []
-                },
-                -1 );
+        $run->setOutput( {
+                'dirs'                => [],
+                'tarfiles'            => [],
+                'linkLatest-dirs'     => [],
+                'linkLatest-tarfiles' => [] });
 
-        return -1;
+        return FAIL;
 
     } elsif( $tarfile ) {
-        my $linkLatestDir = $self->{"linkLatest-dir"};
+        my $linkLatestDir = $run->getProperty( 'linkLatest-dir' );
         if( $linkLatestDir ) {
-            $linkLatestDir = $run->replaceVariables( $linkLatestDir );
-
             if( -l $linkLatestDir ) {
                 UBOS::Utils::deleteFile( $linkLatestDir );
 
@@ -136,10 +113,8 @@ sub run {
                 UBOS::Utils::symlink( $rel, $linkLatestDir );
             }
         }
-        my $linkLatestTarfile = $self->{"linkLatest-tarfile"};
+        my $linkLatestTarfile = $run->getProperty( 'linkLatest-tarfile' );
         if( $linkLatestTarfile ) {
-            $linkLatestTarfile = $run->replaceVariables( $linkLatestTarfile );
-
             if( -l $linkLatestTarfile ) {
                 UBOS::Utils::deleteFile( $linkLatestTarfile );
 
@@ -176,25 +151,19 @@ sub run {
         }
 
 
-        $run->taskEnded(
-                $self,
-                $result,
-                0 );
+        $run->setOutput( $result );
 
-        return 0;
+        return SUCCESS;
 
     } else {
-        $run->taskEnded(
-                $self,
-                {
-                    'dirs'                => [],
-                    'tarfiles'            => [],
-                    'linkLatest-dirs'     => [],
-                    'linkLatest-tarfiles' => []
-                },
-                1 );
+        $run->setOutput( {
+                'dirs'                => [],
+                'tarfiles'            => [],
+                'linkLatest-dirs'     => [],
+                'linkLatest-tarfiles' => []
+        });
 
-        return 1;
+        return DONE_NOTHING;
     }
 }
 

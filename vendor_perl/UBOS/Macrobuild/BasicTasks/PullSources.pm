@@ -10,7 +10,7 @@ package UBOS::Macrobuild::BasicTasks::PullSources;
 use base qw( Macrobuild::Task );
 use fields qw( usconfigs sourcedir );
 
-use Macrobuild::Utils;
+use Macrobuild::Task;
 use UBOS::Logging;
 
 my %knownExtensions = (
@@ -20,18 +20,15 @@ my %knownExtensions = (
 );
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
-
-    my $in = $run->taskStarting( $self );
 
     my $dirsUpdated    = {};
     my $dirsNotUpdated = {};
 
-    my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
+    my $usConfigs = $self->{usconfigs}->configs( $run );
     my $ok = 1;
     foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
         my $usConfig = $usConfigs->{$repoName};
@@ -50,23 +47,19 @@ sub run {
         }
     }
 
-    my $ret = 1;
+    $run->setOutput( {
+            'dirs-updated'     => $dirsUpdated,
+            'dirs-not-updated' => $dirsNotUpdated
+    } );
+
     if( !$ok ) {
-        $ret = -1;
+        return FAIL;
 
     } elsif( keys %$dirsUpdated ) {
-        $ret = 0;
+        return SUCCESS;
+    } else {
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            {
-                'dirs-updated'     => $dirsUpdated,
-                'dirs-not-updated' => $dirsNotUpdated
-            },
-            $ret );
-
-    return $ret;
 }
 
 ##
@@ -84,7 +77,8 @@ sub _pullFromGit {
     my $packages = $usConfig->packages; # same name as directories
 
     my $ret = 1;
-    my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
+    my $sourceDir       = $run->getProperty( 'sourcedir' );
+    my $sourceSourceDir = "$sourceDir/$name";
     if( -d $sourceSourceDir ) {
         # Second or later update -- make sure the spec is still the same, if not, delete
         my $gitCmd = "git remote -v";
@@ -149,7 +143,7 @@ sub _pullFromGit {
         $gitCmd .= " '$url' '$name'";
 
         my $err;
-        if( UBOS::Utils::myexec( "cd '" . $run->replaceVariables( $self->{sourcedir} ) . "'; $gitCmd", undef, undef, \$err )) {
+        if( UBOS::Utils::myexec( "cd '$sourceDir'; $gitCmd", undef, undef, \$err )) {
             error( "Failed to clone via", $gitCmd );
             $ret = 0;
         } elsif( $packages ) {
@@ -173,7 +167,7 @@ sub _pullByDownload {
 
     my $name      = $usConfig->name;
     my $url       = $usConfig->url;
-    my $sourceDir = $run->replaceVariables( $self->{sourcedir} );
+    my $sourceDir = $run->getProperty( 'sourcedir' );
     my $packages  = $usConfig->packages;
 
     my $ret = 1;

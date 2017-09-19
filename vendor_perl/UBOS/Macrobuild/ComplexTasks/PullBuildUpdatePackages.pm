@@ -1,4 +1,4 @@
-# 
+#
 # Pulls packages, builds them, and updates the package database
 #
 
@@ -7,17 +7,14 @@ use warnings;
 
 package UBOS::Macrobuild::ComplexTasks::PullBuildUpdatePackages;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( usconfigs db m2settingsfile m2repository );
+use base qw( Macrobuild::CompositeTasks::Sequential );
+use fields qw( arch usconfigs db m2settingsfile m2repository );
 
-use Macrobuild::CompositeTasks::Sequential;
-use UBOS::Logging;
+use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::BuildPackages;
 use UBOS::Macrobuild::BasicTasks::PullSources;
 use UBOS::Macrobuild::BasicTasks::Stage;
 use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
-use UBOS::Macrobuild::UpConfigs;
-use UBOS::Macrobuild::UsConfigs;
 
 ##
 # Constructor
@@ -28,32 +25,38 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my $db = $self->{db};
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'name'  => 'Pull, build and update UBOS packages',
-        'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::PullSources(
-                    'name'           => 'Pull the sources that need to be built for db ' . $self->{db},
-                    'usconfigs'      => $self->{usconfigs},
-                    'sourcedir'      => '${builddir}/dbs/' . $db . '/ups'  ),
-            new UBOS::Macrobuild::BasicTasks::BuildPackages(
-                    'name'           => 'Building packages locally for db ' . $self->{db},
-                    'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
-                    'stopOnError'    => 0,
-                    'm2settingsfile' => $self->{m2settingsfile},
-                    'm2repository'   => $self->{m2repository} ),
-            new UBOS::Macrobuild::BasicTasks::Stage(
-                    'name'           => 'Stage new packages in local repository for db ' . $self->{db},
-                    'stagedir'       => '${repodir}/${arch}/' . $db ),
-            new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
-                    'name'         => 'Update package database with new packages',
-                    'dbfile'       => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz' )
-        ]
-    );
+                my $db = $run->getProperty( 'db' );
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::PullSources->new(
+                        'name'           => 'Pull the sources that need to be built for db ' . $db,
+                        'usconfigs'      => $self->{usconfigs},
+                        'sourcedir'      => '${builddir}/dbs/' . $db . '/ups'  ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::BuildPackages->new(
+                        'name'           => 'Building packages locally for db ' . $self->{db},
+                        'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
+                        'stopOnError'    => 0,
+                        'm2settingsfile' => '${m2settingsfile}',
+                        'm2repository'   => '${m2repository}' ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
+                        'name'           => 'Stage new packages in local repository for db ' . $self->{db},
+                        'stagedir'       => '${repodir}/${arch}/' . $db ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
+                        'name'          => 'Update package database with new packages',
+                        'dbfile'        => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+                        'dbSignKey'     => '${dbSignKey}' ));
+
+                return SUCCESS;
+            } );
 
     return $self;
 }

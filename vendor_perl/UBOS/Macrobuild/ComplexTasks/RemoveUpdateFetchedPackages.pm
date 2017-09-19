@@ -1,4 +1,4 @@
-# 
+#
 # Removes packages fetched from Arch and updates the package database
 #
 
@@ -7,16 +7,13 @@ use warnings;
 
 package UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( upconfigs db );
+use base qw( Macrobuild::CompositeTasks::Sequential );
+use fields qw( arch builddir repodir upconfigs db dbSignKey );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::Sequential;
-use UBOS::Logging;
+use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::RemoveFetchedPackages;
 use UBOS::Macrobuild::BasicTasks::Unstage;
 use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
-use UBOS::Macrobuild::UpConfigs;
 
 ##
 # Constructor
@@ -27,25 +24,33 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my $db = $self->{db};
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'name' => 'Remove packages for db ' . $self->{db},
-        'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::RemoveFetchedPackages(
-                    'name'        => 'Removed packages fetched from Arch',
-                    'upconfigs'   => $self->{upconfigs},
-                    'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ),
-            new UBOS::Macrobuild::BasicTasks::Unstage(
-                    'name'        => 'Unstage removed packages in local repository',
-                    'stagedir'    => '${repodir}/${arch}/' . $db ),
-            new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
-                    'name'        => 'Update package database with removed packages',
-                    'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz' )
-        ]
+                my $db        = $run->getProperty( 'db' );
+                my $upconfigs = $run->getProperty( 'upconfigs' );
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::RemoveFetchedPackages->new(
+                        'name'        => 'Removed packages fetched from Arch',
+                        'arch'        => '${arch}',
+                        'upconfigs'   => $upconfigs,
+                        'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::Unstage->new(
+                        'name'        => 'Unstage removed packages in local repository',
+                        'stagedir'    => '${repodir}/${arch}/' . $db ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
+                        'name'        => 'Update package database with removed packages',
+                        'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz' ),
+                        'dbSignKey'   => '${dbSignKey}' );
+
+                return SUCCESS;
+            }
     );
 
     return $self;

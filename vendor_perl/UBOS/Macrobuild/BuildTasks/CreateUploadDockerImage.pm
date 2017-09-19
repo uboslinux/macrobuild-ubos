@@ -1,4 +1,4 @@
-# 
+#
 # Creates and uploads an UBOS image to Docker
 #
 
@@ -7,12 +7,10 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::CreateUploadDockerImage;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use base qw( Macrobuild::CompositeTasks::Sequential );
+use fields qw( arch channel repodir );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::Sequential;
-use UBOS::Logging;
+use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::CreateDockerImage;
 use UBOS::Macrobuild::BasicTasks::UploadDockerImage;
 
@@ -25,23 +23,21 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
-            
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
-        'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::CreateDockerImage(
-                'image'      => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_container-pc_LATEST.tar',
-                'dockerName' => 'ubos/ubos-${channel}' ),
 
-            new UBOS::Macrobuild::BasicTasks::UploadDockerImage(),
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-            new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report create and upload to Docker activity',
-                'fields'      => [ 'pushedImageIds' ]
-            )
-        ]
-    );
+                $self->appendTask( UBOS::Macrobuild::BasicTasks::CreateDockerImage->new(
+                        'image'      => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tar',
+                        'dockerName' => 'ubos/ubos-${channel}' ));
+
+                $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage());
+
+                return SUCCESS;
+            } );
 
     return $self;
 }

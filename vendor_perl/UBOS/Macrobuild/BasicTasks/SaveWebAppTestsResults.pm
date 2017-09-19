@@ -1,5 +1,5 @@
-# 
-# Store the results of the build.
+#
+# Store the results of the web app tests execution.
 #
 
 use strict;
@@ -8,18 +8,20 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::SaveWebAppTestsResults;
 
 use base qw( Macrobuild::Task );
-use fields qw( fields );
+use fields qw( testLogsDir );
+
+use Macrobuild::Task;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in = $run->taskStarting( $self ); # ignore input
+    my $in = $run->getInput();
 
-    my $testLogsDir = $run->getVariable( 'testLogsDir' );
+    my $testLogsDir = $run->getPropertyOrDefault( 'testLogsDir', undef );
+
     if( defined( $testLogsDir )) {
         unless( -d $testLogsDir ) {
             UBOS::Utils::mkdir( $testLogsDir );
@@ -40,11 +42,14 @@ sub run {
             }
             UBOS::Utils::saveFile( sprintf( "%s/%03d-%s.log", $testLogsDir, $i, $testName ), $content );
         }
+        if( @$testsSequence ) {
+            return SUCCESS;
+        } else {
+            return DONE_NOTHING;
+        }
     }
 
-    $run->taskEnded( $self, {}, 0 );
-
-    return 0;
+    return DONE_NOTHING;
 }
 
 1;

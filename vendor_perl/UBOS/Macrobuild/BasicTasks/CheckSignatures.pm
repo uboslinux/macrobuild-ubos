@@ -9,31 +9,29 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CheckSignatures;
 
 use base qw( Macrobuild::Task );
-use fields qw( glob dir );
+use fields qw( dir glob );
 
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
-use UBOS::Utils;
-use Macrobuild::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Override
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    $run->taskStarting( $self ); # input ignored
-
     my $errors = 0;
 
-    my $dir           = $run->replaceVariables( $self->{dir} );
-    my $glob          = $run->replaceVariables( $self->{glob} );
+    my $dir           = $run->getProperty( 'dir' );
+    my $glob          = $run->getProperty( 'glob' );
+
     my @allFiles      = glob "$dir/$glob";
     my @unsignedFiles = grep { -f $_ && ! -l $_ && ( ! -e "$_.sig" ||   -z "$_.sig" ) } @allFiles;
     my @signedFiles   = grep { -f $_ && ! -l $_ && (   -e "$_.sig" && ! -z "$_.sig" ) } @allFiles;
     my @wrongSig      = ();
-    my $ret = 0;
+
+    my $ret = SUCCESS;
 
     trace( "Checking files in $dir/$glob for corresponding signature files" );
 
@@ -44,20 +42,17 @@ sub run {
         {
             # do not report packages not from US for which we don't have a public key
             push @wrongSig, $signedFile;
-            $ret = -1;
+            $ret = FAIL;
         }
     }
     if( @unsignedFiles ) {
-        $ret = -1;
+        $ret = FAIL;
     }
 
-    $run->taskEnded(
-            $self,
-            {
-                'unsigned'        => \@unsignedFiles,
-                'wrong-signature' => \@wrongSig
-            },
-            $ret );
+    $run->setOutput( {
+            'unsigned'        => \@unsignedFiles,
+            'wrong-signature' => \@wrongSig
+    });
 
     return $ret;
 }

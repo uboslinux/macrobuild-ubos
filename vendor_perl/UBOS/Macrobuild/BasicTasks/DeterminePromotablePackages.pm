@@ -1,4 +1,4 @@
-# 
+#
 # Determine which packages can be promoted from one db in
 # one channel to another.
 #
@@ -9,42 +9,32 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages;
 
 use base qw( Macrobuild::Task );
-use fields qw( upconfigs usconfigs fromDb toDb );
+use fields qw( arch channel upconfigs usconfigs fromDb toDb );
 
 use File::Spec;
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridable
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch    = $run->getVariable( 'arch' );
-    my $channel = $run->getVariable( 'channel' );
-    unless( $arch ) {
-        error( 'Variable not set: arch' );
-        return -1;
-    }
-    unless( $channel ) {
-        error( 'Variable not set: channel' );
-        return -1;
-    }
+    my $arch    = $run->getProperty( 'arch' );
+    my $channel = $run->getProperty( 'channel' );
 
-    $run->taskStarting( $self ); # input ignored
+    my $fromDb = $run->getProperty( 'fromDb' );
+    my $toDb   = $run->getProperty( 'toDb' );
 
-    my $fromDb = $run->replaceVariables( $self->{fromDb} );
-    my $toDb   = $run->replaceVariables( $self->{toDb} );
+    my $upConfigs = $self->{upconfigs}->configs( $run );
+    my $usConfigs = $self->{usconfigs}->configs( $run );
 
-    my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
-    my $usConfigs = $self->{usconfigs}->configs( $run->{settings} );
-    
     my $newPackages = {};
     my $oldPackages = {};
-    
+
     foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
         my $upConfig = $upConfigs->{$upConfigName};
         my $packages = $upConfig->packages();
@@ -116,22 +106,17 @@ sub run {
         }
     }
 
-    my $ret = 1;
+    $run->setOutput( {
+            'new-packages' => $newPackages,
+            'old-packages' => $oldPackages
+    } );
+
     if( keys %$newPackages ) {
-        $ret = 0;
+        return SUCCESS;
+    } else {
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            {
-                'new-packages' => $newPackages,
-                'old-packages' => $oldPackages
-            },
-            $ret );
-
-    return $ret;
 }
-
 
 1;
 

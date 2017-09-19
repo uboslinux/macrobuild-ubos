@@ -8,25 +8,23 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir;
 
 use base qw( Macrobuild::Task );
-use fields qw( dir upconfigs );
+use fields qw( arch channel dir upconfigs );
 
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::PackageUtils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch = $run->getVariable( 'arch' );
-    unless( $arch ) {
-        error( 'Variable not set: arch' );
-        return -1;
-    }
+    my $arch    = $run->getProperty( 'arch' );
+    my $channel = $run->getProperty( 'channel' );
+    my $dir     = $run->getProperty( 'dir' );
 
-    my $in = $run->taskStarting( $self );
+    my $in = $run->getInput();
 
     my $packageDatabases = $in->{'all-package-databases'};
             # This one does not work:
@@ -35,15 +33,13 @@ sub run {
             # second access, it says "not changed" although it might have in the first
             # access during the same build. As a result, some packages won't be updated.
 
-    my $dir     = $run->{settings}->replaceVariables( $self->{dir} );
-    my $channel = $run->getVariable( 'channel' );
 
-    my $ret = 0;
+    my $ret = SUCCESS;
     my $toDownload = {}; # WARNING: This is misnamed. It contains packages to download, but also those that we have locally already.
                          # Worse, it may contain (pinned) packages that are local and cannot be found remotely at all
 
     if( %$packageDatabases ) {
-        my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
+        my $upConfigs = $self->{upconfigs}->configs( $run );
         foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
             my $upConfig = $upConfigs->{$upConfigName};
 
@@ -100,7 +96,7 @@ sub run {
 
                             } else {
                                 error( 'Package', $packageName, 'found locally (', @packageFileLocalCandidates, ') and upstream (', $packageFileInPackageDatabase, '), but neither in wanted version', $packageInfo->{$channel}->{version} );
-                                $ret = -1;
+                                $ret = FAIL;
                             }
                         }
 
@@ -109,7 +105,7 @@ sub run {
                         if( !$packageFileInPackageDatabase ) {
                             # don't have any upstream either
                             error( 'No package file found locally or upstream for package', $packageName, 'in any version, want', $packageInfo->{$channel}->{version} );
-                            $ret = -1;
+                            $ret = FAIL;
 
                         } elsif( UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
                             UBOS::Macrobuild::PackageUtils::parsePackageFileName( $packageFileInPackageDatabase ),
@@ -120,7 +116,7 @@ sub run {
 
                         } else {
                             error( 'Package', $packageName, 'found upstream, but as', $packageFileInPackageDatabase, ', not in wanted version', $packageInfo->{$channel}->{version} );
-                            $ret = -1;
+                            $ret = FAIL;
                         }
                     }
 
@@ -146,7 +142,7 @@ sub run {
 
                         } else {
                             error( 'No package file found locally or upstream for package', $packageName, 'in any version' );
-                            $ret = -1;
+                            $ret = FAIL;
                         }
                     }
                 }
@@ -154,16 +150,18 @@ sub run {
         }
     }
 
-    if( %$toDownload && $ret != -1 ) {
-        $ret = 0;
+    $run->setOutput( {
+            'packages-to-download' => $toDownload
+    } );
+
+    if( $ret == FAIL ) {
+        return $ret;
     }
-
-    $run->taskEnded(
-            $self,
-            { 'packages-to-download' => $toDownload },
-            $ret );
-
-    return $ret;
+    if( %$toDownload ) {
+        return SUCCESS;
+    } else {
+        return DONE_NOTHING;
+    }
 }
 
 1;

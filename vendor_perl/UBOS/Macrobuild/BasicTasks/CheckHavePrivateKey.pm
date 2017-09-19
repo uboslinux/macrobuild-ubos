@@ -1,4 +1,4 @@
-# 
+#
 # Check that GPG has a private key for the given keyId
 #
 
@@ -10,34 +10,30 @@ package UBOS::Macrobuild::BasicTasks::CheckHavePrivateKey;
 use base qw( Macrobuild::Task );
 use fields qw( keyId );
 
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overrides
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    $run->taskStarting( $self ); # input ignored
+    my $keyId   = $run->getProperty( 'keyId' );
+    my $gpgHome = $run->getValueOrDefault( 'GNUPGHOME', undef );
 
-    my $keyId = $run->replaceVariables( $self->{keyId} );
-    my $gpgHome = $run->getVariable( 'GNUPGHOME' );
-    
     my $cmd = '';
     if( $gpgHome ) {
         $cmd .= "GNUPGHOME='$gpgHome' ";
     }
     $cmd .= "gpg --list-secret-keys '$keyId' > /dev/null";
-    
-    my $ret = 0;
-    if( UBOS::Utils::myexec( $cmd )) {
-        $ret = -1;
-    }
-    $run->taskEnded( $self, {}, $ret );
 
-    return $ret;
+    if( UBOS::Utils::myexec( $cmd )) {
+        return FAIL;
+    }
+
+    return SUCCESS;
 }
 
 1;

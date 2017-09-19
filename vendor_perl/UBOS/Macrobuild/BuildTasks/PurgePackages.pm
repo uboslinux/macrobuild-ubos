@@ -1,4 +1,4 @@
-# 
+#
 # Purges outdated packages from a channel.
 #
 
@@ -7,13 +7,11 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::PurgePackages;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use base qw( Macrobuild::CompositeTasks::SplitJoin );
+use fields qw( arch db maxAge repodir );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValues;
-use Macrobuild::CompositeTasks::Sequential;
-use Macrobuild::CompositeTasks::SplitJoin;
+use Macrobuild::BasicTasks::MergeValues;
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::PurgeChannelPackages;
 use UBOS::Macrobuild::UpConfigs;
@@ -29,35 +27,38 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my $age        = 60*60*24*14; # Two weeks
-    my $purgeTasks = {};
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    my @dbs        = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
+                my $dbs = $run->getVariable( 'db' );
+                if( !ref( $dbs )) {
+                    $dbs = [ $dbs ];
+                }
 
-    foreach my $db ( @dbs ) {
-        $purgeTasks->{"purge-$db"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelPackages(
-                'name' => 'Purge channel packages ' . $db,
-                'dir'  => '${repodir}/${arch}/' . UBOS::Macrobuild::Utils::shortDb( $db ),
-                'age'  => $age );
-    }
-    
-    my @purgeTaskNames = keys %$purgeTasks;
-    
-    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'parallelTasks' => $purgeTasks,
-        'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => [
-                new Macrobuild::CompositeTasks::MergeValues(
-                    'name'         => 'Merge purge results from repositories: ' . join( ' ', @dbs ) . ' and images',
-                    'keys'         => \@purgeTaskNames ),
-                new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report purge activity for repositories: ' . join( ' ', @dbs ) . ' and images',
-                    'fields'      => [ 'purged', 'kept' ] )
-            ]
-        ));
+                my @purgeTaskNames = ();
+                foreach my $db ( @$dbs ) {
+                    my $shortDb  = UBOS::Macrobuild::Utils::shortDb( $db );
+                    my $taskName = "purge-$shortDb";
+                    push @purgeTaskNames, $taskName;
+
+                    $task->appendParallelTask(
+                            $taskName,
+                            UBOS::Macrobuild::BasicTasks::PurgeChannelPackages->new(
+                                    'name'   => 'Purge channel packages on db ' . $db,
+                                    'dir'    => '${repodir}/${arch}/' . $shortDb,
+                                    'maxAge' => '${maxAge}' ));
+                }
+
+                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+                        'name' => 'Merge purge results from repositories: ' . join( ' ', @$dbs ),
+                        'keys' => \@purgeTaskNames ));
+
+                return SUCCESS;
+            } );
 
     return $self;
 }

@@ -1,4 +1,4 @@
-# 
+#
 # Upload a Docker image that exists in the local Docker registry.
 #
 
@@ -11,10 +11,8 @@ use base qw( Macrobuild::Task );
 use fields;
 
 use File::Basename;
-use Macrobuild::Utils;
+use Macrobuild::Task;
 use UBOS::Logging;
-use UBOS::Macrobuild::Utils;
-use UBOS::Utils;
 
 ##
 # Run this task.
@@ -23,7 +21,7 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
-    my $in              = $run->taskStarting( $self );
+    my $in              = $run->getInput();
     my $dockerIds       = $in->{'dockerIds'};
     my $errors          = 0;
     my @pushedDockerIds = ();
@@ -37,21 +35,17 @@ sub run {
         }
     }
 
-    my $ret;
+    $run->setOutput( {
+            'pushedDockerIds' => \@pushedDockerIds
+    } );
+
     if( $errors ) {
-        $ret = -1;
+        return FAIL;
+    } elsif( @pushedDockerIds ) {
+        return SUCCESS;
     } else {
-        $ret = (@pushedDockerIds > 0) ? 0 : 1;
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            {
-                'pushedDockerIds' => \@pushedDockerIds
-            },
-            $ret );
-
-    return $ret;
 }
 
 1;

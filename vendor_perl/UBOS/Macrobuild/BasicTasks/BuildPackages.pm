@@ -10,6 +10,7 @@ package UBOS::Macrobuild::BasicTasks::BuildPackages;
 use base qw( Macrobuild::Task );
 use fields qw( sourcedir m2settingsfile m2repository );
 
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
@@ -17,24 +18,23 @@ use UBOS::Utils;
 my $failedstamp = ".build-in-progress-or-failed";
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in = $run->taskStarting( $self );
+    my $in = $run->getInput();
 
     unless( exists( $in->{'dirs-updated'} )) {
         error( "No dirs-updated given in input" );
-        return -1;
+        return FAIL;
     }
     unless( exists( $in->{'dirs-not-updated'} )) {
         error( "No dirs-not-updated given in input" );
-        return -1;
+        return FAIL;
     }
-    my $dirsUpdated    = $run->replaceVariables( $in->{'dirs-updated'} );
-    my $dirsNotUpdated = $run->replaceVariables( $in->{'dirs-not-updated'} );
+    my $dirsUpdated    = $in->{'dirs-updated'};
+    my $dirsNotUpdated = $in->{'dirs-not-updated'};
 
     my %allDirs = ( %$dirsUpdated, %$dirsNotUpdated );
 
@@ -42,11 +42,12 @@ sub run {
     my %dirToUXConfigName   = ();
     my %packageDependencies = ();
     my %packageToDir        = ();
+    my $sourceDir           = $run->getProperty( 'sourcedir' );
     foreach my $uXConfigName ( sort keys %allDirs ) {
         my $subdirs = $dirsUpdated->{$uXConfigName} || $dirsNotUpdated->{$uXConfigName};
 
         foreach my $subdir ( @$subdirs ) {
-            my $dir = $run->replaceVariables( $self->{sourcedir} ) . "/$uXConfigName";
+            my $dir = "$sourceDir/$uXConfigName";
             if( $subdir && $subdir ne '.' ) {
                 $dir .= "/$subdir";
             }
@@ -68,10 +69,10 @@ sub run {
 
     trace( sub { "Dir sequence is:\n" . join( "\n", map { "    $_" } @dirSequence ) } );
 
-    my $alwaysRebuild = $run->getVariable( 'alwaysRebuild', 0 );
+    my $alwaysRebuild = $run->get( 'alwaysRebuild', 0 );
 
     # do the build, in @dirSequence
-    my $ret        = 1;
+    my $ret        = DONE_NOTHING;
     my $built      = {};
     my $notRebuilt = {};
 
@@ -98,14 +99,14 @@ sub run {
 
             my $buildResult = $self->_buildPackage( $dir, $packageName, $built->{$uXConfigName}, $run, $alwaysRebuild );
 
-            if( $buildResult == -1 ) {
-                $ret = -1;
+            if( $buildResult == FAIL) {
+                $ret = $buildResult;
                 if( $self->{stopOnError} ) {
                     last;
                 }
-            } elsif( $buildResult == 0 ) {
-                if( $ret == 1 ) {
-                    $ret = 0; # say we did something
+            } elsif( $buildResult == SUCCESS ) {
+                if( $ret == DONE_NOTHING ) {
+                    $ret = $buildResult; # say we did something
                 }
             } # can also be 1
 
@@ -123,23 +124,16 @@ sub run {
         }
     }
 
-    $run->taskEnded(
-            $self,
-            {
-                'new-packages' => $built,
-                'old-packages' => $notRebuilt
-            },
-            $ret );
+    $run->setOutput( {
+            'new-packages' => $built,
+            'old-packages' => $notRebuilt
+    } );
 
     return $ret;
 }
 
 ##
 # Build a package if needed.
-#
-# ret: -1: error
-#       0: ok
-#       1: have package already, no need to build
 sub _buildPackage {
     my $self          = shift;
     my $dir           = shift;
@@ -150,16 +144,14 @@ sub _buildPackage {
 
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
 
-    my $packageSignKey = $run->getVariable( 'packageSignKey', undef ); # ok if not exists
-    my $gpgHome        = $run->getVariable( 'GNUPGHOME',      undef ); # ok if not exists
-
-    if( $packageSignKey ) {
-        $packageSignKey = $run->replaceVariables( $packageSignKey );
-    }
+    my $packageSignKey = $run->getValueOrDefault(    'packageSignKey', undef ); # ok if not exists
+    my $gpgHome        = $run->getValueOrDefault(    'GNUPGHOME',      undef ); # ok if not exists
+    my $m2settingsfile = $run->getPropertyOrDefault( 'm2settingsfile', undef ); # ok if not exists
+    my $m2repository   = $run->getPropertyOrDefault( 'm2repository',   undef ); # ok if not exists
 
     my $mvn_opts = ' -DskipTests -PUBOS';
-    if( defined( $self->{m2settingsfile} )) {
-        $mvn_opts .= ' --settings ' . $run->replaceVariables( $self->{m2settingsfile} );
+    if( $m2settingsfile ) {
+        $mvn_opts .= ' --settings ' . $m2settingsfile;
     }
 
     my $cmd  =  "cd $dir;";
@@ -167,8 +159,8 @@ sub _buildPackage {
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=en_US.utf8';
 
-    if( defined( $self->{m2repository} )) {
-        $cmd .= " DIET4J_REPO='" . $run->replaceVariables( $self->{m2repository} ) . "'";
+    if( $m2repository ) {
+        $cmd .= " DIET4J_REPO='" . $m2repository . "'";
     }
 
     if( $gpgHome ) {
@@ -203,12 +195,12 @@ sub _buildPackage {
             if( -e "$dir/$failedstamp" ) {
                 UBOS::Utils::deleteFile( "$dir/$failedstamp" );
             }
-            return 1;
+            return DONE_NOTHING;
 
         } else {
             error( "makepkg in $dir failed: ", $cmd, $both );
 
-            return -1;
+            return FAIL;
         }
 
     } elsif( $both =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
@@ -223,7 +215,7 @@ sub _buildPackage {
                 my $out;
                 if( UBOS::Utils::myexec( $cmd2, undef, \$out, \$out )) {
                     error( 'gpg failed:', $cmd2, ':', $out );
-                    return -1;
+                    return FAIL;
                 }
             }
 
@@ -234,13 +226,13 @@ sub _buildPackage {
             }
         } else {
             error( "makepkg in $dir supposedly worked, but can't find package:", $packageName, $builtPackage, $builtPackageName, $builtPackageVersion );
-            return -1;
+            return FAIL;
         }
-        return 0;
+        return SUCCESS;
 
     } else {
         error( "could not find package built by makepkg in", $dir, $both );
-        return -1;
+        return FAIL;
     }
 }
 
@@ -263,7 +255,7 @@ sub _readDependenciesFromPkgbuild {
     my $out;
     if( UBOS::Utils::myexec( "/usr/share/macrobuild-ubos/bin/print-dependencies.sh '$dir/PKGBUILD'", undef, \$out )) {
         error( 'Executing PKGBUILD to find $depends failed in', $dir );
-        return ();
+        return {};
     }
     my @packages = split /\s+/, $out;
     my %ret = ();

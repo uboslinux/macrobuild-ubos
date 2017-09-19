@@ -7,7 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::UsConfigs;
 
-use fields qw( dir settingsConfigsMap localSourcesDir );
+use fields qw( dir configsCache localSourcesDir );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::DownloadUsConfig;
@@ -28,34 +28,30 @@ sub allIn {
         $self = fields::new( $self );
     }
 
-    $self->{dir}                = $dir;
-    $self->{settingsConfigsMap} = {};
-    $self->{localSourcesDir}    = $localSourcesDir;
+    $self->{dir}             = $dir;
+    $self->{configsCache}    = {};
+    $self->{localSourcesDir} = $localSourcesDir;
 
     return $self;
 }
 
 ##
 # Return a hash of UsConfigs, keyed by their short source name
-# $settings: the settings to use
+# $run: the TaskRun context to use
 sub configs {
-    my $self     = shift;
-    my $settings = shift;
+    my $self = shift;
+    my $run  = shift;
 
-    my $arch = $settings->getVariable( 'arch' );
-    unless( $arch ) {
-        error( 'Variable not set: arch' );
-        return undef;
-    }
+    my $arch = $run->getValue( 'arch' );
 
     my $localSourcesDir;
     if( defined( $self->{localSourcesDir} )) {
-        $localSourcesDir = $settings->replaceVariables( $self->{localSourcesDir} );
+        $localSourcesDir = $run->replaceVariables( $self->{localSourcesDir} );
     }
 
-    my $ret = $self->{settingsConfigsMap}->{$settings->getName};
+    my $ret = $self->{configsCache};
     unless( $ret ) {
-        my $realDir = $settings->replaceVariables( $self->{dir} );
+        my $realDir = $run->replaceVariables( $self->{dir} );
 
         unless( -d $realDir ) {
             trace( "Upstream sources config dir not found:", $self->{dir}, 'expanded to', $realDir );
@@ -69,7 +65,7 @@ sub configs {
         }
 
         $ret = {};
-        $self->{settingsConfigsMap}->{$settings->getName} = $ret;
+        $self->{configsCache} = $ret;
 
         foreach my $file ( @files ) {
             trace( "Now reading upstream sources config file", $file );
@@ -93,11 +89,11 @@ sub configs {
             my $removePackages = $usConfigJson->{'remove-packages'};
             my $webapptests    = $usConfigJson->{webapptests};
 
-            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );
+            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages,    $arch );
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
 
             if( $usConfigJson->{type} eq 'git' ) {
-                my $branch = $settings->replaceVariables( $usConfigJson->{branch} );
+                my $branch = $run->replaceVariables( $usConfigJson->{branch} );
 
                 $ret->{$shortSourceName} = new UBOS::Macrobuild::GitUsConfig(
                         $shortSourceName,
@@ -125,68 +121,6 @@ sub configs {
         }
     }
     return $ret;
-}
-
-##
-# Check that there is no overlap in the the uSs
-# $uss: hash of name to UsConfig
-# $settings: settings object
-# will exit with fatal if there is overlap
-sub checkNoOverlap {
-    my $uss      = shift;
-    my $settings = shift;
-
-    my $all = {};
-    foreach my $name ( keys %$uss ) {
-        my $usConfigs = $uss->{$name};
-
-        my $configs = $usConfigs->configs( $settings );
-        foreach my $configName ( keys %$configs ) {
-            my $usConfig      = $configs->{$configName};
-            my $overlapBucket = $usConfig->overlapBucket();
-
-            $all->{$overlapBucket}->{"$name/$configName"} = $usConfig;
-        }
-    }
-
-    foreach my $overlapBucket ( sort keys %$all ) {
-        my $bucketContent = $all->{$overlapBucket};
-
-        my @names = sort keys %$bucketContent;
-        for( my $i=0 ; $i<@names-1 ; ++$i ) {
-            my $iUs = $bucketContent->{$names[$i]};
-
-            unless( $iUs->packages() ) {
-                next;
-            }
-            my @iPackages = keys %{$iUs->packages()};
-
-            for( my $j= $i+1 ; $j<@names ; ++$j ) {
-                my $jUs = $bucketContent->{$names[$j]};
-
-                if( ref( $iUs ) ne ref( $jUs )) {
-                    # e.g. Github vs Download
-                    next;
-                }
-                if( $iUs->url() ne $jUs->url() ) {
-                    next;
-                }
-
-                unless( $jUs->packages()) {
-                    next;
-                }
-                my @jPackages = keys %{$jUs->packages()};
-
-                foreach my $iPackage ( @iPackages ) {
-                    foreach my $jPackage ( @jPackages ) {
-                        if( $iPackage eq $jPackage ) {
-                            fatal( 'Package overlap in overlap bucket', $overlapBucket, ':', $iPackage, 'is listed in UsConfigs', $names[$i], 'and', $names[$j] );
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 1;

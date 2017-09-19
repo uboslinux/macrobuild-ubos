@@ -8,25 +8,28 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::PurgeChannelPackages;
 
 use base qw( Macrobuild::Task );
-use fields qw( dir age );
+use fields qw( dir maxAge );
 
 use Cwd qw( abs_path );
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::PackageUtils;
 use UBOS::Macrobuild::PacmanDbFile;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    $run->taskStarting( $self ); # input ignored
-
-    my $dir = abs_path( $run->replaceVariables( $self->{dir} ));
-    my $age = $run->replaceVariables( $self->{age} );
+    my $age = $run->getProperty( 'maxAge' );
+    my $dir = $run->getProperty( 'dir' );
+    unless( -d $dir ) {
+        error( 'PurgeChannelPackages: directory does not exist:', $dir );
+        return FAIL;
+    }
+    $dir = abs_path( $dir );
 
     my $dbName = $dir;
     $dbName =~ s!(.*)/!!; # last component of the path
@@ -34,7 +37,7 @@ sub run {
 
     my @keepList  = ();
     my @purgeList = ();
-    my $ret       = 1;
+    my $ret       = DONE_NOTHING;
 
     if( -e "$dir/$dbName$dbExt" ) {
         # This might be a db not supported on this arch, such as virt on arm
@@ -141,21 +144,19 @@ sub run {
 
         if( @purgeList ) {
             if( UBOS::Utils::deleteFile( @purgeList )) {
-                $ret = 0;
+                $ret = SUCCESS;
             } else {
                 error( 'Failed to purge some files:', @purgeList );
-                $ret = -1;
+                $ret = FAIL;
             }
         }
     }
 
-    $run->taskEnded(
-            $self,
-            {
-                'purged' => \@purgeList
-                # 'kept'   => \@keepList
-            },
-            $ret );
+    $run->setOutput( {
+            'purged' => \@purgeList,
+            'kept'   => \@keepList
+    } );
+
     return $ret;
 }
 

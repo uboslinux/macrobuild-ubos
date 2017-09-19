@@ -1,7 +1,7 @@
-# 
+#
 # Create a Docker image from a tarfile. Tag it with the timestamp and with
 # latest, if it is latest.
-# 
+#
 use strict;
 use warnings;
 
@@ -12,35 +12,22 @@ use fields qw( image dockerName );
 
 use Cwd 'abs_path';
 use File::Basename;
-use Macrobuild::Utils;
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in  = $run->taskStarting( $self );
-
-    my $image            = $run->replaceVariables( $self->{image} );
-    my $dockerName       = $run->replaceVariables( $self->{dockerName} );
-    my $arch             = $run->getVariable( 'arch' );
+    my $image            = $run->getProperty( 'image' );
+    my $dockerName       = $run->getProperty( 'dockerName' );
     my $errors           = 0;
     my @createdImageIds  = ();
     my @createdDockerIds = ();
-
-    unless( $image ) {
-        error( 'No image provided' );
-        ++$errors;
-    }
-    unless( $dockerName ) {
-        error( 'No dockerName provided' );
-        ++$errors;
-    }
 
     my $realImage;
     my $dockerTag;
@@ -96,22 +83,18 @@ sub run {
         }
     }
 
-    my $ret;
+    $run->setOutput( {
+            'imageIds'  => \@createdImageIds,
+            'dockerIds' => \@createdDockerIds
+    });
+
     if( $errors ) {
-        $ret = -1;
+        return FAIL;
+    } elsif( @createdImageIds ) {
+        return SUCCESS;
     } else {
-        $ret = (@createdImageIds > 0) ? 0 : 1;
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            {
-                'imageIds'  => \@createdImageIds,
-                'dockerIds' => \@createdDockerIds
-            },
-            $ret );
-
-    return $ret;
 }
 
 1;

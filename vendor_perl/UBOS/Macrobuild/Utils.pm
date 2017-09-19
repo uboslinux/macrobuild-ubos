@@ -7,59 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::Utils;
 
-use Cwd;
 use UBOS::Logging;
-use UBOS::Utils;
-
-##
-# Express the second path as a relative path relative to the first. This is
-# useful to create relative symlinks.
-# $to: the absolute target of the symlink
-# $from: the symlink
-# return: the relative target of the symlink
-
-sub relPath {
-    my $to   = shift;
-    my $from = shift;
-
-    if( $to =~ m!^\./(.*)$! ) {
-        $to = getcwd . '/' . $1;
-    } elsif( $to !~ m!^/! ) {
-        $to = getcwd . '/' . $to;
-    }
-
-    if( $from =~ m!^\./(.*)$! ) {
-        $from = getcwd . '/' . $1;
-    } elsif( $from !~ m!^/! ) {
-        $from = getcwd . '/' . $from;
-    }
-
-    my @toPath   = split /\//, $to;
-    my @fromPath = split /\//, $from;
-
-    my $i = 0;
-    # find common elements, and ignore them
-    while( $i < @fromPath && $i < @toPath && $fromPath[$i] eq $toPath[$i] ) {
-        ++$i;
-    }
-
-    my $toRelPath;
-    if( $i > 0 ) {
-        $toRelPath = '../' x ( @fromPath - $i - 1 ); # -1 because the last part is file itself
-    } else {
-        $toRelPath = '';
-    }
-    if( $i<@toPath ) {
-        $toRelPath .= $toPath[$i];
-        ++$i;
-
-        while( $i<@toPath ) {
-            $toRelPath .= '/' . $toPath[$i];
-            ++$i;
-        }
-    }
-    return $toRelPath;
-}
 
 ##
 # Convenience method to determine whether an arch should be used, given
@@ -83,45 +31,6 @@ sub useForThisArch {
 }
 
 ##
-# Helper method to extract the list of dbs from the %args
-# $keyword: the keyword, such as 'db'
-# %args: the arguments to a Task
-# $return: array (may be empty) of dbs
-sub determineDbs {
-    my $keyword = shift;
-    my %args    = @_;
-
-    unless( exists( $args{'_settings'} )) {
-        return ();
-    }
-    my $db = $args{'_settings'}->getVariable( $keyword );
-    unless( defined( $db )) {
-        return ();
-    }
-    if( 'ARRAY' eq ref( $db )) {
-        return @$db;
-    } elsif( ref( $db )) {
-        fatal( '_settings member', $keyword, 'is not an ARRAY, is', ref( $db ));
-    } else {
-        return $db;
-    }
-}
-
-##
-# Helper method to convert the list of dbs into a string
-# @dbs: the dbs
-# return: the string
-sub dbsToString {
-    my @dbs = @_;
-
-    if( @dbs ) {
-        return join( ' ', @dbs );
-    } else {
-        return '<none>';
-    }
-}
-
-##
 # Helper method to determine the short name of the db
 # $db: the db as returned by determineDbs()
 # return: short db
@@ -130,31 +39,6 @@ sub shortDb {
 
     my $ret = $db;
     $ret =~ s!.*/!!;
-    return $ret;
-}
-
-##
-# Determine the arch of this system
-sub arch {
-
-    my $ret;
-    UBOS::Utils::myexec( 'uname -m', undef, \$ret );
-    $ret =~ s!^\s+!!;
-    $ret =~ s!\s+$!!;
-    $ret =~ s!(armv[67])l!$1h!;
-
-    return $ret;
-}
-
-##
-# Determine the alternate arch of this system -- all the same, except that
-# it prints 'pc' instead of 'x86_64'.
-sub arch2 {
-
-    my $ret = arch();
-    if( $ret eq 'x86_64' ) {
-        $ret = 'pc';
-    }
     return $ret;
 }
 
@@ -176,6 +60,42 @@ sub removeItemsNotForThisArch {
                 trace( 'Skipping item', $itemName, 'for arch', $arch );
             }
         }
+    }
+}
+
+##
+# Convenience method to ensure certain directories exist before or during a build.
+# This creates missing parent directories recursively.
+# @dirs: names of the directories
+sub ensureDirectories {
+    my @dirs = @_;
+
+    foreach my $dir ( @dirs ) {
+        _ensureDirectory( $dir );
+    }
+}
+
+##
+# Convenience method to ensure that about-to-created files have existing parent
+# directories. This creates missing parent directories recursively.
+# @files: names of the files whose parent directories may created.
+sub ensureParentDirectoriesOf {
+    my @files = @_;
+
+    foreach my $file ( @files ) {
+        if( $file =~ m!^(.+)/([^/]+)/?$! ) {
+            _ensureDirectory( $1 );
+        }
+    }
+}
+
+sub _ensureDirectory {
+    my $dir = shift;
+
+    unless( -d $dir ) {
+        ensureParentDirectoriesOf( $dir );
+
+        mkdir( $dir ) || fatal( 'Could not create directory', $dir );
     }
 }
 

@@ -1,4 +1,4 @@
-# 
+#
 # Upgrade the current system. Simply invokes 'ubos-admin update'.
 
 use strict;
@@ -7,8 +7,9 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::UpgradeSystem;
 
 use base qw( Macrobuild::Task );
-use fields qw( dbs );
+use fields;
 
+use Macrobuild::Task;
 use Macrobuild::Utils;
 use UBOS::Logging;
 use UBOS::Utils;
@@ -16,21 +17,17 @@ use UBOS::Utils;
 ##
 # Run this task.
 # $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+sub runImpl {
     my $self = shift;
     my $run  = shift;
-
-    my $in = $run->taskStarting( $self );
 
     my $ret = 0;
 
     if( UBOS::Utils::myexec( 'sudo ubos-admin update' )) {
-        $ret = -1;
+        return FAIL();
     }
 
-    $run->taskEnded( $self, {}, $ret );
-
-    return $ret;
+    return SUCCESS();
 }
 
 1;

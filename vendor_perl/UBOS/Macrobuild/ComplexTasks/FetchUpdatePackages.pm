@@ -1,4 +1,4 @@
-# 
+#
 # Fetches packages from Arch and updates the package database
 #
 
@@ -7,18 +7,16 @@ use warnings;
 
 package UBOS::Macrobuild::ComplexTasks::FetchUpdatePackages;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( upconfigs db );
+use base qw( Macrobuild::CompositeTasks::Sequential );
+use fields qw( arch channel builddir repodir upconfigs db dbSignKey );
 
-use Macrobuild::BasicTasks::Report;
 use Macrobuild::CompositeTasks::Sequential;
-use UBOS::Logging;
+use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::DownloadPackageDbs;
 use UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir;
 use UBOS::Macrobuild::BasicTasks::FetchPackages;
 use UBOS::Macrobuild::BasicTasks::Stage;
 use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
-use UBOS::Macrobuild::UpConfigs;
 
 ##
 # Constructor
@@ -29,32 +27,43 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my $db = $self->{db};
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'name' => 'Fetch upstream packages for db ' . $self->{db},
-        'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::DownloadPackageDbs(
-                    'name'        => 'Download package database files from Arch',
-                    'upconfigs'   => $self->{upconfigs},
-                    'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ),
-            new UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir(
-                    'name'        => 'Determining which packages changed in Arch',
-                    'upconfigs'   => $self->{upconfigs},
-                    'dir'         => '${builddir}/dbs/' . $db . '/upc/${arch}' ),
-            new UBOS::Macrobuild::BasicTasks::FetchPackages(
-                    'name'        => 'Fetching packages downloaded from Arch',
-                    'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ),
-            new UBOS::Macrobuild::BasicTasks::Stage(
-                    'name'        => 'Stage new packages in local repository',
-                    'stagedir'    => '${repodir}/${arch}/' . $db ),
-            new UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase(
-                    'name'         => 'Update package database with new packages',
-                    'dbfile'       => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz' )
-        ]
+                my $db        = $run->getProperty( 'db' );
+                my $upconfigs = $run->getProperty( 'upconfigs' );
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::DownloadPackageDbs->new(
+                        'name'        => 'Download package database files from Arch',
+                        'upconfigs'   => $upconfigs,
+                        'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir->new(
+                        'name'        => 'Determining which packages changed in Arch',
+                        'upconfigs'   => $upconfigs,
+                        'dir'         => '${builddir}/dbs/' . $db . '/upc/${arch}',
+                        'channel'     => '${channel}',
+                        'arch'        => '${arch}' ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::FetchPackages->new(
+                        'name'        => 'Fetching packages downloaded from Arch',
+                        'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
+                        'name'        => 'Stage new packages in local repository',
+                        'stagedir'    => '${repodir}/${arch}/' . $db ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
+                        'name'        => 'Update package database with new packages',
+                        'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+                        'dbSignKey'   => '${dbSignKey}' ));
+
+                return SUCCESS;
+            }
     );
 
     return $self;

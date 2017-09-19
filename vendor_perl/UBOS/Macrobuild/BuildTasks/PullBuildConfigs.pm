@@ -1,4 +1,4 @@
-# 
+#
 # Updates the buildconfig directories by pulling from git
 #
 
@@ -7,20 +7,14 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::PullBuildConfigs;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw();
+use base qw( Macrobuild::CompositeTasks::SplitJoin );
+use fields qw( db branch );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValues;
-use Macrobuild::CompositeTasks::Sequential;
+use Macrobuild::Task;
+use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::CheckHavePrivateKey;
-use UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps;
 use UBOS::Macrobuild::BasicTasks::PullGit;
-use UBOS::Macrobuild::BasicTasks::SetupMaven;
-use UBOS::Macrobuild::ComplexTasks::FetchUpdatePackages;
-use UBOS::Macrobuild::Utils;
 
 ##
 # Constructor
@@ -31,43 +25,39 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my $buildTasks         = {};
-    my @buildTasksSequence = ();
-    my $dbLocations        = $args{_settings}->getVariable( 'dbLocation', [] );
-    my $branch             = $args{_settings}->getVariable( 'branch', 'master' );
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    unless( ref( $dbLocations )) {
-        $dbLocations = [ $dbLocations ]; # Always make it an array
-    }
+                my $dbs = $run->getProperty( 'db' );
+                unless( ref( $dbs )) {
+                    $dbs = [ $dbs ];
+                }
 
-    # create git pull tasks
-    foreach my $dbLocation ( @$dbLocations ) {
-        # may have duplicates, but doesn't matter
-        $buildTasks->{"build-$dbLocation"} = new UBOS::Macrobuild::BasicTasks::PullGit(
-            'name'           => 'Pull git ' . $dbLocation,
-            'dbLocation'     => $dbLocation,
-            'branch'         => $branch
-        );
-    }
+                # create git pull tasks
+                my @pullTaskNames = ();
+                foreach my $db ( @$dbs ) {
+                    my $shortDb      = UBOS::Macrobuild::Utils::shortDb( $db );
+                    my $pullTaskName = "pull-$shortDb";
+                    push @pullTaskNames, $pullTaskName;
 
-    my @buildTaskNames = keys %$buildTasks;
+                    $task->addParallelTask(
+                            $pullTaskName,
+                            UBOS::Macrobuild::BasicTasks::PullGit->new(
+                                    'name'   => 'Pull git ' . $db,
+                                    'dir'    => $db,
+                                    'branch' => '${branch}' ));
+                }
+                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+                        'name'  => 'Merge update lists from dbLocations: ' . join( ' ', @$dbs ),
+                        'keys'  => \@pullTaskNames ));
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'name'                  => 'Pull git locations ' . join( ' ', @$dbLocations ),
-        'parallelTasks'         => $buildTasks,
-        'joinTask'              => new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => [
-                new Macrobuild::CompositeTasks::MergeValues(
-                    'name'         => 'Merge update lists from dbLocations: ' . join( ' ', @$dbLocations ),
-                    'keys'         => \@buildTaskNames ),
-                new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report build activity for dbLocations: ' . join( ' ', @$dbLocations ),
-                    'fields'      => [ 'updatedDbLocation' ] )
-            ]
-        ));
+                return SUCCESS;
+            } );
+
     return $self;
 }
 

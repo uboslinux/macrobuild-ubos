@@ -9,22 +9,20 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::PurgeChannelImages;
 
 use base qw( Macrobuild::Task );
-use fields qw( dir age );
+use fields qw( dir );
 
 use Cwd qw( abs_path );
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    $run->taskStarting( $self ); # input ignored
-
-    my $dir = $run->replaceVariables( $self->{dir} );
+    my $dir = $run->getProperty( 'dir' );
 
     my @allFiles = <$dir/*>;
     my @files = grep { ! -l $_ } @allFiles; # ignore symlinks
@@ -69,7 +67,7 @@ sub run {
     my $ret;
     if( @purgeList ) {
         # some of these may be btrfs subvolumes
-        $ret = 0;
+        $ret = SUCCESS;
 
         @purgeList = sort { length($b) - length($a) } @purgeList;
 
@@ -80,18 +78,18 @@ sub run {
             if( UBOS::Utils::myexec( "sudo btrfs subvolume show '$purge' > /dev/null 2>&1" ) == 0 ) {
                 if( UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge'" )) {
                     error( 'Failed to delete btrfs subvolume:', $purge );
-                    $ret = -1;
+                    $ret = FAIL;
                 }
 
             } else {
                 if( UBOS::Utils::myexec( "sudo /bin/rm -rf '$purge'" )) {
                     error( 'Failed to purge:', $purge );
-                    $ret = -1;
+                    $ret = FAIL;
                 }
             }
         }
     } else {
-        $ret = 1;
+        $ret = DONE_NOTHING;
     }
 
     # delete dangling symlinks
@@ -108,18 +106,16 @@ sub run {
         if( !defined( $absTarget ) || ! -e $absTarget ) {
             unless( UBOS::Utils::deleteFile( $absFile )) {
                 error( 'Failed to delete symlink:', $absFile );
-                $ret = -1;
+                $ret = FAIL;
             }
         }
     }
 
-    $run->taskEnded(
-            $self,
-            {
-                'purged' => \@purgeList
-                # 'kept'   => \@keepList
-            },
-            $ret );
+    $run->setOutput( {
+            'purged' => \@purgeList,
+            'kept'   => \@keepList
+    } );
+
     return $ret;
 }
 

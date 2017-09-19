@@ -1,4 +1,4 @@
-# 
+#
 # Check that all packages in a channel have
 # corresponding signature files.
 #
@@ -8,13 +8,12 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::CheckPackageSignatures;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use base qw( Macrobuild::CompositeTasks::SplitJoin );
+use fields qw( arch db repodir );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValues;
-use Macrobuild::CompositeTasks::Sequential;
+use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::SplitJoin;
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CheckSignatures;
 
@@ -27,38 +26,40 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my $checkTasks = {};
-    my @dbs        = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    my @checkTasksSequence = map { "check-$_" } @dbs;
+                my $dbs = $run->getProperty( 'db' );
+                unless( ref( $dbs )) {
+                    $dbs = [ $dbs ];
+                }
 
-    # create check tasks tasks
-    foreach my $db ( @dbs ) {
-        $checkTasks->{"check-$db"} = new UBOS::Macrobuild::BasicTasks::CheckSignatures(
-            'name'  => 'Check signatures for ' . $db,
-            'dir'   => '${repodir}/${arch}/' . UBOS::Macrobuild::Utils::shortDb( $db ),
-            'glob'  => '*.pkg.tar.xz' );
-    }
-    my @checkTaskNames = keys %$checkTasks;
+                my @checkTaskNames = ();
+                foreach my $db ( @$dbs ) {
+                    my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'name'                  => 'Check signatures from ${channel} dbs ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ) . ', then merge update lists and report',
-        'parallelTasks'         => $checkTasks,
-        'parallelTasksSequence' => \@checkTasksSequence,
-        'stopOnError'           => 0,
-        'joinTask'              => new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => [
-                new Macrobuild::CompositeTasks::MergeValues(
-                    'name'         => 'Merge results from ${channel} dbs: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
-                    'keys'         => \@checkTaskNames ),
-                new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report check activity from ${channel} for dbs: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
-                    'fields'      => [ 'unsigned', 'wrong-signature' ] )
-            ]
-        ));
+                    my $checkTaskName = "check-signatures-$shortDb";
+
+                    $task->addParallelTask(
+                            $checkTaskName,
+                            UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
+                                    'name'  => 'Check signatures for ' . $db,
+                                    'dir'   => '${repodir}/${arch}/' . $shortDb,
+                                    'glob'  => '*.pkg.tar.xz' ));
+
+                    push @checkTaskNames, $checkTaskName;
+                }
+
+                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+                        'name' => 'Merge results from ${channel} dbs: ' . join( ' ', @$dbs ),
+                        'keys' => \@checkTaskNames ));
+
+                return SUCCESS;
+            });
 
     return $self;
 }

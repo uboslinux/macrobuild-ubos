@@ -13,44 +13,28 @@ use fields qw( channel depotRoot deviceclass image imagesize linkLatest repodir 
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
-use Macrobuild::Utils;
+use Macrobuild::Task;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch = $run->getVariable( 'arch' );
-    unless( $arch ) {
-        error( 'Variable not set: arch' );
-        return -1;
-    }
+    my $arch = $run->getValue( 'arch' );
 
-    foreach my $key ( qw( channel deviceclass image imagesize repodir ) ) {
-        unless( exists( $self->{$key} )) {
-            error( 'Missing parameter', $key );
-            return -1;
-        }
-    }
+    my $channel         = $run->getProperty( 'channel' );
+    my $depotRoot       = $run->getProperty( 'depotRoot' );
+    my $deviceclass     = $run->getProperty( 'deviceclass' );
+    my $checkSignatures = $run->getPropertyOrDefault( 'checkSignatures', 'required' );
 
-    my $in              = $run->taskStarting( $self );
-    my $channel         = $run->replaceVariables( $self->{channel} );
-    my $depotRoot       = $self->{depotRoot} ? $run->replaceVariables( $self->{depotRoot} ) : undef;
-    my $deviceclass     = $run->replaceVariables( $self->{deviceclass} );
-    my $checkSignatures = $run->getVariable( 'checkSignatures', 'required' );
-
-    my $image;
-    my $errors = 0;
-
-    my $buildId  = UBOS::Utils::time2string( time() );
-    my $repodir  = File::Spec->rel2abs( $run->replaceVariables( $self->{repodir} ));
-    $image       = File::Spec->rel2abs( $run->replaceVariables( $self->{image}   ));
+    my $errors    = 0;
+    my $repodir   = File::Spec->rel2abs( $run->getProperty( 'repodir' ));
+    my $image     = File::Spec->rel2abs( $run->getProperty( 'image'   ));
+    my $imagesize = $run->getProperty( 'imagesize' );
 
     Macrobuild::Utils::ensureParentDirectoriesOf( $image );
 
-    my $imagesize = $self->{imagesize};
     # Create image file
     my $out;
     if( UBOS::Utils::myexec( "dd if=/dev/zero 'of=$image' bs=1 count=0 seek=$imagesize", undef, \$out, \$out )) {
@@ -62,6 +46,7 @@ sub run {
     my $installCmd = 'sudo ubos-install';
     $installCmd .= " --channel $channel";
     $installCmd .= " --repository '$repodir'";
+    $installCmd .= " --arch '$arch'";
     $installCmd .= " --deviceclass $deviceclass";
     $installCmd .= " --checksignatures $checkSignatures";
     if( $depotRoot ) {
@@ -80,19 +65,16 @@ sub run {
     }
 
     if( $errors ) {
-        $run->taskEnded(
-                $self,
-                {
-                    'images'       => [],
-                    'failedimages' => [ $image ],
-                    'linkLatests'  => []
-                },
-                -1 );
+        $run->setOutput( {
+                'images'       => [],
+                'failedimages' => [ $image ],
+                'linkLatests'  => []
+        });
 
-        return -1;
+        return FAIL;
 
     } elsif( $image ) {
-        my $linkLatest = $self->{linkLatest};
+        my $linkLatest = $run->getProperty( 'linkLatest' );
         if( $linkLatest ) {
             $linkLatest = $run->replaceVariables( $linkLatest );
 
@@ -110,37 +92,28 @@ sub run {
         }
 
         if( defined( $linkLatest )) {
-            $run->taskEnded(
-                    $self,
-                    {
-                        'images'       => [ $image ],
-                        'failedimages' => [],
-                        'linkLatests'  => [ $linkLatest ]
-                    },
-                    0 );
+            $run->setOutput( {
+                    'images'       => [ $image ],
+                    'failedimages' => [],
+                    'linkLatests'  => [ $linkLatest ]
+            });
         } else {
-            $run->taskEnded(
-                    $self,
-                    {
-                        'images'       => [ $image ],
-                        'failedimages' => []
-                    },
-                    0 );
+            $run->setOutput( {
+                    'images'       => [ $image ],
+                    'failedimages' => []
+            });
         }
 
-        return 0;
+        return SUCCESS;
 
     } else {
-        $run->taskEnded(
-                $self,
-                {
-                    'images'       => [],
-                    'failedimages' => [],
-                    'linkLatests'  => []
-                },
-                1 );
+        $run->setOutput( {
+                'images'       => [],
+                'failedimages' => [],
+                'linkLatests'  => []
+        });
 
-        return 1;
+        return DONE_NOTHING;
     }
 }
 

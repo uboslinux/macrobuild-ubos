@@ -10,6 +10,7 @@ package UBOS::Macrobuild::BasicTasks::Upload;
 use base qw( Macrobuild::Task );
 use fields qw( from to inexclude );
 
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Utils;
 
@@ -20,22 +21,20 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
-    $run->taskStarting( $self ); # input ignored
+    my $from = $run->getProperty( 'from' );
+    my $to   = $run->getProperty( 'to' );
 
-    my $from = $run->replaceVariables( $self->{from} );
-    my $to   = $run->replaceVariables( $self->{to} );
-
-    my $ret           = 1;
+    my $ret           = DONE_NOTHING;
     my $uploadedFiles = undef;
     my $deletedFiles  = undef;
 
-    if( $ret == 1 && -d $from ) {
+    if( -d $from ) {
         my @filesInFrom = <$from/*>;
         # we don't upload hidden files
         if( @filesInFrom ) {
             UBOS::Utils::saveFile( "$from/LAST_UPLOADED", UBOS::Utils::time2string( time() ) . "\n" );
 
-            my $uploadKey = $run->getVariable( 'uploadSshKey' );
+            my $uploadKey = $run->getOrUndef( 'uploadSshKey' );
 
             # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
             my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --links --safe-links --max-delete=1000';
@@ -44,8 +43,9 @@ sub run {
             } else {
                 $rsyncCmd .= ' -e ssh';
             }
-            if( defined( $self->{inexclude} )) {
-                $rsyncCmd .= ' ' . $run->replaceVariables( $self->{inexclude} );
+            my $inexclude = $run->getPropertyOrUndef( 'inexclude' );
+            if( $inexclude ) {
+                $rsyncCmd .= ' ' . $inexclude;
             }
 
             $rsyncCmd .= " $from/"
@@ -55,7 +55,7 @@ sub run {
             my $out;
             if( UBOS::Utils::myexec( $rsyncCmd, undef, \$out )) {
                 error( "rsync failed:", $out );
-                $ret = -1;
+                $ret = FAIL;
             } else {
                 my @fileMessages = grep { ! /building file list/ }
                             grep { ! /sent.*received.*bytes/ }
@@ -64,26 +64,17 @@ sub run {
                             split "\n", $out;
                 $uploadedFiles = [ grep { ! /^deleting\s+\S+/ } grep { ! /\.\// } @fileMessages ];
                 $deletedFiles  = [ map { my $s = $_; $s =~ s/^deleting\s+// ; $s } grep { /^deleting\s+\S+/ } @fileMessages ];
-                $ret = 0;
+                $ret = SUCCESS;
             }
         }
     }
-    if( $ret == 1 ) {
-        trace( 'Skipped uploading', $from, $to, 'nothing to do' );
-    }
 
-    if( $ret == 0 ) {
-        $run->taskEnded(
-                $self,
-                { 'uploaded-to'    => $to,
-                  'uploaded-files' => $uploadedFiles,
-                  'deleted-files'  => $deletedFiles },
-                $ret );
-    } else {
-        $run->taskEnded(
-                $self,
-                {},
-                $ret );
+    if( $ret == SUCCESS ) {
+        $run->setOutput( {
+                'uploaded-to'    => $to,
+                'uploaded-files' => $uploadedFiles,
+                'deleted-files'  => $deletedFiles
+        } );
     }
 
     return $ret;

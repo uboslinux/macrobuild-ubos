@@ -11,24 +11,23 @@ use base qw( Macrobuild::Task );
 use fields qw( deleteOriginal );
 
 use File::Spec;
+use Macrobuild::Task;
 use UBOS::Logging;
-use UBOS::Macrobuild::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in              = $run->taskStarting( $self );
+    my $in              = $run->getInput();
     my $images          = $in->{'images'};
     my $linkLatests     = [];
     my $vmdkImages      = [];
     my $vmdkLinkLatests = [];
     my $deleteOriginal = !defined( $self->{deleteOriginal} ) || $self->{deleteOriginal};
 
-    my $ret;
+    my $ret = SUCCESS;
     foreach my $image ( @$images ) {
         my $vmdk = $image;
         $vmdk =~ s!\.img$!!;
@@ -36,9 +35,15 @@ sub run {
 
         my $out;
         my $err;
-        $ret = UBOS::Utils::myexec( "sudo VBoxManage convertfromraw '$image' '$vmdk' --format VMDK", undef, \$out, \$err );
+        if( UBOS::Utils::myexec( "sudo VBoxManage convertfromraw '$image' '$vmdk' --format VMDK", undef, \$out, \$err )) {
             # We run this as root because that way, VirtualBox will create ~root/.config/ files instead of ~buildmaster
-        unless( $ret ) {
+
+            error( "VBoxManage convertfromraw failed", $image, $err );
+            push @$vmdkImages, undef; # keep the same length
+
+            $ret = FAIL;
+
+        } else {
             my $meUser;
             my $meGroup;
 
@@ -50,9 +55,7 @@ sub run {
             UBOS::Utils::myexec( "sudo chown $meUser:$meGroup '$vmdk'" );
             UBOS::Utils::myexec( "sudo chmod 644 '$vmdk'" );
             push @$vmdkImages, $vmdk;
-        } else {
-            error( "VBoxManage convertfromraw failed", $image, $err );
-            push @$vmdkImages, undef; # keep the same length
+
         }
     }
 
@@ -128,13 +131,10 @@ sub run {
         UBOS::Utils::deleteFile( grep { $_ } @$linkLatests );
     }
 
-    $run->taskEnded(
-            $self,
-            {
-                'vmdkimages'      => $vmdkImages,
-                'vmdkLinkLatests' => $vmdkLinkLatests
-            },
-            $ret );
+    $run->setOutput( {
+            'vmdkimages'      => $vmdkImages,
+            'vmdkLinkLatests' => $vmdkLinkLatests
+    } );
 
     return $ret;
 }

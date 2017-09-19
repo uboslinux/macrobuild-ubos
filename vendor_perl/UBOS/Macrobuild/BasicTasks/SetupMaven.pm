@@ -1,4 +1,4 @@
-# 
+#
 # Set up maven ready for building package for UBOS
 #
 
@@ -10,35 +10,33 @@ package UBOS::Macrobuild::BasicTasks::SetupMaven;
 use base qw( Macrobuild::Task );
 use fields qw( m2builddir );
 
+use Macrobuild::Task;
 use Macrobuild::Utils;
 use UBOS::Logging;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in = $run->taskStarting( $self );
+    my $ret = DONE_NOTHING;
 
-    my $ret = 1;
-
-    if( defined( $self->{m2builddir} )) {
-        my $m2BuildDir = $run->replaceVariables( $self->{m2builddir} );
+    my $m2BuildDir = $run->getPropertyOrUndef( 'm2builddir' );
+    if( $m2BuildDir ) {
 
         unless( -d $m2BuildDir ) {
             if( -e $m2BuildDir ) {
                 error( 'Cannot create directory', $m2BuildDir, ', something else is in the way' );
-                $ret = -1;
+                $ret = FAIL;
 
             } elsif( UBOS::Utils::mkdirDashP( $m2BuildDir )) {
-                $ret = 0;
+                $ret = SUCCESS;
 
             } else {
                 error( 'Failed to create directory', $m2BuildDir );
-                $ret = -1;
+                $ret = FAIL;
             }
         }
         if( -d $m2BuildDir ) {
@@ -67,19 +65,14 @@ Do not modify, your changes will be mercilessly overwritten.
 
 </settings>
 CONTENT
-                $ret = 0;
+                $ret = SUCCESS;
 
             } else {
                 error( 'Cannot write Maven settings file', "$m2BuildDir/settings.xml" );
-                $ret = -1;
+                $ret = FAIL;
             }
         }
     }
-
-    $run->taskEnded(
-            $self,
-            {},
-            $ret );
 
     return $ret;
 }

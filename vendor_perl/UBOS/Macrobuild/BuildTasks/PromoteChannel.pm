@@ -1,4 +1,4 @@
-# 
+#
 # Promotes one channel to another.
 #
 
@@ -7,12 +7,11 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::PromoteChannel;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use base qw( Macrobuild::CompositeTasks::SplitJoin );
+use fields qw( arch channel db repodir fromRepodir );
 
-use Macrobuild::BasicTasks::Report;
+use Macrobuild::Task;
 use Macrobuild::CompositeTasks::MergeValues;
-use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
@@ -29,40 +28,52 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my $repoUpConfigs = {};
-    my $repoUsConfigs = {};
-    my $promoteTasks  = {};
-    my @dbs           = UBOS::Macrobuild::Utils::determineDbs( 'dbs', %args );
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    my $localSourcesDir = $self->{_settings}->getVariable( 'localSourcesDir' );
+                my $dbs = $run->getProperty( 'db' );
+                unless( ref( $dbs )) {
+                    $dbs = [ $dbs ];
+                }
 
-    foreach my $db ( @dbs ) {
-        $repoUpConfigs->{$db} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-        $repoUsConfigs->{$db} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
+                my $repoUpConfigs = {};
+                my $repoUsConfigs = {};
 
-        $promoteTasks->{"promote-$db"} = new UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository(
-            'name'      => 'Promote channel repository ' . $db,
-            'upconfigs' => $repoUpConfigs->{$db},
-            'usconfigs' => $repoUsConfigs->{$db},
-            'db'        => UBOS::Macrobuild::Utils::shortDb( $db ));
-    }
-    my @promoteTaskNames = keys %$promoteTasks;
-    
-    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'parallelTasks' => $promoteTasks,
-        'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => [
-                new Macrobuild::CompositeTasks::MergeValues(
-                    'name'         => 'Merge promotion lists from repositories: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
-                    'keys'         => \@promoteTaskNames ),
-                new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report promotion activity for repositories: ' . UBOS::Macrobuild::Utils::dbsToString( @dbs ),
-                    'fields'      => [ 'added-package-files', 'removed-packages' ] )
-            ]
-        ));
+                my @promoteTasks = ();
+
+                # create UpConfigs/UsConfigs, and also fetch tasks
+                foreach my $db ( @$dbs ) {
+                    my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+                    $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
+                    $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us' );
+
+                    my $promoteTaskName = "promote-$shortDb";
+
+                    $task->addParallelTask(
+                            $promoteTaskName,
+                            UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository->new(
+                                    'name'        => 'Promote channel repository ' . $shortDb,
+                                    'arch'        => '${arch}',
+                                    'channel'     => '${channel}',
+                                    'upconfigs'   => $repoUpConfigs->{$shortDb},
+                                    'usconfigs'   => $repoUsConfigs->{$shortDb},
+                                    'db'          => $shortDb,
+                                    'repodir'     => '${repodir}',
+                                    'fromRepodir' => '${fromRepodir}' ));
+
+                    push @promoteTasks, $promoteTaskName;
+                }
+
+                $task->setJoinTask( Macrobuild::CompositeTasks::MergeValues->new(
+                        'name' => 'Merge promotion lists from repositories: ' . join( ' ', @$dbs ),
+                        'keys' => \@promoteTasks ));
+
+                return SUCCESS;
+            } );
 
     return $self;
 }

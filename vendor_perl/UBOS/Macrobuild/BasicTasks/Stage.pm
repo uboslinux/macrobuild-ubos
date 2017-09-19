@@ -10,21 +10,21 @@ package UBOS::Macrobuild::BasicTasks::Stage;
 use base qw( Macrobuild::Task );
 use fields qw( stagedir );
 
+use Macrobuild::Task;
 use Macrobuild::Utils;
 use UBOS::Logging;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in = $run->taskStarting( $self );
+    my $in = $run->getInput();
 
     unless( exists( $in->{'new-packages'} )) {
-        error( "No new-packages given in input" );
-        return -1;
+        warning( "Stage: No new-packages given in input" );
+        return DONE_NOTHING;
     }
 
     my $newPackages = $in->{'new-packages'};
@@ -32,9 +32,9 @@ sub run {
     my $staged      = {}; # Map<packageName,file[]>: Value is an array, so it is symmetric to Unstage,
                           # which might unstage several package versions at the same time
 
-    my $destDir = $run->{settings}->replaceVariables( $self->{stagedir} );
+    my $destDir = $run->getProperty( 'stagedir' );
 
-    Macrobuild::Utils::ensureDirectories( $destDir );
+    UBOS::Macrobuild::Utils::ensureDirectories( $destDir );
 
     if( %$newPackages ) {
         foreach my $uXConfigName ( sort keys %$newPackages ) {
@@ -79,17 +79,15 @@ sub run {
         }
     }
 
-    my $ret = 1;
+    $run->setOutput( {
+            'staged-packages' => $staged
+    } );
+
     if( %$staged ) {
-        $ret = 0;
+        return SUCCESS;
+    } else {
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            { 'staged-packages' => $staged },
-            $ret );
-
-    return $ret;
 }
 
 1;

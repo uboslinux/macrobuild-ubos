@@ -10,26 +10,27 @@ package UBOS::Macrobuild::BasicTasks::Unstage;
 use base qw( Macrobuild::Task );
 use fields qw( stagedir );
 
-use Macrobuild::Utils;
+use Macrobuild::Task;
+use UBOS::Macrobuild::Utils;
 use UBOS::Logging;
+use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in = $run->taskStarting( $self );
+    my $in = $run->getInput();
 
     my $unstaged = {};
     if( exists( $in->{'removed-packages'} )) {
 
         my $removedPackages = $in->{'removed-packages'};
 
-        my $destDir = $run->{settings}->replaceVariables( $self->{stagedir} );
+        my $destDir = $run->getProperty( 'stagedir' );
 
-        Macrobuild::Utils::ensureDirectories( $destDir );
+        UBOS::Macrobuild::Utils::ensureDirectories( $destDir );
 
         if( %$removedPackages ) {
             foreach my $uXConfigName ( sort keys %$removedPackages ) {
@@ -56,17 +57,15 @@ sub run {
         }
     }
 
-    my $ret = 1;
+    $run->setOutput( {
+            'unstaged-packages' => $unstaged
+    } );
+
     if( %$unstaged ) {
-        $ret = 0;
+        return SUCCESS;
+    } else {
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            { 'unstaged-packages' => $unstaged },
-            $ret );
-
-    return $ret;
 }
 
 1;

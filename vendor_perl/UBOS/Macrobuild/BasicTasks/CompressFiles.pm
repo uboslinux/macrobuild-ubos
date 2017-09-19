@@ -1,4 +1,4 @@
-# 
+#
 # Compress files given by a glob, possible move the compressed files
 # to a different directory, and adjust link-latest symlinks
 #
@@ -13,22 +13,20 @@ use fields qw( inDir glob outDir adjustSymlinks );
 
 use Cwd qw( abs_path );
 use File::Spec;
+use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    $run->taskStarting( $self ); # input ignored
-
-    my $inDir          = $run->replaceVariables( $self->{inDir} );
-    my $glob           = $run->replaceVariables( $self->{glob} );
-    my $outDir         = $run->replaceVariables( $self->{outDir} );
-    my $adjustSymlinks = exists( $self->{adjustSymlinks} ) && $self->{adjustSymlinks};
+    my $inDir          = $run->getProperty( 'inDir'  );
+    my $glob           = $run->getProperty( 'glob'   );
+    my $outDir         = $run->getProperty( 'outDir' );
+    my $adjustSymlinks = !defined( $self->{adjustSymlinks} ) || $self->{adjustSymlinks};
 
     unless( -d $outDir ) {
         UBOS::Utils::mkdirDashP( $outDir );
@@ -57,11 +55,11 @@ sub run {
         }
     }
 
-    foreach my $file ( @allFiles ) {    
+    foreach my $file ( @allFiles ) {
         if( -l $file ) {
             my $localFile = $file;
             $localFile =~ s!.*/!!;
-            
+
             my $target = readlink( $file );
             if( $target =~ m!\.\.! || $target =~ m!/! ) {
                 warning( 'Cannot deal with non-local symlink:', $file, '=>', $target );
@@ -70,7 +68,7 @@ sub run {
 
             if( exists( $localFilesToSymlinks{$target} )) {
                 push @{$localFilesToSymlinks{$target}}, $localFile;
-                
+
             } else {
                 info( 'Skipping', $file, '=>', $target );
             }
@@ -78,7 +76,7 @@ sub run {
     }
 
     # for all non-symlink files
-    my $ret = 1;
+    my $ret = DONE_NOTHING;
     my @already    = ();
     my @compressed = ();
     if( keys %localFilesToSymlinks ) {
@@ -90,9 +88,9 @@ sub run {
             } else {
                 if( UBOS::Utils::myexec( "$command < '$inDir/$localFile' > '$outDir/$localFile$ext'" )) {
                     error( 'Compressing failed:', "$inDir/$localFile", '->', "$outDir/$localFile$ext" );
-                    $ret = -1;
+                    $ret = FAIL;
                 } else {
-                    $ret = 0;
+                    $ret = SUCCESS;
 
                     push @compressed, "$outDir/$localFile$ext";
                     my @symlinks = @{$localFilesToSymlinks{$localFile}};
@@ -110,18 +108,12 @@ sub run {
     } else {
         warning( 'No files to compress when expanding glob', $glob, 'in directory', $inDir );
     }
-    
-    if( $ret == 0 ) {
-        $run->taskEnded(
-                $self,
-                { 'files'      => [ map { "$inDir/$_" } keys %localFilesToSymlinks ],
-                  'compressed' => \@compressed },
-                $ret );
-    } else {
-        $run->taskEnded(
-                $self,
-                {},
-                $ret );
+
+    if( $ret == SUCCESS ) {
+        $run->setOutput( {
+                'files'      => [ map { "$inDir/$_" } keys %localFilesToSymlinks ],
+                'compressed' => \@compressed
+        } );
     }
 
     return $ret;

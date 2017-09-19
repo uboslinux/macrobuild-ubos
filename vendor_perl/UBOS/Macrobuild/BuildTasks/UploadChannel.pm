@@ -1,4 +1,4 @@
-# 
+#
 # Uploads a locally staged channel
 #
 
@@ -8,15 +8,10 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::UploadChannel;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use fields qw( arch repodir uploadDest uploadInExclude );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::Sequential;
-use UBOS::Logging;
+use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::Upload;
-use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
-use UBOS::Macrobuild::UpConfigs;
-use UBOS::Macrobuild::UsConfigs;
 
 ##
 # Constructor
@@ -27,22 +22,19 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
-            
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential( 
-        'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::Upload(
-                'from'      => '${repodir}/${arch}',
-                'to'        => '${uploadDest}/${arch}',
-                'inexclude' => '${uploadInExclude}' ),
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-            new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report upload activity',
-                'fields'      => [ 'uploaded-to', 'uploaded-files' ]
-            )
-        ]
-    );
+                $task->setDelegate( UBOS::Macrobuild::BasicTasks::Upload->new(
+                        'from'      => '${repodir}/${arch}',
+                        'to'        => '${uploadDest}/${arch}',
+                        'inexclude' => '${uploadInExclude}' ));
+
+                return SUCCESS;
+            });
 
     return $self;
 }

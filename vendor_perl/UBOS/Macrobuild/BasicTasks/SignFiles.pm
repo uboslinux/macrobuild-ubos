@@ -1,4 +1,4 @@
-# 
+#
 # Digitally sign files.
 #
 
@@ -8,32 +8,26 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::SignFiles;
 
 use base qw( Macrobuild::Task );
-use fields qw( glob dir );
+use fields qw( glob dir imageSignKey );
 
+use Macrobuild::Task;
 use UBOS::Logging;
-use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
-use Macrobuild::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    $run->taskStarting( $self ); # input ignored
-
-    my $imageSignKey = $run->getVariable( 'imageSignKey', undef ); # ok if not exists
-    my $gpgHome      = $run->getVariable( 'GNUPGHOME',    undef ); # ok if not exists
+    my $imageSignKey = $run->getProperty( 'imageSignKey' );
+    my $gpgHome      = $run->getValueOrDefault( 'GNUPGHOME', undef );
 
     my $errors = 0;
     my @signedFiles = ();
     if( $imageSignKey ) {
-        $imageSignKey = $run->replaceVariables( $imageSignKey );
-
-        my $dir      = $run->replaceVariables( $self->{dir} );
-        my $glob     = $run->replaceVariables( $self->{glob} );
+        my $dir      = $run->getProperty( 'dir' );
+        my $glob     = $run->getProperty( 'glob' );
         my @allFiles = glob "$dir/$glob";
         my @toSign   = grep { -f $_ && ! -l $_ && ( ! -e "$_.sig" || -z "$_.sig" ) } @allFiles;
 
@@ -57,34 +51,16 @@ sub run {
         }
     }
 
+    $run->setOutput( {
+            'signed' => \@signedFiles
+    } );
+
     if( $errors ) {
-        $run->taskEnded(
-                $self,
-                {
-                    'signed' => \@signedFiles
-                },
-                -1 );
-
-        return -1;
-
+        return FAIL;
     } elsif( @signedFiles ) {
-        $run->taskEnded(
-                $self,
-                {
-                    'signed' => \@signedFiles
-                },
-                0 );
-
-        return 0;
+        return SUCCESS;
     } else {
-        $run->taskEnded(
-                $self,
-                {
-                    'signed' => \@signedFiles
-                },
-                1 );
-
-        return 1;
+        return DONE_NOTHING;
     }
 }
 

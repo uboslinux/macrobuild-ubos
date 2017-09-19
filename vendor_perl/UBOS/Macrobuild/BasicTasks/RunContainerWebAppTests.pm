@@ -1,5 +1,5 @@
 #
-# Run webapptests in ONE usconfig.
+# Run webapptests in ONE usconfig in a container.
 # This does NOT pull sources for the tests; it is assumed that they are current
 # in the right directories.
 #
@@ -7,40 +7,31 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BasicTasks::RunWebAppTests;
+package UBOS::Macrobuild::BasicTasks::RunContainerWebAppTests;
 
 use base qw( Macrobuild::Task );
-use fields qw( usconfig sourcedir config scaffold directory vmdktemplate);
+use fields qw( usconfig sourcedir config scaffold directory );
 
-use Macrobuild::Utils;
+use Macrobuild::Task;
 use UBOS::Logging;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in = $run->taskStarting( $self );
-
     my $testCmd  = 'webapptest run';
 
-    my $config = $run->replaceVariables( $self->{config} );
+    my $config = $run->getPropertyOrDefault( 'config', undef );
     if( defined( $config )) {
         $testCmd .= " --config '$config'";
     }
 
-    my $scaffold = $run->replaceVariables( $self->{scaffold} );
-
-    my $directory = $run->replaceVariables( $self->{directory} );
-    if( $directory && ( !$scaffold || 'container' eq $scaffold )) {
+    my $scaffold  = $run->getProperty( 'scaffold' );
+    my $directory = $run->getPropertyOrDefault( 'directory', undef );
+    if( $directory ) {
         $testCmd .= " --scaffold 'container:directory=$directory'";
-    }
-
-    my $vmdkTemplate = $run->replaceVariables( $self->{vmdktemplate} );
-    if( $vmdkTemplate && ( !$scaffold || 'vbox' eq $scaffold )) {
-        $testCmd .= " --scaffold 'vbox:vmdktemplate=$vmdkTemplate'";
     }
 
     my $testsSequence = [];
@@ -53,8 +44,9 @@ sub run {
     trace( "Now processing upstream source config file", $name );
 
     my $webapptests = $usConfig->webapptests;
+    my $sourceDir   = $run->getProperty( 'sourcedir' );
     if( defined( $webapptests ) && keys %$webapptests ) {
-        my $sourceSourceDir = $run->replaceVariables( $self->{sourcedir} ) . "/$name";
+        my $sourceSourceDir = "$sourceDir/$name";
         if( -d $sourceSourceDir ) {
             foreach my $test ( keys %$webapptests ) {
                 my $testDir;
@@ -94,23 +86,19 @@ sub run {
         }
     }
 
-    my $ret = 1;
+    $run->setOutput( {
+            'tests-sequence' => $testsSequence,
+            'tests-passed'   => $testsPassed,
+            'tests-failed'   => $testsFailed
+    } );
+
     if( %$testsFailed ) {
-        $ret = -1;
+        return FAIL;
     } elsif( %$testsPassed ) {
-        $ret = 0;
+        return SUCCESS;
+    } else {
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            {
-                'tests-sequence' => $testsSequence,
-                'tests-passed'   => $testsPassed,
-                'tests-failed'   => $testsFailed
-            },
-            $ret );
-
-    return $ret;
 }
 
 1;

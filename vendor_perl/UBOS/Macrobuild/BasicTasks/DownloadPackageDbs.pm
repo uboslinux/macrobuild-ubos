@@ -14,21 +14,20 @@ use HTTP::Date;
 use UBOS::Logging;
 use UBOS::Macrobuild::PacmanDbFile;
 use UBOS::Macrobuild::UpConfig;
+use Macrobuild::Task;
 use Macrobuild::Utils;
 use Time::Local;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $in = $run->taskStarting( $self );
-
     my $allPackageDatabases     = {};
     my $updatedPackageDatabases = {};
-    my $upConfigs               = $self->{upconfigs}->configs( $run->{settings} );
+    my $upConfigs               = $self->{upconfigs}->configs( $run );
+    my $downloadDir             = $run->getProperty( 'downloaddir' );
 
     foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
         my $upConfig = $upConfigs->{$repoName};
@@ -43,8 +42,8 @@ sub run {
             info( "Empty package list, skipping:", $upConfig->name );
             next;
         }
-        my $upcRepoDir = $run->replaceVariables( $self->{downloaddir} ) . "/$name";
-        Macrobuild::Utils::ensureDirectories( $upcRepoDir );
+        my $upcRepoDir = "$downloadDir/$name";
+        UBOS::Macrobuild::Utils::ensureDirectories( $upcRepoDir );
 
         my $upcRepoPackageDb      = "$upcRepoDir/$name.db";
         my $ifModifiedSinceHeader = '';
@@ -59,13 +58,14 @@ sub run {
 
         trace( "Download command:", $cmd );
 
-        if( UBOS::Utils::myexec( $cmd )) {
-            error( "Downloading failed:", $directory );
+        my $err; # remote silly error message : Failed to set filetime 1505682917 on outfile: errno 2
+        if( UBOS::Utils::myexec( $cmd, undef, \$err, \$err )) {
+            error( "Downloading failed:", $directory, $err );
 
             if( -e $cachedNow ) {
                 UBOS::Utils::deleteFile( $cachedNow );
             }
-            return -1;
+            return FAIL;
         }
 
         $allPackageDatabases->{$name} = new UBOS::Macrobuild::PacmanDbFile( $upcRepoPackageDb );
@@ -87,20 +87,16 @@ sub run {
         }
     }
 
-    my $ret = 1;
+    $run->setOutput( {
+            'all-package-databases'     => $allPackageDatabases,
+            'updated-package-databases' => $updatedPackageDatabases
+    } );
+
     if( %$updatedPackageDatabases ) {
-        $ret = 0;
+        return SUCCESS;
+    } else {
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            {
-                'all-package-databases'     => $allPackageDatabases,
-                'updated-package-databases' => $updatedPackageDatabases
-            },
-            $ret );
-
-    return $ret;
 }
 
 1;

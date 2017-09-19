@@ -1,4 +1,4 @@
-# 
+#
 # Remove one or more packages fetched from Arch and marked as such.
 #
 
@@ -8,11 +8,10 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::RemoveFetchedPackages;
 
 use base qw( Macrobuild::Task );
-use fields qw( upconfigs downloaddir );
+use fields qw( arch upconfigs downloaddir );
 
-use UBOS::Logging;
+use Macrobuild::Task;
 use UBOS::Macrobuild::PackageUtils;
-use UBOS::Utils;
 
 ##
 # Run this task.
@@ -21,18 +20,16 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
-    my $in = $run->taskStarting( $self );
+    my $downloadDir = $run->getProperty( 'downloaddir' );
+    my $arch        = $run->getProperty( 'arch' );
 
-    my $downloadDir = $run->replaceVariables( $self->{downloaddir} );
-    my $arch        = $run->getVariable( 'arch' );
-
-    my $upConfigs = $self->{upconfigs}->configs( $run->{settings} );
+    my $upConfigs = $self->{upconfigs}->configs( $run );
 
     my $removedPackages = {};
 
     my $ok = 1;
     foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
-        my $upConfig = $upConfigs->{$repoName}; 
+        my $upConfig = $upConfigs->{$repoName};
 
         my $removePackages = $upConfig->removePackages;
         unless( $removePackages ) {
@@ -47,23 +44,18 @@ sub run {
         }
     }
 
-    my $ret = 1;
+    $run->setOutput( {
+            'removed-packages' => $removedPackages
+    } );
+
     if( !$ok ) {
-        $ret = -1;
+        return FAIL;
 
     } elsif( keys %$removedPackages ) {
-        $ret = 0;
+        return SUCCESS;
+    } else {
+        return DONE_NOTHING;
     }
-
-    $run->taskEnded(
-            $self,
-            {
-                'removed-packages' => $removedPackages
-            },
-            $ret );
-    # Map<repoName,Map<packageName,file[]>>
-
-    return $ret;
 }
 
 1;

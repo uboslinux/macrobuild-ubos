@@ -1,4 +1,4 @@
-# 
+#
 # Purges outdated images from a channel.
 #
 
@@ -7,18 +7,12 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::PurgeImages;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use base qw( Macrobuild::CompositeTasks::SplitJoin );
+use fields qw( arch repodir );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::MergeValues;
-use Macrobuild::CompositeTasks::Sequential;
-use Macrobuild::CompositeTasks::SplitJoin;
-use UBOS::Logging;
+use Macrobuild::BasicTasks::MergeValues;
+use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::PurgeChannelImages;
-use UBOS::Macrobuild::UpConfigs;
-use UBOS::Macrobuild::UsConfigs;
-use UBOS::Macrobuild::Utils;
 
 ##
 # Constructor
@@ -29,31 +23,27 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    my $age        = 60*60*24*14; # Two weeks
-    my $purgeTasks = {};
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
 
-    $purgeTasks->{"purge-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
-            'dir' => '${repodir}/${arch}/images' );
-    $purgeTasks->{"purge-uncompressed-images"} = new UBOS::Macrobuild::BasicTasks::PurgeChannelImages(
-            'dir' => '${repodir}/${arch}/uncompressed-images' );
-    
-    my @purgeTaskNames = keys %$purgeTasks;
-    
-    $self->{delegate} = new Macrobuild::CompositeTasks::SplitJoin(
-        'parallelTasks' => $purgeTasks,
-        'joinTask'      => new Macrobuild::CompositeTasks::Sequential(
-            'tasks' => [
-                new Macrobuild::CompositeTasks::MergeValues(
-                    'name'         => 'Merge image purge results',
-                    'keys'         => \@purgeTaskNames ),
-                new Macrobuild::BasicTasks::Report(
-                    'name'        => 'Report image purge activity',
-                    'fields'      => [ 'purged', 'kept' ] )
-            ]
-        ));
+                my @places = qw( images compressed-images );
+
+                foreach my $place ( @places ) {
+                    $self->addParallelTask(
+                            $place,
+                            UBOS::Macrobuild::BasicTasks::PurgeChannelImages->new(
+                                    'dir'    => '${repodir}/${arch}/' . $place ));
+                }
+                $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+                        'name' => 'Merge image purge results',
+                        'keys' => \@places ));
+
+                return SUCCESS;
+            });
 
     return $self;
 }

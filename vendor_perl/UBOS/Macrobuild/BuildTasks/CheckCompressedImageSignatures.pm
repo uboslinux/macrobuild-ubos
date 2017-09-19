@@ -1,4 +1,4 @@
-# 
+#
 # Check that all compressed images in a channel have
 # corresponding signature files.
 #
@@ -9,11 +9,9 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::CheckCompressedImageSignatures;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use fields qw( arch repodir );
 
-use Macrobuild::BasicTasks::Report;
-use Macrobuild::CompositeTasks::Sequential;
-use UBOS::Logging;
+use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::CheckSignatures;
 
 ##
@@ -25,20 +23,20 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::CheckSignatures(
-                'name'  => 'Check signatures for compressed images',
-                'dir'   => '${repodir}/${arch}/images',
-                'glob'  => '*.tar.xz' ),
-            new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report check compressed image signatures from ${channel}',
-                'fields'      => [ 'unsigned', 'wrong-signature' ] )
-        ]
-    );
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
+
+                $task->setDelegate( UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
+                        'name'  => 'Check signatures for compressed images',
+                        'dir'   => '${repodir}/${arch}/images',
+                        'glob'  => '*.tar.xz' ));
+
+                return SUCCESS;
+            });
 
     return $self;
 }

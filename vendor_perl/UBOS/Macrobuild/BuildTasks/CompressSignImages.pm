@@ -1,4 +1,4 @@
-# 
+#
 # Compresses images and signs them.
 #
 
@@ -7,12 +7,11 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::CompressSignImages;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields;
+use base qw( Macrobuild::CompositeTasks::Sequential );
+use fields qw( arch repodir imageSignKey );
 
-use Macrobuild::BasicTasks::Report;
+use Macrobuild::Task;
 use Macrobuild::CompositeTasks::Sequential;
-use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::CompressFiles;
 use UBOS::Macrobuild::BasicTasks::SignFiles;
 
@@ -25,28 +24,28 @@ sub new {
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    
-    $self->SUPER::new( %args );
 
-    $self->{delegate} = new Macrobuild::CompositeTasks::Sequential(
-        'tasks' => [
-            new UBOS::Macrobuild::BasicTasks::CompressFiles(
-                'name'           => 'Compressing to ${repodir}/${arch}/images',
-                'inDir'          => '${repodir}/${arch}/uncompressed-images',
-                'glob'           => '*.{img,vmdk,tar}',
-                'outDir'         => '${repodir}/${arch}/images',
-                'adjustSymlinks' => 1
-            ),
-            new UBOS::Macrobuild::BasicTasks::SignFiles(
-                'name'           => 'Signing images in to ${repodir}/${arch}/images',
-                'glob'           => '*.{img,vmdk,tar}.xz',
-                'dir'            => '${repodir}/${arch}/images'
-            ),
-            new Macrobuild::BasicTasks::Report(
-                'name'        => 'Report for compressing and signing images',
-                'fields'      => [ 'files' ] )
-        ]
-    );
+    $self->SUPER::new(
+            %args,
+            'setup' => sub {
+                my $run  = shift;
+                my $task = shift;
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::CompressFiles->new(
+                        'name'           => 'Compressing to ${repodir}/${arch}/images',
+                        'inDir'          => '${repodir}/${arch}/uncompressed-images',
+                        'glob'           => '*.{img,vmdk,tar}',
+                        'outDir'         => '${repodir}/${arch}/images',
+                        'adjustSymlinks' => 1 ));
+
+                $task->appendTask( UBOS::Macrobuild::BasicTasks::SignFiles->new(
+                        'name'           => 'Signing images in to ${repodir}/${arch}/images',
+                        'glob'           => '*.{img,vmdk,tar}.xz',
+                        'dir'            => '${repodir}/${arch}/images',
+                        'imageSignKey'   => '${imageSignKey}' ));
+
+                return SUCCESS;
+            } );
 
     return $self;
 }
