@@ -81,7 +81,7 @@ sub new {
                                 'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_${tstamp}.tar',
                                 'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_LATEST.tar' ));
 
-                $self->setJoinTask( Macrobuild::CompositeTasks::MergeValues->new(
+                $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
                         'name' => 'Merge images list for ${channel}',
                         'keys' => [ 'pc', 'vbox', 'container' ] ));
 

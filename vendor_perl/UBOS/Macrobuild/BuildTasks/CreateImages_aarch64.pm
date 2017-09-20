@@ -48,7 +48,7 @@ sub new {
                                     'repodir'     => '${repodir}' ));
                 }
 
-                $self->setJoinTask( Macrobuild::CompositeTasks::MergeValues->new(
+                $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
                         'name' => 'Merge images list for ${channel}',
                         'keys' => \@deviceclasses ));
 

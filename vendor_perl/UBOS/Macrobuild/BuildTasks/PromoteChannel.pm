@@ -11,7 +11,7 @@ use base qw( Macrobuild::CompositeTasks::SplitJoin );
 use fields qw( arch channel db repodir fromRepodir );
 
 use Macrobuild::Task;
-use Macrobuild::CompositeTasks::MergeValues;
+use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
@@ -68,7 +68,7 @@ sub new {
                     push @promoteTasks, $promoteTaskName;
                 }
 
-                $task->setJoinTask( Macrobuild::CompositeTasks::MergeValues->new(
+                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
                         'name' => 'Merge promotion lists from repositories: ' . join( ' ', @$dbs ),
                         'keys' => \@promoteTasks ));
 

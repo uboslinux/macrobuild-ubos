@@ -43,7 +43,7 @@ sub run {
             } else {
                 $rsyncCmd .= ' -e ssh';
             }
-            my $inexclude = $run->getPropertyOrUndef( 'inexclude' );
+            my $inexclude = $run->getPropertyOrDefault( 'inexclude', undef );
             if( $inexclude ) {
                 $rsyncCmd .= ' ' . $inexclude;
             }

@@ -48,7 +48,7 @@ sub new {
                                     'linkLatest'  => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_LATEST.img' ));
                 }
 
-                $self->setJoinTask( Macrobuild::CompositeTasks::MergeValues->new(
+                $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
                         'name' => 'Merge images list for ${channel}',
                         'keys' => \@deviceclasses ));
 

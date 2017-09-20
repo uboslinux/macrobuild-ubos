@@ -23,7 +23,7 @@ sub runImpl {
 
     my $ret = DONE_NOTHING;
 
-    my $m2BuildDir = $run->getPropertyOrUndef( 'm2builddir' );
+    my $m2BuildDir = $run->getPropertyOrDefault( 'm2builddir', undef );
     if( $m2BuildDir ) {
 
         unless( -d $m2BuildDir ) {

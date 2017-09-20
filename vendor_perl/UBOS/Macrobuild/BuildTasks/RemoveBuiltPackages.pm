@@ -52,11 +52,11 @@ sub new {
                             UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages->new(
                                     'name'      => 'Remove built packages marked as such from ' . $db,
                                     'usconfigs' => $repoUsConfigs->{$db},
-                                    'sourcedir' => '${builddir}/dbs/' . $db . '/ups'  ));
+                                    'sourcedir' => '${builddir}/dbs/' . $db . '/ups',
                                     'db'        => $shortDb ));
                 }
 
-                $task->setJoinTask( Macrobuild::CompositeTasks::MergeValues->new(
+                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
                         'name' => 'Merge update lists from dbs: ' . join( ' ', @$dbs ),
                         'keys' => \@removeTaskNames ));
             });

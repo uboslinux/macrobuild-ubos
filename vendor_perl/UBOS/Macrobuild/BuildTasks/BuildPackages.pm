@@ -51,7 +51,7 @@ sub new {
                 # create build tasks
                 foreach my $db ( @$dbs ) {
                     my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
-                    $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/us' );
+                    $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
                     $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 
                     my $buildTaskName = "build-$shortDb";
@@ -88,7 +88,7 @@ sub new {
                                 @checkTasks,
                                 @setupTasks ] ));
 
-                $task->setJoinTask( Macrobuild::CompositeTasks::MergeValues->new(
+                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
                         'name' => 'Merge update lists from dev dbs: ' . join( ' ', @$dbs ),
                         'keys' => \@buildTaskNames ));
 
