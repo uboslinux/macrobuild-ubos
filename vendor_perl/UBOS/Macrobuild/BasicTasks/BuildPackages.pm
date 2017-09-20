@@ -69,7 +69,7 @@ sub runImpl {
 
     trace( sub { "Dir sequence is:\n" . join( "\n", map { "    $_" } @dirSequence ) } );
 
-    my $alwaysRebuild = $run->getValue( 'alwaysRebuild', 0 );
+    my $alwaysRebuild = $run->getValueOrDefault( 'alwaysRebuild', 0 );
 
     # do the build, in @dirSequence
     my $ret        = DONE_NOTHING;
