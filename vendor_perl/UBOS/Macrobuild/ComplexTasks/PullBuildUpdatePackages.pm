@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::ComplexTasks::PullBuildUpdatePackages;
 
 use base qw( Macrobuild::CompositeTasks::Sequential );
-use fields qw( arch usconfigs db m2settingsfile m2repository );
+use fields qw( arch builddir repodir usconfigs db dbSignKey m2settingsfile m2repository );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::BuildPackages;

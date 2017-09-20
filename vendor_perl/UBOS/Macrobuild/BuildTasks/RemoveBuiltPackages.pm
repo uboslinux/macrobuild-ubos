@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::RemoveBuiltPackages;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch builddir localSourcesDir db );
+use fields qw( arch builddir repodir localSourcesDir db dbSignKey );
 
 use Macrobuild::Task;
 
@@ -51,9 +51,13 @@ sub new {
                             $removeTaskName,
                             UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages->new(
                                     'name'      => 'Remove built packages marked as such from ' . $db,
+                                    'arch'      => '${arch}',
+                                    'builddir'  => '${builddir}',
+                                    'repodir'   => '${repodir}',
                                     'usconfigs' => $repoUsConfigs->{$db},
                                     'sourcedir' => '${builddir}/dbs/' . $db . '/ups',
-                                    'db'        => $shortDb ));
+                                    'db'        => $shortDb,
+                                    'dbSignKey' => '${dbSignKey}' ));
                 }
 
                 $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(

@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::BuildPackages;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch db localSourcesDir builddir packageSignKey dbSignKey );
+use fields qw( arch db localSourcesDir builddir repodir packageSignKey dbSignKey );
 
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
@@ -62,8 +62,11 @@ sub new {
                             UBOS::Macrobuild::ComplexTasks::PullBuildUpdatePackages->new(
                                     'name'           => 'Pull, build and update ' . $db . ' packages',
                                     'arch'           => '${arch}',
+                                    'builddir'       => '${builddir}',
+                                    'repodir'        => '${repodir}',
                                     'usconfigs'      => $repoUsConfigs->{$shortDb},
                                     'db'             => $shortDb,
+                                    'dbSignKey'      => '${dbSignKey}',
                                     'm2settingsfile' => $m2BuildDir . '/settings.xml',
                                     'm2repository'   => $m2BuildDir . '/repository' ));
                 }

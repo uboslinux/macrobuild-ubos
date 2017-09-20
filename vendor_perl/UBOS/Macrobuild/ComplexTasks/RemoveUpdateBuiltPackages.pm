@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages;
 
 use base qw( Macrobuild::CompositeTasks::Sequential );
-use fields qw( usconfigs db );
+use fields qw( arch builddir repodir usconfigs db dbSignKey );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::RemoveBuiltPackages;
