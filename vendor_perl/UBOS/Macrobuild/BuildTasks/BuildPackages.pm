@@ -62,7 +62,7 @@ sub new {
                             UBOS::Macrobuild::ComplexTasks::PullBuildUpdatePackages->new(
                                     'name'           => 'Pull, build and update ' . $db . ' packages',
                                     'arch'           => '${arch}',
-                                    'usconfigs'      => $repoUsConfigs->{$db},
+                                    'usconfigs'      => $repoUsConfigs->{$shortDb},
                                     'db'             => $shortDb,
                                     'm2settingsfile' => $m2BuildDir . '/settings.xml',
                                     'm2repository'   => $m2BuildDir . '/repository' ));

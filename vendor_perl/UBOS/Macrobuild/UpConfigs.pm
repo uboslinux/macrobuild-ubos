@@ -49,8 +49,6 @@ sub configs {
             return undef;
         }
 
-print "Loooking for UpConfigs into $realDir\n";
-
         my @files = <$realDir/*.json>;
         unless( @files ) {
             trace( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
