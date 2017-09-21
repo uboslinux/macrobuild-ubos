@@ -14,8 +14,8 @@ use HTTP::Date;
 use UBOS::Logging;
 use UBOS::Macrobuild::PacmanDbFile;
 use UBOS::Macrobuild::UpConfig;
+use UBOS::Macrobuild::Utils;
 use Macrobuild::Task;
-use Macrobuild::Utils;
 use Time::Local;
 
 ##

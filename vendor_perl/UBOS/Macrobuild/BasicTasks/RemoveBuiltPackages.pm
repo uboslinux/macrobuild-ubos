@@ -11,8 +11,8 @@ use base qw( Macrobuild::Task );
 use fields qw( arch usconfigs sourcedir );
 
 use Macrobuild::Task;
-use Macrobuild::Utils;
 use UBOS::Logging;
+use UBOS::Macrobuild::Utils;
 
 my %knownExtensions = (
     '.tar'    => 'tar xf',
@@ -142,7 +142,7 @@ sub _pullFromGit {
     unless( -d $sourceSourceDir ) {
         # First-time checkout
 
-        Macrobuild::Utils::ensureParentDirectoriesOf( $sourceSourceDir );
+        UBOS::Macrobuild::Utils::ensureParentDirectoriesOf( $sourceSourceDir );
 
         my $gitCmd = "git clone";
         if( $branch ) {

@@ -13,7 +13,6 @@ use fields qw( arch channel depotRoot deviceclass checkSignatures dir repodir ta
 
 use File::Basename;
 use Macrobuild::Task;
-use Macrobuild::Utils;
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
 use UBOS::Utils;
@@ -35,8 +34,8 @@ sub runImpl {
     my $dir     = File::Spec->rel2abs( $self->getProperty( 'dir'     ));
     my $tarfile = File::Spec->rel2abs( $self->getProperty( 'tarfile' ));
 
-    Macrobuild::Utils::ensureParentDirectoriesOf( $dir );
-    Macrobuild::Utils::ensureParentDirectoriesOf( $tarfile );
+    UBOS::Macrobuild::Utils::ensureParentDirectoriesOf( $dir );
+    UBOS::Macrobuild::Utils::ensureParentDirectoriesOf( $tarfile );
 
     unless( -d $dir ) {
         # if this is a btrfs filesystem, create a subvolume instead of a directory
@@ -53,7 +52,7 @@ sub runImpl {
         }
     }
 
-    Macrobuild::Utils::ensureDirectories( $dir );
+    UBOS::Macrobuild::Utils::ensureDirectories( $dir );
 
     my $installCmd = 'sudo ubos-install';
     $installCmd .= " --channel $channel";

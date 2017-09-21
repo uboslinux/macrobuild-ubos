@@ -11,8 +11,8 @@ use base qw( Macrobuild::Task );
 use fields qw( stagedir );
 
 use Macrobuild::Task;
-use Macrobuild::Utils;
 use UBOS::Logging;
+use UBOS::Macrobuild::Utils;
 
 ##
 # @Overridden

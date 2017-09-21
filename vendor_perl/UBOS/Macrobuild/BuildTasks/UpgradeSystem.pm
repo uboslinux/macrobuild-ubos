@@ -10,7 +10,6 @@ use base qw( Macrobuild::Task );
 use fields;
 
 use Macrobuild::Task;
-use Macrobuild::Utils;
 use UBOS::Logging;
 use UBOS::Utils;
 

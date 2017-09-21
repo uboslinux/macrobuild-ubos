@@ -32,7 +32,7 @@ sub runImpl {
     my $image     = File::Spec->rel2abs( $self->getProperty( 'image'   ));
     my $imagesize = $self->getProperty( 'imagesize' );
 
-    Macrobuild::Utils::ensureParentDirectoriesOf( $image );
+    UBOS::Macrobuild::Utils::ensureParentDirectoriesOf( $image );
 
     # Create image file
     my $out;

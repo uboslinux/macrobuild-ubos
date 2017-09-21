@@ -57,7 +57,7 @@ sub runImpl {
         }
     }
 
-    $run->$run->setOutput( {
+    $run->setOutput( {
             'unstaged-packages' => $unstaged
     } );
 

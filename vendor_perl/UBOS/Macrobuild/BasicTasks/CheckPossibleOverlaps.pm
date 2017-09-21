@@ -11,7 +11,6 @@ use base qw( Macrobuild::Task );
 use fields qw( repoUpConfigs repoUsConfigs );
 
 use Macrobuild::Task;
-use Macrobuild::Utils;
 use UBOS::Logging;
 
 ##

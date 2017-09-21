@@ -11,7 +11,6 @@ use base qw( Macrobuild::Task );
 use fields qw( m2builddir );
 
 use Macrobuild::Task;
-use Macrobuild::Utils;
 use UBOS::Logging;
 use UBOS::Utils;
 
