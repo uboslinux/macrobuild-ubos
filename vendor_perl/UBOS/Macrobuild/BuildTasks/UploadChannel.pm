@@ -17,24 +17,17 @@ use UBOS::Macrobuild::BasicTasks::Upload;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                $task->setDelegate( UBOS::Macrobuild::BasicTasks::Upload->new(
-                        'from'      => '${repodir}/${arch}',
-                        'to'        => '${uploadDest}/${arch}',
-                        'inexclude' => '${uploadInExclude}' ));
-
-                return SUCCESS;
-            });
+    $self->setDelegate( UBOS::Macrobuild::BasicTasks::Upload->new(
+            'from'      => '${repodir}/${arch}',
+            'to'        => '${uploadDest}/${arch}',
+            'inexclude' => '${uploadInExclude}' ));
 
     return $self;
 }

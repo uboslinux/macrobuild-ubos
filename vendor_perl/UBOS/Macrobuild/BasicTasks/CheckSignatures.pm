@@ -23,8 +23,8 @@ sub runImpl {
 
     my $errors = 0;
 
-    my $dir           = $run->getProperty( 'dir' );
-    my $glob          = $run->getProperty( 'glob' );
+    my $dir           = $self->getProperty( 'dir' );
+    my $glob          = $self->getProperty( 'glob' );
 
     my @allFiles      = glob "$dir/$glob";
     my @unsignedFiles = grep { -f $_ && ! -l $_ && ( ! -e "$_.sig" ||   -z "$_.sig" ) } @allFiles;

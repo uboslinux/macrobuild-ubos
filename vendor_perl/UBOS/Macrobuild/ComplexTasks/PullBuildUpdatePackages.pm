@@ -20,43 +20,36 @@ use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $db = $run->getProperty( 'db' );
+    my $db = $self->getProperty( 'db' );
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::PullSources->new(
-                        'name'           => 'Pull the sources that need to be built for db ' . $db,
-                        'usconfigs'      => $self->{usconfigs},
-                        'sourcedir'      => '${builddir}/dbs/' . $db . '/ups'  ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::PullSources->new(
+            'name'           => 'Pull the sources that need to be built for db ' . $db,
+            'usconfigs'      => $self->{usconfigs},
+            'sourcedir'      => '${builddir}/dbs/' . $db . '/ups'  ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::BuildPackages->new(
-                        'name'           => 'Building packages locally for db ' . $self->{db},
-                        'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
-                        'stopOnError'    => 0,
-                        'm2settingsfile' => '${m2settingsfile}',
-                        'm2repository'   => '${m2repository}' ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::BuildPackages->new(
+            'name'           => 'Building packages locally for db ' . $self->{db},
+            'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
+            'stopOnError'    => 0,
+            'm2settingsfile' => '${m2settingsfile}',
+            'm2repository'   => '${m2repository}' ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
-                        'name'           => 'Stage new packages in local repository for db ' . $self->{db},
-                        'stagedir'       => '${repodir}/${arch}/' . $db ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
+            'name'           => 'Stage new packages in local repository for db ' . $self->{db},
+            'stagedir'       => '${repodir}/${arch}/' . $db ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
-                        'name'          => 'Update package database with new packages',
-                        'dbfile'        => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
-                        'dbSignKey'     => '${dbSignKey}' ));
-
-                return SUCCESS;
-            } );
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
+            'name'          => 'Update package database with new packages',
+            'dbfile'        => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+            'dbSignKey'     => '${dbSignKey}' ));
 
     return $self;
 }

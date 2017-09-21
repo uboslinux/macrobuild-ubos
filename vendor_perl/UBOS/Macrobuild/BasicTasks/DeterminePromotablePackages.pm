@@ -23,14 +23,14 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch    = $run->getProperty( 'arch' );
-    my $channel = $run->getProperty( 'channel' );
+    my $arch    = $self->getProperty( 'arch' );
+    my $channel = $self->getProperty( 'channel' );
 
-    my $fromDb = $run->getProperty( 'fromDb' );
-    my $toDb   = $run->getProperty( 'toDb' );
+    my $fromDb = $self->getProperty( 'fromDb' );
+    my $toDb   = $self->getProperty( 'toDb' );
 
-    my $upConfigs = $self->{upconfigs}->configs( $run );
-    my $usConfigs = $self->{usconfigs}->configs( $run );
+    my $upConfigs = $self->{upconfigs}->configs( $self );
+    my $usConfigs = $self->{usconfigs}->configs( $self );
 
     my $newPackages = {};
     my $oldPackages = {};

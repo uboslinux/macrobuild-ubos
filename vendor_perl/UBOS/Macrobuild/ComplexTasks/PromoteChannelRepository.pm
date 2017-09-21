@@ -20,38 +20,35 @@ use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages->new(
-                        'name'        => 'Determine which packages should be promoted in ' . $self->{db},
-                        'upconfigs'   => $self->{upconfigs},
-                        'usconfigs'   => $self->{usconfigs},
-                        'arch'        => '${arch}',
-                        'channel'     => '${channel}',
-                        'fromDb'      => '${fromRepodir}/${arch}/' . $self->{db},
-                        'toDb'        => '${repodir}/${arch}/' . $self->{db} ));
+    my $db        = $self->getProperty( 'db' );
+    my $upconfigs = $self->getProperty( 'upconfigs' );
+    my $usconfigs = $self->getProperty( 'usconfigs' );
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
-                        'name'        => 'Stage new packages in ' . $self->{db},
-                        'stagedir'    => $self->{repodir} . '/${arch}/' . $self->{db} ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages->new(
+            'name'        => 'Determine which packages should be promoted in ' . $db,
+            'upconfigs'   => $upconfigs,
+            'usconfigs'   => $usconfigs,
+            'arch'        => '${arch}',
+            'channel'     => '${channel}',
+            'fromDb'      => '${fromRepodir}/${arch}/' . $db,
+            'toDb'        => '${repodir}/${arch}/' . $db ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
-                        'name'        => 'Update package database with new packages in ' . $self->{db},
-                        'dbfile'      => $self->{repodir} . '/${arch}/' . $self->{db} . '/' . $self->{db} . '.db.tar.xz',
-                        'dbSignKey'   => '${dbSignKey}' ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
+            'name'        => 'Stage new packages in ' . $db,
+            'stagedir'    => '${repodir}/${arch}/' . $db ));
 
-                return SUCCESS;
-            } );
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
+            'name'        => 'Update package database with new packages in ' . $db,
+            'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+            'dbSignKey'   => '${dbSignKey}' ));
 
     return $self;
 }

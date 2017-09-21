@@ -28,7 +28,7 @@ sub runImpl {
 
         my $removedPackages = $in->{'removed-packages'};
 
-        my $destDir = $run->getProperty( 'stagedir' );
+        my $destDir = $self->getProperty( 'stagedir' );
 
         UBOS::Macrobuild::Utils::ensureDirectories( $destDir );
 
@@ -57,7 +57,7 @@ sub runImpl {
         }
     }
 
-    $run->setOutput( {
+    $run->$run->setOutput( {
             'unstaged-packages' => $unstaged
     } );
 

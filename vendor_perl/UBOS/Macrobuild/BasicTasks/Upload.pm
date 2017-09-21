@@ -15,14 +15,13 @@ use UBOS::Logging;
 use UBOS::Utils;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $from = $run->getProperty( 'from' );
-    my $to   = $run->getProperty( 'to' );
+    my $from = $self->getProperty( 'from' );
+    my $to   = $self->getProperty( 'to' );
 
     my $ret           = DONE_NOTHING;
     my $uploadedFiles = undef;
@@ -34,7 +33,7 @@ sub run {
         if( @filesInFrom ) {
             UBOS::Utils::saveFile( "$from/LAST_UPLOADED", UBOS::Utils::time2string( time() ) . "\n" );
 
-            my $uploadKey = $run->getOrUndef( 'uploadSshKey' );
+            my $uploadKey = $self->getValueOrDefault( 'uploadSshKey', undef );
 
             # rsync flags from: https://wiki.archlinux.org/index.php/Mirroring
             my $rsyncCmd = 'rsync -rtlvH --delete-after --delay-updates --links --safe-links --max-delete=1000';
@@ -43,7 +42,7 @@ sub run {
             } else {
                 $rsyncCmd .= ' -e ssh';
             }
-            my $inexclude = $run->getPropertyOrDefault( 'inexclude', undef );
+            my $inexclude = $self->getPropertyOrDefault( 'inexclude', undef );
             if( $inexclude ) {
                 $rsyncCmd .= ' ' . $inexclude;
             }

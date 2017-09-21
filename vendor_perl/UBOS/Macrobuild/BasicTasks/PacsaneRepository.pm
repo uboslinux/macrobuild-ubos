@@ -19,7 +19,7 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $dbfile = $run->getProperty( 'dbfile' );
+    my $dbfile = $self->getProperty( 'dbfile' );
 
     my $ret = 0;
     unless( -e $dbfile ) {

@@ -18,25 +18,18 @@ use UBOS::Macrobuild::BasicTasks::CheckSignatures;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                $task->setDelegate( UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
-                        'name'  => 'Check signatures for compressed images',
-                        'dir'   => '${repodir}/${arch}/images',
-                        'glob'  => '*.tar.xz' ));
-
-                return SUCCESS;
-            });
+    $self->setDelegate( UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
+            'name'  => 'Check signatures for compressed images',
+            'dir'   => '${repodir}/${arch}/images',
+            'glob'  => '*.tar.xz' ));
 
     return $self;
 }

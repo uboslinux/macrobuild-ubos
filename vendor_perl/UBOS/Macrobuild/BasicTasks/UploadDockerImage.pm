@@ -15,9 +15,8 @@ use Macrobuild::Task;
 use UBOS::Logging;
 
 ##
-# Run this task.
-# $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+# @Overridden
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 

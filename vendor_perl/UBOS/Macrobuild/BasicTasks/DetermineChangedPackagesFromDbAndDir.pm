@@ -20,9 +20,9 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch    = $run->getProperty( 'arch' );
-    my $channel = $run->getProperty( 'channel' );
-    my $dir     = $run->getProperty( 'dir' );
+    my $arch    = $self->getProperty( 'arch' );
+    my $channel = $self->getProperty( 'channel' );
+    my $dir     = $self->getProperty( 'dir' );
 
     my $in = $run->getInput();
 
@@ -39,7 +39,7 @@ sub runImpl {
                          # Worse, it may contain (pinned) packages that are local and cannot be found remotely at all
 
     if( %$packageDatabases ) {
-        my $upConfigs = $self->{upconfigs}->configs( $run );
+        my $upConfigs = $self->{upconfigs}->configs( $self );
         foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
             my $upConfig = $upConfigs->{$upConfigName};
 

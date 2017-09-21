@@ -26,8 +26,8 @@ sub runImpl {
 
     my $allPackageDatabases     = {};
     my $updatedPackageDatabases = {};
-    my $upConfigs               = $self->{upconfigs}->configs( $run );
-    my $downloadDir             = $run->getProperty( 'downloaddir' );
+    my $upConfigs               = $self->{upconfigs}->configs( $self );
+    my $downloadDir             = $self->getProperty( 'downloaddir' );
 
     foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
         my $upConfig = $upConfigs->{$repoName};

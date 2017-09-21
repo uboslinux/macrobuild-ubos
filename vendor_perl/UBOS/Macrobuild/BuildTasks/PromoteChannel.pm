@@ -23,57 +23,50 @@ use UBOS::Macrobuild::Utils;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $dbs = $run->getProperty( 'db' );
-                unless( ref( $dbs )) {
-                    $dbs = [ $dbs ];
-                }
+    my $dbs = $self->getProperty( 'db' );
+    unless( ref( $dbs )) {
+        $dbs = [ $dbs ];
+    }
 
-                my $repoUpConfigs = {};
-                my $repoUsConfigs = {};
+    my $repoUpConfigs = {};
+    my $repoUsConfigs = {};
 
-                my @promoteTasks = ();
+    my @promoteTasks = ();
 
-                # create UpConfigs/UsConfigs, and also fetch tasks
-                foreach my $db ( @$dbs ) {
-                    my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
-                    $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-                    $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us' );
+    # create UpConfigs/UsConfigs, and also fetch tasks
+    foreach my $db ( @$dbs ) {
+        my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+        $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
+        $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us' );
 
-                    my $promoteTaskName = "promote-$shortDb";
+        my $promoteTaskName = "promote-$shortDb";
 
-                    $task->addParallelTask(
-                            $promoteTaskName,
-                            UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository->new(
-                                    'name'        => 'Promote channel repository ' . $shortDb,
-                                    'arch'        => '${arch}',
-                                    'channel'     => '${channel}',
-                                    'upconfigs'   => $repoUpConfigs->{$shortDb},
-                                    'usconfigs'   => $repoUsConfigs->{$shortDb},
-                                    'db'          => $shortDb,
-                                    'repodir'     => '${repodir}',
-                                    'fromRepodir' => '${fromRepodir}' ));
+        $self->addParallelTask(
+                $promoteTaskName,
+                UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository->new(
+                        'name'        => 'Promote channel repository ' . $shortDb,
+                        'arch'        => '${arch}',
+                        'channel'     => '${channel}',
+                        'upconfigs'   => $repoUpConfigs->{$shortDb},
+                        'usconfigs'   => $repoUsConfigs->{$shortDb},
+                        'db'          => $shortDb,
+                        'repodir'     => '${repodir}',
+                        'fromRepodir' => '${fromRepodir}' ));
 
-                    push @promoteTasks, $promoteTaskName;
-                }
+        push @promoteTasks, $promoteTaskName;
+    }
 
-                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge promotion lists from repositories: ' . join( ' ', @$dbs ),
-                        'keys' => \@promoteTasks ));
-
-                return SUCCESS;
-            } );
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge promotion lists from repositories: ' . join( ' ', @$dbs ),
+            'keys' => \@promoteTasks ));
 
     return $self;
 }

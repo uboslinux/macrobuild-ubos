@@ -20,8 +20,8 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $keyId   = $run->getProperty( 'keyId' );
-    my $gpgHome = $run->getValueOrDefault( 'GNUPGHOME', undef );
+    my $keyId   = $self->getProperty( 'keyId' );
+    my $gpgHome = $self->getValueOrDefault( 'GNUPGHOME', undef );
 
     my $cmd = '';
     if( $gpgHome ) {

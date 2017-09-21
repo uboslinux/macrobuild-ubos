@@ -18,51 +18,44 @@ use UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $dbs = $run->getProperty( 'db' );
-                if( !ref( $dbs )) {
-                    $dbs = [ $dbs ];
-                }
+    my $dbs = $self->getProperty( 'db' );
+    if( !ref( $dbs )) {
+        $dbs = [ $dbs ];
+    }
 
-                my $repoUpConfigs = {};
+    my $repoUpConfigs = {};
 
-                my @removeTaskNames = ();
-                foreach my $db ( @$dbs ) {
-                    my $shortDb  = UBOS::Macrobuild::Utils::shortDb( $db );
-                    my $taskName = "remove-fetched-packages-$shortDb";
-                    push @removeTaskNames, $taskName;
+    my @removeTaskNames = ();
+    foreach my $db ( @$dbs ) {
+        my $shortDb  = UBOS::Macrobuild::Utils::shortDb( $db );
+        my $taskName = "remove-fetched-packages-$shortDb";
+        push @removeTaskNames, $taskName;
 
-                    $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
+        $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
 
-                    $self->addParallelTask(
-                            $taskName,
-                            UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages->new(
-                                    'name'      => 'Remove fetched packages marked as such from ' . $db,
-                                    'arch'      => '${arch}',
-                                    'builddir'  => '${builddir}',
-                                    'repodir'   => '${repodir}',
-                                    'upconfigs' => $repoUpConfigs->{$shortDb},
-                                    'db'        => $shortDb,
-                                    'dbSignKey' => '${dbSignKey}' ));
-               }
+        $self->addParallelTask(
+                $taskName,
+                UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages->new(
+                        'name'      => 'Remove fetched packages marked as such from ' . $db,
+                        'arch'      => '${arch}',
+                        'builddir'  => '${builddir}',
+                        'repodir'   => '${repodir}',
+                        'upconfigs' => $repoUpConfigs->{$shortDb},
+                        'db'        => $shortDb,
+                        'dbSignKey' => '${dbSignKey}' ));
+   }
 
-                $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge update lists from dbs: ' . join( ' ', @$dbs ),
-                        'keys' => \@removeTaskNames ));
-
-                return SUCCESS;
-            } );
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge update lists from dbs: ' . join( ' ', @$dbs ),
+            'keys' => \@removeTaskNames ));
 
     return $self;
 }

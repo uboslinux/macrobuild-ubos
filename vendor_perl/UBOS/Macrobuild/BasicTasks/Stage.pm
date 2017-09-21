@@ -32,7 +32,7 @@ sub runImpl {
     my $staged      = {}; # Map<packageName,file[]>: Value is an array, so it is symmetric to Unstage,
                           # which might unstage several package versions at the same time
 
-    my $destDir = $run->getProperty( 'stagedir' );
+    my $destDir = $self->getProperty( 'stagedir' );
 
     UBOS::Macrobuild::Utils::ensureDirectories( $destDir );
 

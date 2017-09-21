@@ -20,14 +20,14 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $imageSignKey = $run->getProperty( 'imageSignKey' );
-    my $gpgHome      = $run->getValueOrDefault( 'GNUPGHOME', undef );
+    my $imageSignKey = $self->getProperty( 'imageSignKey' );
+    my $gpgHome      = $self->getValueOrDefault( 'GNUPGHOME', undef );
 
     my $errors = 0;
     my @signedFiles = ();
     if( $imageSignKey ) {
-        my $dir      = $run->getProperty( 'dir' );
-        my $glob     = $run->getProperty( 'glob' );
+        my $dir      = $self->getProperty( 'dir' );
+        my $glob     = $self->getProperty( 'glob' );
         my @allFiles = glob "$dir/$glob";
         my @toSign   = grep { -f $_ && ! -l $_ && ( ! -e "$_.sig" || -z "$_.sig" ) } @allFiles;
 

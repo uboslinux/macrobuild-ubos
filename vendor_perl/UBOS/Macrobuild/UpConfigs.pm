@@ -33,16 +33,16 @@ sub allIn {
 
 ##
 # Return a hash of UpConfigs, keyed by their short repository name
-# $run: the TaskRun context to use
+# $task: the Task context to use
 sub configs {
     my $self = shift;
-    my $run  = shift;
+    my $task = shift;
 
-    my $arch = $run->getValue( 'arch' );
+    my $arch = $task->getValue( 'arch' );
 
     my $ret = $self->{configsCache};
     unless( $ret ) {
-        my $realDir = $run->replaceVariables( $self->{dir} );
+        my $realDir = $task->replaceVariables( $self->{dir} );
 
         unless( -d $realDir ) {
             trace( "Upstream packages config dir not found:", $self->{dir}, 'expanded to', $realDir );
@@ -81,9 +81,8 @@ sub configs {
             my $packages  = $upConfigJson->{packages};
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages, $arch );
 
-            my $directory = $run->replaceVariables(
+            my $directory = $task->replaceVariables(
                     $upstreamDir,
-                    0,
                     { 'shortdb' => $shortRepoName } );
 
             unless( !defined( $directory ) || ( $directory =~ m!^/! && -d $directory ) || $directory =~ m!^https?://! ) {

@@ -24,16 +24,16 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch            = $run->getProperty( 'arch' );
-    my $channel         = $run->getProperty( 'channel' );
-    my $depotRoot       = $run->getProperty( 'depotRoot' );
-    my $deviceclass     = $run->getProperty( 'deviceclass' );
-    my $checkSignatures = $run->getPropertyOrDefault( 'checkSignatures', 'required' );
+    my $arch            = $self->getProperty( 'arch' );
+    my $channel         = $self->getProperty( 'channel' );
+    my $depotRoot       = $self->getProperty( 'depotRoot' );
+    my $deviceclass     = $self->getProperty( 'deviceclass' );
+    my $checkSignatures = $self->getPropertyOrDefault( 'checkSignatures', 'required' );
 
     my $errors  = 0;
-    my $repodir = File::Spec->rel2abs( $run->getProperty( 'repodir' ));
-    my $dir     = File::Spec->rel2abs( $run->getProperty( 'dir'     ));
-    my $tarfile = File::Spec->rel2abs( $run->getProperty( 'tarfile' ));
+    my $repodir = File::Spec->rel2abs( $self->getProperty( 'repodir' ));
+    my $dir     = File::Spec->rel2abs( $self->getProperty( 'dir'     ));
+    my $tarfile = File::Spec->rel2abs( $self->getProperty( 'tarfile' ));
 
     Macrobuild::Utils::ensureParentDirectoriesOf( $dir );
     Macrobuild::Utils::ensureParentDirectoriesOf( $tarfile );
@@ -99,7 +99,7 @@ sub runImpl {
         return FAIL;
 
     } elsif( $tarfile ) {
-        my $linkLatestDir = $run->getProperty( 'linkLatest-dir' );
+        my $linkLatestDir = $self->getPropertyOrDefault( 'linkLatest-dir', undef );
         if( $linkLatestDir ) {
             if( -l $linkLatestDir ) {
                 UBOS::Utils::deleteFile( $linkLatestDir );
@@ -113,7 +113,7 @@ sub runImpl {
                 UBOS::Utils::symlink( $rel, $linkLatestDir );
             }
         }
-        my $linkLatestTarfile = $run->getProperty( 'linkLatest-tarfile' );
+        my $linkLatestTarfile = $self->getProperty( 'linkLatest-tarfile' );
         if( $linkLatestTarfile ) {
             if( -l $linkLatestTarfile ) {
                 UBOS::Utils::deleteFile( $linkLatestTarfile );

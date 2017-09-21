@@ -22,49 +22,41 @@ use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $db        = $run->getProperty( 'db' );
-                my $upconfigs = $run->getProperty( 'upconfigs' );
+    my $db        = $self->getProperty( 'db' );
+    my $upconfigs = $self->getProperty( 'upconfigs' );
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::DownloadPackageDbs->new(
-                        'name'        => 'Download package database files from Arch',
-                        'upconfigs'   => $upconfigs,
-                        'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::DownloadPackageDbs->new(
+            'name'        => 'Download package database files from Arch',
+            'upconfigs'   => $upconfigs,
+            'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir->new(
-                        'name'        => 'Determining which packages changed in Arch',
-                        'upconfigs'   => $upconfigs,
-                        'dir'         => '${builddir}/dbs/' . $db . '/upc/${arch}',
-                        'channel'     => '${channel}',
-                        'arch'        => '${arch}' ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir->new(
+            'name'        => 'Determining which packages changed in Arch',
+            'upconfigs'   => $upconfigs,
+            'dir'         => '${builddir}/dbs/' . $db . '/upc/${arch}',
+            'channel'     => '${channel}',
+            'arch'        => '${arch}' ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::FetchPackages->new(
-                        'name'        => 'Fetching packages downloaded from Arch',
-                        'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::FetchPackages->new(
+            'name'        => 'Fetching packages downloaded from Arch',
+            'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
-                        'name'        => 'Stage new packages in local repository',
-                        'stagedir'    => '${repodir}/${arch}/' . $db ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
+            'name'        => 'Stage new packages in local repository',
+            'stagedir'    => '${repodir}/${arch}/' . $db ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
-                        'name'        => 'Update package database with new packages',
-                        'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
-                        'dbSignKey'   => '${dbSignKey}' ));
-
-                return SUCCESS;
-            }
-    );
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
+            'name'        => 'Update package database with new packages',
+            'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+            'dbSignKey'   => '${dbSignKey}' ));
 
     return $self;
 }

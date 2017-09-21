@@ -21,72 +21,63 @@ use UBOS::Macrobuild::BasicTasks::ImagesToVmdk;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $deviceclass = 'pc';
-                $task->addParallelTask(
-                        $deviceclass,
-                        UBOS::Macrobuild::BasicTasks::CreateImage->new(
-                                'name'        => 'Create ${arch} ${deviceclass} boot disk image for ${channel}',
-                                'repodir'     => '${repodir}',
-                                'depotRoot'   => '${depotRoot}',
-                                'channel'     => '${channel}',
-                                'deviceclass' => $deviceclass,
-                                'imagesize'   => '3G',
-                                'image'       => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_${tstamp}.img',
-                                'linkLatest'  => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_LATEST.img' ));
+    my $deviceclass = 'pc';
+    $self->addParallelTask(
+            $deviceclass,
+            UBOS::Macrobuild::BasicTasks::CreateImage->new(
+                    'name'        => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
+                    'repodir'     => '${repodir}',
+                    'depotRoot'   => '${depotRoot}',
+                    'channel'     => '${channel}',
+                    'deviceclass' => $deviceclass,
+                    'imagesize'   => '3G',
+                    'image'       => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.img',
+                    'linkLatest'  => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
 
-                $deviceclass = 'vbox';
-                $task->addParallelTask(
-                        $deviceclass,
-                        Macrobuild::CompositeTasks::Sequential->new(
-                                'setup' => sub {
-                                    my $run2  = shift;
-                                    my $task2 = shift;
+    $deviceclass = 'vbox';
+    my $vboxTask = Macrobuild::CompositeTasks::Sequential->new();
 
-                                    $task2->appendTask( UBOS::Macrobuild::BasicTasks::CreateImage->new(
-                                            'name'        => 'Create ${arch} ${deviceclass} boot disk image for ${channel}',
-                                            'repodir'     => '${repodir}',
-                                            'depotRoot'   => '${depotRoot}',
-                                            'channel'     => '${channel}',
-                                            'deviceclass' => $deviceclass,
-                                            'imagesize'   => '3G',
-                                            'image'       => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_${tstamp}.img',
-                                            'linkLatest'  => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_LATEST.img' ));
+    $vboxTask->appendTask( UBOS::Macrobuild::BasicTasks::CreateImage->new(
+            'name'        => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
+            'repodir'     => '${repodir}',
+            'depotRoot'   => '${depotRoot}',
+            'channel'     => '${channel}',
+            'deviceclass' => $deviceclass,
+            'imagesize'   => '3G',
+            'image'       => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.img',
+            'linkLatest'  => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
 
-                                    $task2->appendTask( UBOS::Macrobuild::BasicTasks::ImagesToVmdk->new());
-                                } ));
+    $vboxTask->appendTask( UBOS::Macrobuild::BasicTasks::ImagesToVmdk->new());
 
-                $deviceclass = 'container';
-                $self->addParallelTask(
-                        $deviceclass,
-                        UBOS::Macrobuild::BasicTasks::CreateContainer->new(
-                                'name'              => 'Create x86_64 bootable container for ${channel}',
-                                'repodir'           => '${repodir}',
-                                'depotRoot'         => '${depotRoot}',
-                                'channel'           => '${channel}',
-                                'deviceclass'       => $deviceclass,
-                                'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_${tstamp}.tardir',
-                                'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_LATEST.tardir',
-                                'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_${tstamp}.tar',
-                                'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_LATEST.tar' ));
+    $self->addParallelTask(
+            $deviceclass,
+            $vboxTask );
 
-                $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge images list for ${channel}',
-                        'keys' => [ 'pc', 'vbox', 'container' ] ));
+    $deviceclass = 'container';
+    $self->addParallelTask(
+            $deviceclass,
+            UBOS::Macrobuild::BasicTasks::CreateContainer->new(
+                    'name'              => 'Create x86_64 bootable container for ${channel}',
+                    'repodir'           => '${repodir}',
+                    'depotRoot'         => '${depotRoot}',
+                    'channel'           => '${channel}',
+                    'deviceclass'       => $deviceclass,
+                    'dir'               => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
+                    'linkLatest-dir'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
+                    'tarfile'           => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
+                    'linkLatest-tarfile'=> '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
 
-                return SUCCESS;
-            } );
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge images list for ${channel}',
+            'keys' => [ 'pc', 'vbox', 'container' ] ));
 
     return $self;
 }

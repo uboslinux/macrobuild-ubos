@@ -20,8 +20,8 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $dir    = $run->getProperty( 'dir' );
-    my $branch = $run->getProperty( 'branch' );
+    my $dir    = $self->getProperty( 'dir' );
+    my $branch = $self->getProperty( 'branch' );
 
     my $gitCmd = "git checkout -- . ; git checkout '$branch' ; git pull";
 

@@ -23,8 +23,8 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $image            = $run->getProperty( 'image' );
-    my $dockerName       = $run->getProperty( 'dockerName' );
+    my $image            = $self->getProperty( 'image' );
+    my $dockerName       = $self->getProperty( 'dockerName' );
     my $errors           = 0;
     my @createdImageIds  = ();
     my @createdDockerIds = ();

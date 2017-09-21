@@ -18,26 +18,19 @@ use UBOS::Macrobuild::BasicTasks::UploadDockerImage;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                $self->appendTask( UBOS::Macrobuild::BasicTasks::CreateDockerImage->new(
-                        'image'      => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tar',
-                        'dockerName' => 'ubos/ubos-${channel}' ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::CreateDockerImage->new(
+            'image'      => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tar',
+            'dockerName' => 'ubos/ubos-${channel}' ));
 
-                $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage());
-
-                return SUCCESS;
-            } );
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage());
 
     return $self;
 }

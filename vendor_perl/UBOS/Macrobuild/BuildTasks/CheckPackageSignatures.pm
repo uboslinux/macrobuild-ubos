@@ -21,45 +21,38 @@ use UBOS::Macrobuild::BasicTasks::CheckSignatures;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $dbs = $run->getProperty( 'db' );
-                unless( ref( $dbs )) {
-                    $dbs = [ $dbs ];
-                }
+    my $dbs = $self->getProperty( 'db' );
+    unless( ref( $dbs )) {
+        $dbs = [ $dbs ];
+    }
 
-                my @checkTaskNames = ();
-                foreach my $db ( @$dbs ) {
-                    my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+    my @checkTaskNames = ();
+    foreach my $db ( @$dbs ) {
+        my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
 
-                    my $checkTaskName = "check-signatures-$shortDb";
+        my $checkTaskName = "check-signatures-$shortDb";
 
-                    $task->addParallelTask(
-                            $checkTaskName,
-                            UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
-                                    'name'  => 'Check signatures for ' . $db,
-                                    'dir'   => '${repodir}/${arch}/' . $shortDb,
-                                    'glob'  => '*.pkg.tar.xz' ));
+        $self->addParallelTask(
+                $checkTaskName,
+                UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
+                        'name'  => 'Check signatures for ' . $db,
+                        'dir'   => '${repodir}/${arch}/' . $shortDb,
+                        'glob'  => '*.pkg.tar.xz' ));
 
-                    push @checkTaskNames, $checkTaskName;
-                }
+        push @checkTaskNames, $checkTaskName;
+    }
 
-                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge results from ${channel} dbs: ' . join( ' ', @$dbs ),
-                        'keys' => \@checkTaskNames ));
-
-                return SUCCESS;
-            });
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge results from ${channel} dbs: ' . join( ' ', @$dbs ),
+            'keys' => \@checkTaskNames ));
 
     return $self;
 }

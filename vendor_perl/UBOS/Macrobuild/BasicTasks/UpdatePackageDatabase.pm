@@ -33,14 +33,11 @@ sub runImpl {
     my @removedPackageNames = ();
     my $ret                 = DONE_NOTHING;
     if( %$stagedPackages || %$unstagedPackages ) {
-        my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $run->getProperty( 'dbfile' ));
+        my $dbFile = new UBOS::Macrobuild::PacmanDbFile( $self->getProperty( 'dbfile' ));
         my @stagedPackageFiles   = sort values %$stagedPackages;
-        my @unstagedPackageNames = sort keys %$unstagedPackages;
+        my @unstagedPackageNames = sort keys   %$unstagedPackages;
 
-        my $dbSignKey = $run->getPropertyOrDefault( 'dbSignKey', undef );
-        if( $dbSignKey ) {
-            $dbSignKey = $run->replaceVariables( $dbSignKey );
-        }
+        my $dbSignKey = $self->getPropertyOrDefault( 'dbSignKey', undef );
         if( @stagedPackageFiles ) {
             if( $dbFile->addPackages( $dbSignKey, \@stagedPackageFiles ) == -1 ) {
                 $ret = FAIL;

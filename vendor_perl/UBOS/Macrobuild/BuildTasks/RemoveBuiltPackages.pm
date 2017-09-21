@@ -8,62 +8,58 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::RemoveBuiltPackages;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch builddir repodir localSourcesDir db dbSignKey );
+use fields qw( arch builddir repodir localSourcesDir db dbSignKey m2builddir );
 
 use Macrobuild::Task;
+use UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages;
 
 ##
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $m2BuildDir      = '${builddir}/maven';
-                my $localSourcesDir = $run->getPropertyOrDefault( 'localSourcesDir', undef );
+    my $m2BuildDir      = $self->getProperty( 'm2builddir' );
+    my $localSourcesDir = $self->getPropertyOrDefault( 'localSourcesDir', undef );
 
-                my $dbs = $run->getProperty( 'db' );
-                unless( ref( $dbs )) {
-                    $dbs = [ $dbs ];
-                }
+    my $dbs = $self->getProperty( 'db' );
+    unless( ref( $dbs )) {
+        $dbs = [ $dbs ];
+    }
 
-                my $repoUsConfigs   = {};
-                my @removeTaskNames = ();
+    my $repoUsConfigs   = {};
+    my @removeTaskNames = ();
 
-                # create remove packages tasks
-                foreach my $db ( @$dbs ) {
-                    my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
-                    $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
+    # create remove packages tasks
+    foreach my $db ( @$dbs ) {
+        my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+        $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 
-                    my $removeTaskName = "remove-$shortDb";
-                    push @removeTaskNames, $removeTaskName;
+        my $removeTaskName = "remove-$shortDb";
+        push @removeTaskNames, $removeTaskName;
 
-                    $task->addParallelTask(
-                            $removeTaskName,
-                            UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages->new(
-                                    'name'      => 'Remove built packages marked as such from ' . $db,
-                                    'arch'      => '${arch}',
-                                    'builddir'  => '${builddir}',
-                                    'repodir'   => '${repodir}',
-                                    'usconfigs' => $repoUsConfigs->{$db},
-                                    'sourcedir' => '${builddir}/dbs/' . $db . '/ups',
-                                    'db'        => $shortDb,
-                                    'dbSignKey' => '${dbSignKey}' ));
-                }
+        $self->addParallelTask(
+                $removeTaskName,
+                UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages->new(
+                        'name'      => 'Remove built packages marked as such from ' . $db,
+                        'arch'      => '${arch}',
+                        'builddir'  => '${builddir}',
+                        'repodir'   => '${repodir}',
+                        'usconfigs' => $repoUsConfigs->{$db},
+                        'db'        => $shortDb,
+                        'dbSignKey' => '${dbSignKey}' ));
+    }
 
-                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge update lists from dbs: ' . join( ' ', @$dbs ),
-                        'keys' => \@removeTaskNames ));
-            });
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge update lists from dbs: ' . join( ' ', @$dbs ),
+            'keys' => \@removeTaskNames ));
+
     return $self;
 }
 

@@ -42,7 +42,7 @@ sub runImpl {
     my %dirToUXConfigName   = ();
     my %packageDependencies = ();
     my %packageToDir        = ();
-    my $sourceDir           = $run->getProperty( 'sourcedir' );
+    my $sourceDir           = $self->getProperty( 'sourcedir' );
     foreach my $uXConfigName ( sort keys %allDirs ) {
         my $subdirs = $dirsUpdated->{$uXConfigName} || $dirsNotUpdated->{$uXConfigName};
 
@@ -69,7 +69,7 @@ sub runImpl {
 
     trace( sub { "Dir sequence is:\n" . join( "\n", map { "    $_" } @dirSequence ) } );
 
-    my $alwaysRebuild = $run->getValueOrDefault( 'alwaysRebuild', 0 );
+    my $alwaysRebuild = $self->getValueOrDefault( 'alwaysRebuild', 0 );
 
     # do the build, in @dirSequence
     my $ret        = DONE_NOTHING;
@@ -144,10 +144,10 @@ sub _buildPackage {
 
     UBOS::Utils::myexec( "touch $dir/$failedstamp" ); # in progress
 
-    my $packageSignKey = $run->getValueOrDefault(    'packageSignKey', undef ); # ok if not exists
-    my $gpgHome        = $run->getValueOrDefault(    'GNUPGHOME',      undef ); # ok if not exists
-    my $m2settingsfile = $run->getPropertyOrDefault( 'm2settingsfile', undef ); # ok if not exists
-    my $m2repository   = $run->getPropertyOrDefault( 'm2repository',   undef ); # ok if not exists
+    my $packageSignKey = $self->getValueOrDefault(    'packageSignKey', undef ); # ok if not exists
+    my $gpgHome        = $self->getValueOrDefault(    'GNUPGHOME',      undef ); # ok if not exists
+    my $m2settingsfile = $self->getPropertyOrDefault( 'm2settingsfile', undef ); # ok if not exists
+    my $m2repository   = $self->getPropertyOrDefault( 'm2repository',   undef ); # ok if not exists
 
     my $mvn_opts = ' -DskipTests -PUBOS';
     if( $m2settingsfile ) {

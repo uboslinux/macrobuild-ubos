@@ -23,13 +23,13 @@ sub runImpl {
 
     my $testCmd  = 'webapptest run';
 
-    my $config = $run->getPropertyOrDefault( 'config', undef );
+    my $config = $self->getPropertyOrDefault( 'config', undef );
     if( defined( $config )) {
         $testCmd .= " --config '$config'";
     }
 
-    my $scaffold  = $run->getProperty( 'scaffold' );
-    my $directory = $run->getPropertyOrDefault( 'directory', undef );
+    my $scaffold  = $self->getProperty( 'scaffold' );
+    my $directory = $self->getPropertyOrDefault( 'directory', undef );
     if( $directory ) {
         $testCmd .= " --scaffold 'container:directory=$directory'";
     }
@@ -44,7 +44,7 @@ sub runImpl {
     trace( "Now processing upstream source config file", $name );
 
     my $webapptests = $usConfig->webapptests;
-    my $sourceDir   = $run->getProperty( 'sourcedir' );
+    my $sourceDir   = $self->getProperty( 'sourcedir' );
     if( defined( $webapptests ) && keys %$webapptests ) {
         my $sourceSourceDir = "$sourceDir/$name";
         if( -d $sourceSourceDir ) {

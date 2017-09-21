@@ -23,8 +23,8 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $age = $run->getProperty( 'maxAge' );
-    my $dir = $run->getProperty( 'dir' );
+    my $age = $self->getProperty( 'maxAge' );
+    my $dir = $self->getProperty( 'dir' );
     unless( -d $dir ) {
         error( 'PurgeChannelPackages: directory does not exist:', $dir );
         return FAIL;

@@ -22,43 +22,36 @@ use UBOS::Macrobuild::Utils;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $dbs = $run->getProperty( 'db' );
-                unless( ref( $dbs )) {
-                    $dbs = [ $dbs ];
-                }
+    my $dbs = $self->getProperty( 'db' );
+    unless( ref( $dbs )) {
+        $dbs = [ $dbs ];
+    }
 
-                my @taskNames = ();
+    my @taskNames = ();
 
-                foreach my $db ( @$dbs ) {
-                    my $shortDb  = UBOS::Macrobuild::Utils::shortDb( $db );
-                    my $taskName = "pacsane-$shortDb";
-                    push @taskNames, $taskName;
+    foreach my $db ( @$dbs ) {
+        my $shortDb  = UBOS::Macrobuild::Utils::shortDb( $db );
+        my $taskName = "pacsane-$shortDb";
+        push @taskNames, $taskName;
 
-                    $task->addParallelTask(
-                            $taskName,
-                            UBOS::Macrobuild::BasicTasks::PacsaneRepository->new(
-                                    'name'   => 'Pacsane on db ' . $shortDb,
-                                    'dbfile' => '${repodir}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz' ));
-                }
+        $self->addParallelTask(
+                $taskName,
+                UBOS::Macrobuild::BasicTasks::PacsaneRepository->new(
+                        'name'   => 'Pacsane on db ' . $shortDb,
+                        'dbfile' => '${repodir}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz' ));
+    }
 
-                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge pacsane results from repositories: ' . join( ' ', @$dbs ),
-                        'keys' => \@taskNames ));
-
-                return SUCCESS;
-            } );
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge pacsane results from repositories: ' . join( ' ', @$dbs ),
+            'keys' => \@taskNames ));
 
     return $self;
 }

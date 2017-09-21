@@ -22,8 +22,8 @@ sub runImpl {
 
     my $errors = 0;
 
-    my $repoUpConfigs = $run->getProperty( 'repoUpConfigs' );
-    my $repoUsConfigs = $run->getProperty( 'repoUsConfigs' );
+    my $repoUpConfigs = $self->getProperty( 'repoUpConfigs' );
+    my $repoUsConfigs = $self->getProperty( 'repoUsConfigs' );
 
     trace( 'CheckPossibleOverlaps:', keys %$repoUpConfigs, keys %$repoUsConfigs );
 
@@ -31,7 +31,7 @@ sub runImpl {
     foreach my $name ( keys %$repoUpConfigs ) {
         my $upConfigs = $repoUpConfigs->{$name};
 
-        my $configs = $upConfigs->configs( $run );
+        my $configs = $upConfigs->configs( $self );
         foreach my $configName ( keys %$configs ) {
             my $upConfig      = $configs->{$configName};
             my $overlapBucket = $upConfig->overlapBucket();
@@ -51,7 +51,7 @@ sub runImpl {
     foreach my $name ( keys %$repoUsConfigs ) {
         my $usConfigs = $repoUsConfigs->{$name};
 
-        my $configs = $usConfigs->configs( $run );
+        my $configs = $usConfigs->configs( $self );
         foreach my $configName ( keys %$configs ) {
             my $upConfig      = $configs->{$configName};
             my $overlapBucket = $upConfig->overlapBucket();

@@ -19,37 +19,30 @@ use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $db = $run->getProperty( $db );
+    my $db = $self->getProperty( 'db' );
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::RemoveBuiltPackages->new(
-                        'name'        => 'Removed built packages',
-                        'arch'        => '${arch}',
-                        'usconfigs'   => $self->{usconfigs},
-                        'sourcedir'   => '${builddir}/dbs/' . $db . '/ups'  ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::RemoveBuiltPackages->new(
+            'name'        => 'Removed built packages',
+            'arch'        => '${arch}',
+            'usconfigs'   => $self->{usconfigs},
+            'sourcedir'   => '${builddir}/dbs/' . $db . '/ups'  ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::Unstage->new(
-                        'name'        => 'Unstage removed packages in local repository',
-                        'stagedir'    => '${repodir}/${arch}/' . $db ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::Unstage->new(
+            'name'        => 'Unstage removed packages in local repository',
+            'stagedir'    => '${repodir}/${arch}/' . $db ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
-                        'name'        => 'Update package database with removed packages',
-                        'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
-                        'dbSignKey'   => '${dbSignKey}' ));
-
-                return SUCCESS;
-            });
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
+            'name'        => 'Update package database with removed packages',
+            'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+            'dbSignKey'   => '${dbSignKey}' ));
 
     return $self;
 }

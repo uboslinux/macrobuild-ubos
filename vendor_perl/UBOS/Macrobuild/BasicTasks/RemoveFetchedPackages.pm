@@ -20,10 +20,10 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
-    my $downloadDir = $run->getProperty( 'downloaddir' );
-    my $arch        = $run->getProperty( 'arch' );
+    my $downloadDir = $self->getProperty( 'downloaddir' );
+    my $arch        = $self->getProperty( 'arch' );
 
-    my $upConfigs = $self->{upconfigs}->configs( $run );
+    my $upConfigs = $self->{upconfigs}->configs( $self );
 
     my $removedPackages = {};
 

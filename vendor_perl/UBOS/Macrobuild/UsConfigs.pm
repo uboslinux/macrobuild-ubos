@@ -37,21 +37,21 @@ sub allIn {
 
 ##
 # Return a hash of UsConfigs, keyed by their short source name
-# $run: the TaskRun context to use
+# $task: the Task context to use
 sub configs {
     my $self = shift;
-    my $run  = shift;
+    my $task  = shift;
 
-    my $arch = $run->getValue( 'arch' );
+    my $arch = $task->getValue( 'arch' );
 
     my $localSourcesDir;
     if( defined( $self->{localSourcesDir} )) {
-        $localSourcesDir = $run->replaceVariables( $self->{localSourcesDir} );
+        $localSourcesDir = $task->replaceVariables( $self->{localSourcesDir} );
     }
 
     my $ret = $self->{configsCache};
     unless( $ret ) {
-        my $realDir = $run->replaceVariables( $self->{dir} );
+        my $realDir = $task->replaceVariables( $self->{dir} );
 
         unless( -d $realDir ) {
             trace( "Upstream sources config dir not found:", $self->{dir}, 'expanded to', $realDir );
@@ -93,7 +93,7 @@ sub configs {
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
 
             if( $usConfigJson->{type} eq 'git' ) {
-                my $branch = $run->replaceVariables( $usConfigJson->{branch} );
+                my $branch = $task->replaceVariables( $usConfigJson->{branch} );
 
                 $ret->{$shortSourceName} = new UBOS::Macrobuild::GitUsConfig(
                         $shortSourceName,

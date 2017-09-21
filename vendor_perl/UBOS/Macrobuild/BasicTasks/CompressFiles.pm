@@ -23,9 +23,9 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $inDir          = $run->getProperty( 'inDir'  );
-    my $glob           = $run->getProperty( 'glob'   );
-    my $outDir         = $run->getProperty( 'outDir' );
+    my $inDir          = $self->getProperty( 'inDir'  );
+    my $glob           = $self->getProperty( 'glob'   );
+    my $outDir         = $self->getProperty( 'outDir' );
     my $adjustSymlinks = !defined( $self->{adjustSymlinks} ) || $self->{adjustSymlinks};
 
     unless( -d $outDir ) {

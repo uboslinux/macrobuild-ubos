@@ -22,7 +22,7 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $dir = $run->getProperty( 'dir' );
+    my $dir = $self->getProperty( 'dir' );
 
     my @allFiles = <$dir/*>;
     my @files = grep { ! -l $_ } @allFiles; # ignore symlinks

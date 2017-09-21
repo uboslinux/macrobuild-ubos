@@ -21,61 +21,54 @@ use UBOS::Macrobuild::Utils;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $dbs = $run->getProperty( 'db' );
-                unless( ref( $dbs )) {
-                    $dbs = [ $dbs ];
-                }
+    my $dbs = $self->getProperty( 'db' );
+    unless( ref( $dbs )) {
+        $dbs = [ $dbs ];
+    }
 
-                my $repoUpConfigs = {};
-                my $repoUsConfigs = {};
+    my $repoUpConfigs = {};
+    my $repoUsConfigs = {};
 
-                my @buildTasksSequence = ();
+    my @buildTasksSequence = ();
 
-                # create UpConfigs/UsConfigs, and also fetch tasks
-                foreach my $db ( @$dbs ) {
-                    my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
-                    $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
-                    $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us' );
+    # create UpConfigs/UsConfigs, and also fetch tasks
+    foreach my $db ( @$dbs ) {
+        my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+        $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
+        $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us' );
 
-                    my $buildTaskName = "fetch-$shortDb";
+        my $buildTaskName = "fetch-$shortDb";
 
-                    $task->addParallelTask(
-                            $buildTaskName,
-                            UBOS::Macrobuild::ComplexTasks::FetchUpdatePackages->new(
-                                    'name'      => 'Fetch ' . $shortDb . ' packages',
-                                    'arch'      => '${arch}',
-                                    'channel'   => '${channel}',
-                                    'builddir'  => '${builddir}',
-                                    'repodir'   => '${repodir}',
-                                    'upconfigs' => $repoUpConfigs->{$shortDb},
-                                    'db'        => $shortDb,
-                                    'dbSignKey' => '${dbSignKey}' ));
+        $self->addParallelTask(
+                $buildTaskName,
+                UBOS::Macrobuild::ComplexTasks::FetchUpdatePackages->new(
+                        'name'      => 'Fetch ' . $shortDb . ' packages',
+                        'arch'      => '${arch}',
+                        'channel'   => '${channel}',
+                        'builddir'  => '${builddir}',
+                        'repodir'   => '${repodir}',
+                        'upconfigs' => $repoUpConfigs->{$shortDb},
+                        'db'        => $shortDb,
+                        'dbSignKey' => '${dbSignKey}' ));
 
-                    push @buildTasksSequence, $buildTaskName;
-                }
+        push @buildTasksSequence, $buildTaskName;
+    }
 
-                $task->setSplitTask( UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps->new(
-                        'repoUpConfigs' => $repoUpConfigs,
-                        'repoUsConfigs' => $repoUsConfigs ));
+    $self->setSplitTask( UBOS::Macrobuild::BasicTasks::CheckPossibleOverlaps->new(
+            'repoUpConfigs' => $repoUpConfigs,
+            'repoUsConfigs' => $repoUsConfigs ));
 
-                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge update lists from dev dbs: ' . join( ' ', @$dbs ),
-                        'keys' => \@buildTasksSequence ));
-
-                return SUCCESS;
-            } );
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge update lists from dev dbs: ' . join( ' ', @$dbs ),
+            'keys' => \@buildTasksSequence ));
 
     return $self;
 }

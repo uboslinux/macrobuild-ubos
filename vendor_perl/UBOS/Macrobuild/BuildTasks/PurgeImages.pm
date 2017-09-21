@@ -18,32 +18,25 @@ use UBOS::Macrobuild::BasicTasks::PurgeChannelImages;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my @places = qw( images compressed-images );
+    my @places = qw( images compressed-images );
 
-                foreach my $place ( @places ) {
-                    $self->addParallelTask(
-                            $place,
-                            UBOS::Macrobuild::BasicTasks::PurgeChannelImages->new(
-                                    'dir'    => '${repodir}/${arch}/' . $place ));
-                }
-                $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge image purge results',
-                        'keys' => \@places ));
-
-                return SUCCESS;
-            });
+    foreach my $place ( @places ) {
+        $self->addParallelTask(
+                $place,
+                UBOS::Macrobuild::BasicTasks::PurgeChannelImages->new(
+                        'dir'    => '${repodir}/${arch}/' . $place ));
+    }
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge image purge results',
+            'keys' => \@places ));
 
     return $self;
 }

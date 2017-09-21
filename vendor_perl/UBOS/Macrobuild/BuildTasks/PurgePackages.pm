@@ -22,43 +22,36 @@ use UBOS::Macrobuild::Utils;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $dbs = $run->getVariable( 'db' );
-                if( !ref( $dbs )) {
-                    $dbs = [ $dbs ];
-                }
+    my $dbs = $self->getProperty( 'db' );
+    if( !ref( $dbs )) {
+        $dbs = [ $dbs ];
+    }
 
-                my @purgeTaskNames = ();
-                foreach my $db ( @$dbs ) {
-                    my $shortDb  = UBOS::Macrobuild::Utils::shortDb( $db );
-                    my $taskName = "purge-$shortDb";
-                    push @purgeTaskNames, $taskName;
+    my @purgeTaskNames = ();
+    foreach my $db ( @$dbs ) {
+        my $shortDb  = UBOS::Macrobuild::Utils::shortDb( $db );
+        my $taskName = "purge-$shortDb";
+        push @purgeTaskNames, $taskName;
 
-                    $task->appendParallelTask(
-                            $taskName,
-                            UBOS::Macrobuild::BasicTasks::PurgeChannelPackages->new(
-                                    'name'   => 'Purge channel packages on db ' . $db,
-                                    'dir'    => '${repodir}/${arch}/' . $shortDb,
-                                    'maxAge' => '${maxAge}' ));
-                }
+        $self->addParallelTask(
+                $taskName,
+                UBOS::Macrobuild::BasicTasks::PurgeChannelPackages->new(
+                        'name'   => 'Purge channel packages on db ' . $db,
+                        'dir'    => '${repodir}/${arch}/' . $shortDb,
+                        'maxAge' => '${maxAge}' ));
+    }
 
-                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name' => 'Merge purge results from repositories: ' . join( ' ', @$dbs ),
-                        'keys' => \@purgeTaskNames ));
-
-                return SUCCESS;
-            } );
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name' => 'Merge purge results from repositories: ' . join( ' ', @$dbs ),
+            'keys' => \@purgeTaskNames ));
 
     return $self;
 }

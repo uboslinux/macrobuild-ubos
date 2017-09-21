@@ -10,6 +10,7 @@ package UBOS::Macrobuild::BasicTasks::RemoveBuiltPackages;
 use base qw( Macrobuild::Task );
 use fields qw( arch usconfigs sourcedir );
 
+use Macrobuild::Task;
 use Macrobuild::Utils;
 use UBOS::Logging;
 
@@ -26,10 +27,10 @@ sub run {
     my $self = shift;
     my $run  = shift;
 
-    my $sourceDir = $run->getProperty( 'sourcedir' );
-    my $arch      = $run->getProperty( 'arch' );
+    my $sourceDir = $self->getProperty( 'sourcedir' );
+    my $arch      = $self->getProperty( 'arch' );
 
-    my $usConfigs = $self->{usconfigs}->configs( $run );
+    my $usConfigs = $self->{usconfigs}->configs( $self );
 
     my $removedPackages = {};
 
@@ -85,7 +86,7 @@ sub _pullFromGit {
     my $packages = $usConfig->packages; # same name as directories
 
     my $ret = 1;
-    my $sourceDir       = $run->getProperty( 'sourcedir' );
+    my $sourceDir       = $self->getProperty( 'sourcedir' );
     my $sourceSourceDir = "$sourceDir/$name";
     if( -d $sourceSourceDir ) {
         # Second or later update -- make sure the spec is still the same, if not, delete
@@ -175,7 +176,7 @@ sub _pullByDownload {
 
     my $name      = $usConfig->name;
     my $url       = $usConfig->url;
-    my $sourceDir = $run->getProperty( 'sourcedir' );
+    my $sourceDir = $self->getProperty( 'sourcedir' );
     my $packages  = $usConfig->packages;
 
     my $ret = 1;

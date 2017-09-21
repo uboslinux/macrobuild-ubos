@@ -20,7 +20,7 @@ sub runImpl {
 
     my $in = $run->getInput();
 
-    my $testLogsDir = $run->getPropertyOrDefault( 'testLogsDir', undef );
+    my $testLogsDir = $self->getPropertyOrDefault( 'testLogsDir', undef );
 
     if( defined( $testLogsDir )) {
         unless( -d $testLogsDir ) {

@@ -15,48 +15,42 @@ use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::PullGit;
+use UBOS::Macrobuild::Utils;
 
 ##
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                my $dbs = $run->getProperty( 'db' );
-                unless( ref( $dbs )) {
-                    $dbs = [ $dbs ];
-                }
+    my $dbs = $self->getProperty( 'db' );
+    unless( ref( $dbs )) {
+        $dbs = [ $dbs ];
+    }
 
-                # create git pull tasks
-                my @pullTaskNames = ();
-                foreach my $db ( @$dbs ) {
-                    my $shortDb      = UBOS::Macrobuild::Utils::shortDb( $db );
-                    my $pullTaskName = "pull-$shortDb";
-                    push @pullTaskNames, $pullTaskName;
+    # create git pull tasks
+    my @pullTaskNames = ();
+    foreach my $db ( @$dbs ) {
+        my $shortDb      = UBOS::Macrobuild::Utils::shortDb( $db );
+        my $pullTaskName = "pull-$shortDb";
+        push @pullTaskNames, $pullTaskName;
 
-                    $task->addParallelTask(
-                            $pullTaskName,
-                            UBOS::Macrobuild::BasicTasks::PullGit->new(
-                                    'name'   => 'Pull git ' . $db,
-                                    'dir'    => $db,
-                                    'branch' => '${branch}' ));
-                }
-                $task->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-                        'name'  => 'Merge update lists from dbLocations: ' . join( ' ', @$dbs ),
-                        'keys'  => \@pullTaskNames ));
-
-                return SUCCESS;
-            } );
+        $self->addParallelTask(
+                $pullTaskName,
+                UBOS::Macrobuild::BasicTasks::PullGit->new(
+                        'name'   => 'Pull git ' . $db,
+                        'dir'    => $db,
+                        'branch' => '${branch}' ));
+    }
+    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
+            'name'  => 'Merge update lists from dbLocations: ' . join( ' ', @$dbs ),
+            'keys'  => \@pullTaskNames ));
 
     return $self;
 }

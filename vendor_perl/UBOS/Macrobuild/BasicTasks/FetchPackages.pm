@@ -27,7 +27,7 @@ sub run {
         return FAIL;
     }
     my $toDownload  = $in->{'packages-to-download'};
-    my $downloadDir = $run->getProperty( 'downloaddir' );
+    my $downloadDir = $self->getProperty( 'downloaddir' );
 
     my $downloaded  = {};
     my $haveAlready = {};

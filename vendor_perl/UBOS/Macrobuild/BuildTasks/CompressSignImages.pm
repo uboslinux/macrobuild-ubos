@@ -19,33 +19,26 @@ use UBOS::Macrobuild::BasicTasks::SignFiles;
 # Constructor
 sub new {
     my $self = shift;
-    my %args = @_;
+    my @args = @_;
 
     unless( ref $self ) {
         $self = fields::new( $self );
     }
 
-    $self->SUPER::new(
-            %args,
-            'setup' => sub {
-                my $run  = shift;
-                my $task = shift;
+    $self->SUPER::new( @args );
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::CompressFiles->new(
-                        'name'           => 'Compressing to ${repodir}/${arch}/images',
-                        'inDir'          => '${repodir}/${arch}/uncompressed-images',
-                        'glob'           => '*.{img,vmdk,tar}',
-                        'outDir'         => '${repodir}/${arch}/images',
-                        'adjustSymlinks' => 1 ));
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::CompressFiles->new(
+            'name'           => 'Compressing to ${repodir}/${arch}/images',
+            'inDir'          => '${repodir}/${arch}/uncompressed-images',
+            'glob'           => '*.{img,vmdk,tar}',
+            'outDir'         => '${repodir}/${arch}/images',
+            'adjustSymlinks' => 1 ));
 
-                $task->appendTask( UBOS::Macrobuild::BasicTasks::SignFiles->new(
-                        'name'           => 'Signing images in to ${repodir}/${arch}/images',
-                        'glob'           => '*.{img,vmdk,tar}.xz',
-                        'dir'            => '${repodir}/${arch}/images',
-                        'imageSignKey'   => '${imageSignKey}' ));
-
-                return SUCCESS;
-            } );
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::SignFiles->new(
+            'name'           => 'Signing images in to ${repodir}/${arch}/images',
+            'glob'           => '*.{img,vmdk,tar}.xz',
+            'dir'            => '${repodir}/${arch}/images',
+            'imageSignKey'   => '${imageSignKey}' ));
 
     return $self;
 }
