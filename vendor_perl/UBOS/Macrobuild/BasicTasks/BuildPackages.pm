@@ -176,9 +176,9 @@ sub _buildPackage {
     if( $packageSignKey ) {
         $cmd .= " PACKAGER='$packageSignKey'";
     }
-    $cmd .= ' makepkg -c -d -A'; # clean after, no dependency checks, no arch checks
+    $cmd .= ' makepkg --clean --nodeps --ignorearch --nocheck';
     if( $alwaysRebuild ) {
-        $cmd .= ' -f';
+        $cmd .= ' --force --cleanbuild';
     }
     # do not invoke --sign --key <key> here, due to https://bbs.archlinux.org/viewtopic.php?id=215045
 
