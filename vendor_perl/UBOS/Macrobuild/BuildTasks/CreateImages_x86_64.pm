@@ -34,6 +34,7 @@ sub new {
             $deviceclass,
             UBOS::Macrobuild::BasicTasks::CreateImage->new(
                     'name'        => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
+                    'arch'        => '${arch}',
                     'repodir'     => '${repodir}',
                     'depotRoot'   => '${depotRoot}',
                     'channel'     => '${channel}',
@@ -47,6 +48,7 @@ sub new {
 
     $vboxTask->appendTask( UBOS::Macrobuild::BasicTasks::CreateImage->new(
             'name'        => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
+            'arch'        => '${arch}',
             'repodir'     => '${repodir}',
             'depotRoot'   => '${depotRoot}',
             'channel'     => '${channel}',
@@ -66,6 +68,7 @@ sub new {
             $deviceclass,
             UBOS::Macrobuild::BasicTasks::CreateContainer->new(
                     'name'              => 'Create x86_64 bootable container for ${channel}',
+                    'arch'              => '${arch}',
                     'repodir'           => '${repodir}',
                     'depotRoot'         => '${depotRoot}',
                     'channel'           => '${channel}',
