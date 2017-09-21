@@ -7,6 +7,7 @@ use warnings;
 
 package UBOS::Macrobuild::Utils;
 
+use Cwd;
 use UBOS::Logging;
 
 ##

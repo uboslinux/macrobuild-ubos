@@ -8,6 +8,7 @@ pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
 depends=(
+        'apache'
         'arch-install-scripts'
         'autoconf'
         'automake'

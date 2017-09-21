@@ -29,7 +29,7 @@ sub allIn {
     }
 
     $self->{dir}             = $dir;
-    $self->{configsCache}    = {};
+    $self->{configsCache}    = undef;
     $self->{localSourcesDir} = $localSourcesDir;
 
     return $self;
@@ -40,7 +40,7 @@ sub allIn {
 # $task: the Task context to use
 sub configs {
     my $self = shift;
-    my $task  = shift;
+    my $task = shift;
 
     my $arch = $task->getValue( 'arch' );
 
@@ -75,7 +75,6 @@ sub configs {
 
             my $usConfigJson = UBOS::Utils::readJsonFromFile( $file );
             my $archs        = $usConfigJson->{archs};
-
             if( exists( $usConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $usConfigJson->{archs} )) {
                 trace( 'Skipping', $file, 'for arch', $arch );
                 next;

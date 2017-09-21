@@ -24,7 +24,7 @@ sub runImpl {
     my $repoUpConfigs = $self->getProperty( 'repoUpConfigs' );
     my $repoUsConfigs = $self->getProperty( 'repoUsConfigs' );
 
-    trace( 'CheckPossibleOverlaps:', keys %$repoUpConfigs, keys %$repoUsConfigs );
+    trace( 'CheckPossibleOverlaps:', 'upconfigs:', keys %$repoUpConfigs, 'usconfigs:', keys %$repoUsConfigs );
 
     my $all = {};
     foreach my $name ( keys %$repoUpConfigs ) {
@@ -57,6 +57,11 @@ sub runImpl {
             my $packages      = $upConfig->packages();
 
             foreach my $package ( keys %$packages ) {
+                if( '.' eq $package ) {
+                    # special convention
+                    $package = $configName;
+                }
+
                 if( exists( $all->{$overlapBucket}->{$package} )) {
                     my $already = $all->{$overlapBucket}->{$package};
                     error( 'Package', $package, ', overlap bucket', $overlapBucket, 'exists both in', $already, 'and', $configName, ':', $package );

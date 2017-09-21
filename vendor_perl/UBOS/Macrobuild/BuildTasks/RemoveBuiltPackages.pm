@@ -51,7 +51,7 @@ sub new {
                         'arch'      => '${arch}',
                         'builddir'  => '${builddir}',
                         'repodir'   => '${repodir}',
-                        'usconfigs' => $repoUsConfigs->{$db},
+                        'usconfigs' => $repoUsConfigs->{$shortDb},
                         'db'        => $shortDb,
                         'dbSignKey' => '${dbSignKey}' ));
     }
