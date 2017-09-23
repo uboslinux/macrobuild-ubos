@@ -36,31 +36,28 @@ sub new {
         $dbs = [ $dbs ];
     }
 
-    my $repoUsConfigs = {};
-    my @taskNames     = ();
+    my $repoUsConfigs  = {};
+    my $repoUpConfigs  = {};
+    my @taskNames = ();
 
-    # create build tasks
+    # create tasks
     foreach my $db ( @$dbs ) {
-        my $shortDb      = UBOS::Macrobuild::Utils::shortDb( $db );
-        my $usConfigsObj = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
-        my $usConfigs    = $usConfigsObj->configs( $self );
+        my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+        $repoUpConfigs->{$shortDb} = UBOS::Macrobuild::UpConfigs->allIn( $db . '/up' );
+        $repoUsConfigs->{$shortDb} = UBOS::Macrobuild::UsConfigs->allIn( $db . '/us', $localSourcesDir );
 
-        foreach my $usConfigName ( sort keys %$usConfigs ) {
-            my $usConfig = $usConfigs->{$usConfigName};
+        my $taskName = "run-automated-tests-$shortDb";
+        push @taskNames, $taskName;
 
-            my $runTaskName = "run-automated-tests-$shortDb-$usConfigName";
-            push @taskNames, $runTaskName;
-
-            $self->addParallelTask(
-                    $runTaskName,
-                    UBOS::Macrobuild::BasicTasks::RunContainerWebAppTests->new(
-                            'name'         => 'Run webapptests in ' . $shortDb . ' - ' . $usConfigName,
-                            'usconfig'     => $usConfig,
-                            'scaffold'     => '${scaffold}', # allows us to filter out directory parameter if not container, for example
-                            'config'       => '${testconfig}',
-                            'directory'    => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tardir',
-                            'sourcedir'    => '${builddir}/dbs/' . $shortDb . '/ups' ));
-        }
+        $self->addParallelTask(
+                $taskName,
+                UBOS::Macrobuild::BasicTasks::RunAutomatedWebAppTests->new(
+                        'name'      => 'Run automated web app tests in ' . $db,
+                        'usconfigs' => $repoUsConfigs->{$shortDb},
+                        'scaffold'  => '${scaffold}', # allows us to filter out directory parameter if not container, for example
+                        'config'    => '${testconfig}',
+                        'directory' => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tardir',
+                        'sourcedir' => '${builddir}/dbs/' . $shortDb . '/ups' ));
     }
 
     my $task2 = Macrobuild::CompositeTasks::Sequential->new();

@@ -7,7 +7,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BasicTasks::RunContainerWebAppTests;
+package UBOS::Macrobuild::BasicTasks::RunAutomatedWebAppTests;
 
 use base qw( Macrobuild::Task );
 use fields qw( usconfig sourcedir config scaffold directory );
@@ -28,6 +28,7 @@ sub runImpl {
         $testCmd .= " --config '$config'";
     }
 
+    my $sourceDir = $self->getProperty( 'sourcedir' );
     my $scaffold  = $self->getProperty( 'scaffold' );
     my $directory = $self->getPropertyOrDefault( 'directory', undef );
     if( $directory ) {
@@ -44,7 +45,6 @@ sub runImpl {
     trace( "Now processing upstream source config file", $name );
 
     my $webapptests = $usConfig->webapptests;
-    my $sourceDir   = $self->getProperty( 'sourcedir' );
     if( defined( $webapptests ) && keys %$webapptests ) {
         my $sourceSourceDir = "$sourceDir/$name";
         if( -d $sourceSourceDir ) {
