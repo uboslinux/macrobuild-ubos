@@ -38,6 +38,7 @@ sub allIn {
 ##
 # Return a hash of UsConfigs, keyed by their short source name
 # $task: the Task context to use
+# return: hash of short source name to UsConfig
 sub configs {
     my $self = shift;
     my $task = shift;

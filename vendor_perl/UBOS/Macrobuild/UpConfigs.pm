@@ -34,6 +34,7 @@ sub allIn {
 ##
 # Return a hash of UpConfigs, keyed by their short repository name
 # $task: the Task context to use
+# return: hash of short repo name to UpConfig
 sub configs {
     my $self = shift;
     my $task = shift;

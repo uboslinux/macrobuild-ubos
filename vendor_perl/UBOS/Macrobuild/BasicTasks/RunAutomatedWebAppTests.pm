@@ -10,7 +10,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::RunAutomatedWebAppTests;
 
 use base qw( Macrobuild::Task );
-use fields qw( usconfig sourcedir config scaffold directory );
+use fields qw( usconfigs sourcedir config scaffold directory );
 
 use Macrobuild::Task;
 use UBOS::Logging;
@@ -39,50 +39,53 @@ sub runImpl {
     my $testsPassed   = {};
     my $testsFailed   = {};
 
-    my $usConfig = $self->{usconfig};
+    my $usConfigs = $self->{usconfigs}->configs( $self );
+    foreach my $name ( sort keys %$usConfigs ) {
+        my $usConfig = $usConfigs->{$name};
 
-    my $name = $usConfig->name;
-    trace( "Now processing upstream source config file", $name );
+        trace( "Now processing upstream source config file", $name );
 
-    my $webapptests = $usConfig->webapptests;
-    if( defined( $webapptests ) && keys %$webapptests ) {
-        my $sourceSourceDir = "$sourceDir/$name";
-        if( -d $sourceSourceDir ) {
-            foreach my $test ( keys %$webapptests ) {
-                my $testDir;
-                my $file;
-                if( $test =~ m!^(.*)/([^/]+)$! ) {
-                    $testDir = $sourceSourceDir . '/' . $1;
-                    $file    = $2;
-                } else {
-                    $testDir = $sourceSourceDir;
-                    $file    = $test;
+        my $webapptests = $usConfig->webapptests;
+        if( defined( $webapptests ) && keys %$webapptests ) {
+            my $sourceSourceDir = "$sourceDir/$name";
+            if( -d $sourceSourceDir ) {
+                foreach my $test ( keys %$webapptests ) {
+                    my $testDir;
+                    my $file;
+                    if( $test =~ m!^(.*)/([^/]+)$! ) {
+                        $testDir = $sourceSourceDir . '/' . $1;
+                        $file    = $2;
+                    } else {
+                        $testDir = $sourceSourceDir;
+                        $file    = $test;
+                    }
+
+                    info( "Running test $testDir/$file" );
+
+                    push @$testsSequence, $name . '::' . $test;
+
+                    my $out;
+                    if( UBOS::Utils::myexec( "$testCmd '$testDir/$file'", undef, \$out, \$out )) {
+                        $out =~ s!\s+$!!;
+                        error( 'Test', $test, 'failed:', $out, ', command was:', "$testCmd '$testDir/$file'" );
+                        $testsFailed->{$name . '::' . $test} = $out;
+                    } else {
+                        $out =~ s!\s+$!!;
+                        $testsPassed->{$name . '::' . $test} = 'Passed.';
+                    }
                 }
+            } else {
+                my $msg = "Cannot run webapptests defined in $name. Directory $sourceSourceDir not found.";
 
-                info( "Running test $testDir/$file" );
+                error( $msg );
 
-                push @$testsSequence, $name . '::' . $test;
-
-                my $out;
-                if( UBOS::Utils::myexec( "$testCmd '$testDir/$file'", undef, \$out, \$out )) {
-                    $out =~ s!\s+$!!;
-                    error( 'Test', $test, 'failed:', $out, ', command was:', "$testCmd '$testDir/$file'" );
-                    $testsFailed->{$name . '::' . $test} = $out;
-                } else {
-                    $out =~ s!\s+$!!;
-                    $testsPassed->{$name . '::' . $test} = 'Passed.';
-                }
+                map { $testsFailed->{$name . '::' . $_} = $msg; } keys %$webapptests;
             }
-        } else {
-            my $msg = "Cannot run webapptests defined in $name. Directory $sourceSourceDir not found.";
 
-            error( $msg );
-            map { $testsFailed->{$name . '::' . $_} = $msg; } @$webapptests;
-        }
-
-        if( $self->{stopOnError} && %$testsFailed ) {
-            error( "ERROR in last test and stopOnError is true. Stopping." );
-            last;
+            if( $self->{stopOnError} && %$testsFailed ) {
+                error( "ERROR in last test and stopOnError is true. Stopping." );
+                last;
+            }
         }
     }
 
