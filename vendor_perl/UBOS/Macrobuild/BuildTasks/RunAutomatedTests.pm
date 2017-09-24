@@ -12,7 +12,7 @@ use fields qw( arch builddir db repodir testconfig scaffold );
 
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::Task;
-use UBOS::Macrobuild::BasicTasks::RunContainerWebAppTests;
+use UBOS::Macrobuild::BasicTasks::RunAutomatedWebAppTests;
 use UBOS::Macrobuild::BasicTasks::SaveWebAppTestsResults;
 use UBOS::Macrobuild::UsConfigs;
 use UBOS::Macrobuild::UpConfigs;
@@ -53,7 +53,7 @@ sub new {
                 $taskName,
                 UBOS::Macrobuild::BasicTasks::RunAutomatedWebAppTests->new(
                         'name'      => 'Run automated web app tests in ' . $db,
-                        'usconfigs' => $repoUsConfigs->{$shortDb},
+                        'usconfig'  => $repoUsConfigs->{$shortDb},
                         'scaffold'  => '${scaffold}', # allows us to filter out directory parameter if not container, for example
                         'config'    => '${testconfig}',
                         'directory' => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tardir',
