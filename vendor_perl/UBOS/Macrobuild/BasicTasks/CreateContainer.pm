@@ -63,6 +63,10 @@ sub runImpl {
     if( $depotRoot ) {
         $installCmd .= " --depotroot '$depotRoot'";
     }
+    # NOTE: CHANNEL dependency
+    if( 'dev' eq $channel ) {
+        $installCmd .= " --disablepackagedb hl"; # not in dev
+    }
     if( UBOS::Logging::isTraceActive() ) {
         $installCmd .= " --verbose --verbose";
     } elsif( UBOS::Logging::isInfoActive() ) {
