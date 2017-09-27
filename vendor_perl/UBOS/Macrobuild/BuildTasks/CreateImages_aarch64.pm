@@ -36,13 +36,13 @@ sub new {
                 UBOS::Macrobuild::BasicTasks::CreateImage->new(
                         'name'        => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
                         'arch'        => '${arch}',
-                        'channel'     => '${channel}',
+                        'repodir'     => '${repodir}',
                         'depotRoot'   => '${depotRoot}',
+                        'channel'     => '${channel}',
                         'deviceclass' => $deviceclass,
                         'imagesize'   => '3G',
                         'image'       => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.img',
                         'linkLatest'  => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
-                        'repodir'     => '${repodir}' ));
     }
 
     $deviceclass = 'container';

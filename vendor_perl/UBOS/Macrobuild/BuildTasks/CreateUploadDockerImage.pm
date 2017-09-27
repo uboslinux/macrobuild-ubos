@@ -30,7 +30,7 @@ sub new {
             'image'      => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tar',
             'dockerName' => 'ubos/ubos-${channel}' ));
 
-    $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage());
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage->new());
 
     return $self;
 }
