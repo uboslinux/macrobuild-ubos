@@ -62,13 +62,10 @@ sub new {
 
     $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
             'name' => 'Merge images list for ${channel}',
-            'keys' => \( @deviceclasses, 'container' ) ));
+            'keys' => [ @deviceclasses, 'container' ] ));
 
     return $self;
 }
 
 1;
-
-
-
 
