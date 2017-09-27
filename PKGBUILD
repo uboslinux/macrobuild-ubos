@@ -28,6 +28,7 @@ depends=(
         'grep'
         'gzip'
         'libevent'
+        'libmariadbclient'
         'libnetfilter_conntrack'
         'libtool'
         'm4'

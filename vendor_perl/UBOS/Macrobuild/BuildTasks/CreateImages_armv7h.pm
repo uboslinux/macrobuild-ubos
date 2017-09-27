@@ -5,9 +5,9 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateImages_rpi2;
+package UBOS::Macrobuild::BuildTasks::CreateImages_armv7h;
 
-use base qw( Macrobuild::CompositeTasks::Delegating );
+use base qw( Macrobuild::CompositeTasks::SplitJoin );
 use fields qw( arch channel depotRoot repodir );
 
 use Macrobuild::BasicTasks::MergeValues;
@@ -45,7 +45,7 @@ sub new {
                         'linkLatest'  => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
     }
 
-    $deviceclass = 'container';
+    my $deviceclass = 'container';
     $self->addParallelTask(
             $deviceclass,
             UBOS::Macrobuild::BasicTasks::CreateContainer->new(
