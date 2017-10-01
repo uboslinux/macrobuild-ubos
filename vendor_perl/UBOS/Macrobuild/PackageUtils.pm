@@ -176,8 +176,8 @@ sub compareParsedPackageFileNamesByVersion {
         return 0;
     }
     if( defined( $aParsed->{arch} ) && $aParsed->{arch} && defined( $bParsed->{arch} ) && $aParsed->{arch} ne $bParsed->{arch} ) {
-        error( 'Should never compare packages with different arch by version:', $aParsed->{name}, $aParsed->{arch}, $bParsed->{name}, $bParsed->{arch} );
-        return 0;
+        warning( 'Usually one never compares packages with different arch by version:', $aParsed->{name}, $aParsed->{arch}, $bParsed->{name}, $bParsed->{arch} );
+        # but it happens, such as when linux-api-headers became an 'any' package from 'x86_64'.
     }
 
     my $ret = rpmvercmp( $aParsed->{epoch} || '0', $bParsed->{epoch} || '0' );
