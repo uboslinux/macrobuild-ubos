@@ -176,7 +176,7 @@ sub compareParsedPackageFileNamesByVersion {
         return 0;
     }
     if( defined( $aParsed->{arch} ) && $aParsed->{arch} && defined( $bParsed->{arch} ) && $aParsed->{arch} ne $bParsed->{arch} ) {
-        error( 'Should never compare packages with different arch by version:', $aParsed->{arch}, $bParsed->{arch} );
+        error( 'Should never compare packages with different arch by version:', $aParsed->{name}, $aParsed->{arch}, $bParsed->{name}, $bParsed->{arch} );
         return 0;
     }
 
