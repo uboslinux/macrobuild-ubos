@@ -26,7 +26,7 @@ sub new {
         $self = fields::new( $self );
     }
 
-    my @deviceclasses = qw( rpi2 bbb );
+    my @deviceclasses = qw( rpi2 );
 
     $self->SUPER::new( @args );
 
