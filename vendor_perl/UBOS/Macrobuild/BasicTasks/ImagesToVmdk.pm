@@ -59,7 +59,7 @@ sub runImpl {
         }
     }
 
-    if( defined( $in->{'linkLatests'} )) {
+    if( defined( $in->{'linkLatest'} )) {
         # symlink the VMDKs whose images were symlinked
 
         trace( 'Attempting vmdk linkLatests' );
@@ -122,6 +122,8 @@ sub runImpl {
                 if( $vmdkLinkLatest ) {
                     my $relVmdk = UBOS::Macrobuild::Utils::relPath( $vmdk, $vmdkLinkLatest );
                     UBOS::Utils::symlink( $relVmdk, $vmdkLinkLatest );
+
+                    push @$vmdkLinkLatests, $vmdkLinkLatest;
                 }
             }
         }
@@ -132,8 +134,8 @@ sub runImpl {
     }
 
     $run->setOutput( {
-            'vmdkimages'      => $vmdkImages,
-            'vmdkLinkLatests' => $vmdkLinkLatests
+            'vmdkimages'     => $vmdkImages,
+            'vmdkLinkLatest' => $vmdkLinkLatests
     } );
 
     return $ret;
