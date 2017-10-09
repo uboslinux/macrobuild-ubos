@@ -32,7 +32,7 @@ sub new {
         $self->addParallelTask(
                 $place,
                 UBOS::Macrobuild::BasicTasks::PurgeChannelImages->new(
-                        'dir'    => '${repodir}/${arch}/' . $place ));
+                        'dir'    => '${repodir}/${channel}/${arch}/' . $place ));
     }
     $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
             'name' => 'Merge image purge results',

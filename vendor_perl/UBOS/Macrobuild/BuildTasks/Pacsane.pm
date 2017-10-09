@@ -46,7 +46,7 @@ sub new {
                 $taskName,
                 UBOS::Macrobuild::BasicTasks::PacsaneRepository->new(
                         'name'   => 'Pacsane on db ' . $shortDb,
-                        'dbfile' => '${repodir}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz' ));
+                        'dbfile' => '${repodir}/${channel}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz' ));
     }
 
     $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(

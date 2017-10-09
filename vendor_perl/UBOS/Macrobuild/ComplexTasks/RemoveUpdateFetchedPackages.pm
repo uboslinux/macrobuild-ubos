@@ -38,11 +38,11 @@ sub new {
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Unstage->new(
             'name'        => 'Unstage removed packages in local repository',
-            'stagedir'    => '${repodir}/${arch}/' . $db ));
+            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
             'name'        => 'Update package database with removed packages',
-            'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz' ),
+            'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz' ),
             'dbSignKey'   => '${dbSignKey}' );
 
     return $self;

@@ -9,7 +9,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::CheckCompressedImageSignatures;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( arch repodir );
+use fields qw( arch channel repodir );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::CheckSignatures;
@@ -28,7 +28,7 @@ sub new {
 
     $self->setDelegate( UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
             'name'  => 'Check signatures for compressed images',
-            'dir'   => '${repodir}/${arch}/images',
+            'dir'   => '${repodir}/${channel}/${arch}/images',
             'glob'  => '*.tar.xz' ));
 
     return $self;

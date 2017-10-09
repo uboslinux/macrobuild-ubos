@@ -9,7 +9,7 @@ use warnings;
 package UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
 
 use base qw( Macrobuild::CompositeTasks::Sequential );
-use fields qw( arch channel upconfigs usconfigs db repodir fromRepodir );
+use fields qw( arch channel upconfigs usconfigs db repodir fromChannel );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages;
@@ -38,16 +38,16 @@ sub new {
             'usconfigs'   => $usconfigs,
             'arch'        => '${arch}',
             'channel'     => '${channel}',
-            'fromDb'      => '${fromRepodir}/${arch}/' . $db,
-            'toDb'        => '${repodir}/${arch}/' . $db ));
+            'fromDb'      => '${repodir}/${fromChannel}/${arch}/' . $db,
+            'toDb'        => '${repodir}/${channel}/${arch}/' . $db ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
             'name'        => 'Stage new packages in ' . $db,
-            'stagedir'    => '${repodir}/${arch}/' . $db ));
+            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
             'name'        => 'Update package database with new packages in ' . $db,
-            'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+            'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
             'dbSignKey'   => '${dbSignKey}' ));
 
     return $self;

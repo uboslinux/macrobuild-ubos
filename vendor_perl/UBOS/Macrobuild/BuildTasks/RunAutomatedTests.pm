@@ -56,7 +56,7 @@ sub new {
                         'usconfigs' => $repoUsConfigs->{$shortDb},
                         'scaffold'  => '${scaffold}', # allows us to filter out directory parameter if not container, for example
                         'config'    => '${testconfig}',
-                        'directory' => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tardir',
+                        'directory' => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tardir',
                         'sourcedir' => '${builddir}/dbs/' . $shortDb . '/ups' ));
     }
 

@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::BuildPackages;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch db localSourcesDir builddir repodir packageSignKey dbSignKey m2builddir );
+use fields qw( arch channel db localSourcesDir builddir repodir packageSignKey dbSignKey m2builddir );
 
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;

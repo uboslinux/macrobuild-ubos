@@ -27,7 +27,7 @@ sub new {
     $self->setDelegate( UBOS::Macrobuild::BasicTasks::BurnToUsb->new(
             'name'      => 'Burning image for ${deviceclass} to ${usbdevice}',
             'usbdevice' => '${usbdevice}',
-            'image'     => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_LATEST.img'
+            'image'     => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-${deviceclass}_LATEST.img'
     ));
 
     return $self;

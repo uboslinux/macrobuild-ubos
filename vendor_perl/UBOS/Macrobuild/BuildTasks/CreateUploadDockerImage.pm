@@ -27,7 +27,7 @@ sub new {
     $self->SUPER::new( @args );
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::CreateDockerImage->new(
-            'image'      => '${repodir}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tar',
+            'image'      => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tar',
             'dockerName' => 'ubos/ubos-${channel}' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage->new());

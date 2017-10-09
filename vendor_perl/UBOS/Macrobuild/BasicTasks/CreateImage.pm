@@ -64,7 +64,7 @@ sub runImpl {
     $installCmd .= " '$image'";
 
     if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isTraceActive
-        error( 'ubos-install failed:', $out );
+        error( 'ubos-install failed:', $out, "\command was: $installCmd" );
         ++$errors;
     }
 

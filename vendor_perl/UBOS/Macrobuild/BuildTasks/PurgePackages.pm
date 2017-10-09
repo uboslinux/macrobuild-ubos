@@ -45,7 +45,7 @@ sub new {
                 $taskName,
                 UBOS::Macrobuild::BasicTasks::PurgeChannelPackages->new(
                         'name'   => 'Purge channel packages on db ' . $db,
-                        'dir'    => '${repodir}/${arch}/' . $shortDb,
+                        'dir'    => '${repodir}/${channel}/${arch}/' . $shortDb,
                         'maxAge' => '${maxAge}' ));
     }
 

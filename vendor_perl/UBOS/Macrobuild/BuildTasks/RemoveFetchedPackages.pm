@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::RemoveFetchedPackages;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch builddir repodir db dbSignKey );
+use fields qw( arch builddir channel repodir db dbSignKey );
 
 use Macrobuild::Task;
 use Macrobuild::BasicTasks::MergeValues;

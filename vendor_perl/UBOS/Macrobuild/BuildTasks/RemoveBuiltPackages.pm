@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::RemoveBuiltPackages;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch builddir repodir localSourcesDir db dbSignKey m2builddir );
+use fields qw( arch builddir channel repodir localSourcesDir db dbSignKey m2builddir );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages;

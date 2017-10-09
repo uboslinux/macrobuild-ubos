@@ -44,7 +44,7 @@ sub new {
                 $checkTaskName,
                 UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
                         'name'  => 'Check signatures for ' . $db,
-                        'dir'   => '${repodir}/${arch}/' . $shortDb,
+                        'dir'   => '${repodir}/${channel}/${arch}/' . $shortDb,
                         'glob'  => '*.pkg.tar.xz' ));
 
         push @checkTaskNames, $checkTaskName;

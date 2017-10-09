@@ -51,11 +51,11 @@ sub new {
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
             'name'        => 'Stage new packages in local repository',
-            'stagedir'    => '${repodir}/${arch}/' . $db ));
+            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
             'name'        => 'Update package database with new packages',
-            'dbfile'      => '${repodir}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+            'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
             'dbSignKey'   => '${dbSignKey}' ));
 
     return $self;

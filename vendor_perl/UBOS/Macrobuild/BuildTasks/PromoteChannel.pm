@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::PromoteChannel;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch channel db repodir fromRepodir );
+use fields qw( arch channel db repodir fromChannel );
 
 use Macrobuild::Task;
 use Macrobuild::BasicTasks::MergeValues;
@@ -59,7 +59,7 @@ sub new {
                         'usconfigs'   => $repoUsConfigs->{$shortDb},
                         'db'          => $shortDb,
                         'repodir'     => '${repodir}',
-                        'fromRepodir' => '${fromRepodir}' ));
+                        'fromChannel' => '${fromChannel}' ));
 
         push @promoteTasks, $promoteTaskName;
     }
