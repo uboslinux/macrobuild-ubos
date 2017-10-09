@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::PurgePackages;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch db maxAge repodir );
+use fields qw( arch channel db maxAge repodir );
 
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::Task;

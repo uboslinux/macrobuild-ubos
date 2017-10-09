@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::UploadChannel;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( arch repodir uploadDest uploadInExclude );
+use fields qw( arch channel repodir uploadDest uploadInExclude );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::Upload;

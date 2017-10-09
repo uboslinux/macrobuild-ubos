@@ -9,7 +9,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::CheckPackageSignatures;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch db repodir );
+use fields qw( arch channel db repodir );
 
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::SplitJoin;
