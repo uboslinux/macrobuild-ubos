@@ -16,7 +16,7 @@ use UBOS::Macrobuild::PackageUtils;
 ##
 # Run this task.
 # $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
@@ -24,6 +24,9 @@ sub run {
     my $arch        = $self->getProperty( 'arch' );
 
     my $upConfigs = $self->{upconfigs}->configs( $self );
+    unless( $upConfigs ) {
+        return FAIL;
+    }
 
     my $removedPackages = {};
 

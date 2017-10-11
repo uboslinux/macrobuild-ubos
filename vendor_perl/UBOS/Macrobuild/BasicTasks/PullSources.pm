@@ -30,6 +30,9 @@ sub runImpl {
     my $dirsNotUpdated = {};
 
     my $usConfigs = $self->{usconfigs}->configs( $self );
+    unless( $usConfigs ) {
+        return FAIL;
+    }
     my $ok = 1;
     foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
         my $usConfig = $usConfigs->{$repoName};

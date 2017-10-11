@@ -34,7 +34,7 @@ sub allIn {
 ##
 # Return a hash of UpConfigs, keyed by their short repository name
 # $task: the Task context to use
-# return: hash of short repo name to UpConfig
+# return: hash of short repo name to UpConfig, or undef if could not be parsed
 sub configs {
     my $self = shift;
     my $task = shift;
@@ -66,7 +66,10 @@ sub configs {
             $shortRepoName =~ s!\.json$!!;
 
             my $upConfigJson = UBOS::Utils::readJsonFromFile( $file );
-            my $archs        = $upConfigJson->{archs};
+            unless( $upConfigJson ) {
+                next;
+            }
+            my $archs = $upConfigJson->{archs};
 
             if( exists( $upConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $upConfigJson->{archs} )) {
                 trace( 'Skipping', $file, 'for arch', $arch );

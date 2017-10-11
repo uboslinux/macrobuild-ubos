@@ -38,7 +38,7 @@ sub allIn {
 ##
 # Return a hash of UsConfigs, keyed by their short source name
 # $task: the Task context to use
-# return: hash of short source name to UsConfig
+# return: hash of short source name to UsConfig, or undef if could not be parsed
 sub configs {
     my $self = shift;
     my $task = shift;
@@ -75,7 +75,11 @@ sub configs {
             $shortSourceName =~ s!\.json$!!;
 
             my $usConfigJson = UBOS::Utils::readJsonFromFile( $file );
-            my $archs        = $usConfigJson->{archs};
+            unless( $usConfigJson ) {
+                next;
+            }
+
+            my $archs = $usConfigJson->{archs};
             if( exists( $usConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $usConfigJson->{archs} )) {
                 trace( 'Skipping', $file, 'for arch', $arch );
                 next;

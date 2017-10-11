@@ -31,6 +31,10 @@ sub runImpl {
         my $upConfigs = $repoUpConfigs->{$name};
 
         my $configs = $upConfigs->configs( $self );
+        unless( $configs ) {
+            ++$errors;
+            next;
+        }
         foreach my $configName ( keys %$configs ) {
             my $upConfig      = $configs->{$configName};
             my $overlapBucket = $upConfig->overlapBucket();
@@ -51,6 +55,10 @@ sub runImpl {
         my $usConfigs = $repoUsConfigs->{$name};
 
         my $configs = $usConfigs->configs( $self );
+        unless( $configs ) {
+            ++$errors;
+            next;
+        }
         foreach my $configName ( keys %$configs ) {
             my $upConfig      = $configs->{$configName};
             my $overlapBucket = $upConfig->overlapBucket();

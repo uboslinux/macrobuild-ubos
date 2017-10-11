@@ -40,6 +40,9 @@ sub runImpl {
     my $testsFailed   = {};
 
     my $usConfigs = $self->{usconfigs}->configs( $self );
+    unless( $usConfigs ) {
+        return FAIL;
+    }
     foreach my $name ( sort keys %$usConfigs ) {
         my $usConfig = $usConfigs->{$name};
 

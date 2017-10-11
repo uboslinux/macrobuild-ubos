@@ -34,60 +34,82 @@ sub runImpl {
             # access during the same build. As a result, some packages won't be updated.
 
 
-    my $ret = SUCCESS;
+    my $ret        = SUCCESS;
+    my $errors     = 0;
     my $toDownload = {}; # WARNING: This is misnamed. It contains packages to download, but also those that we have locally already.
                          # Worse, it may contain (pinned) packages that are local and cannot be found remotely at all
 
     if( %$packageDatabases ) {
         my $upConfigs = $self->{upconfigs}->configs( $self );
-        foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
-            my $upConfig = $upConfigs->{$upConfigName};
+        if( $upConfigs ) {
+            foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
+                my $upConfig = $upConfigs->{$upConfigName};
 
-            trace( 'Determining changed packages in UpConfig', $upConfigName );
+                trace( 'Determining changed packages in UpConfig', $upConfigName );
 
-            my $packageDatabase = $packageDatabases->{$upConfigName};
-            unless( $packageDatabase ) {
-                # wasn't updated, nothing to do
-                next;
-            }
-            my $upConfigDir        = "$dir/$upConfigName";
-            my $packagesInDatabase = $packageDatabase->containedPackages(); # returns name => filename
+                my $packageDatabase = $packageDatabases->{$upConfigName};
+                unless( $packageDatabase ) {
+                    # wasn't updated, nothing to do
+                    next;
+                }
+                my $upConfigDir        = "$dir/$upConfigName";
+                my $packagesInDatabase = $packageDatabase->containedPackages(); # returns name => filename
 
-            foreach my $packageName ( sort keys %{$upConfig->packages} ) { # make predictable sequence
-                my $packageInfo = $upConfig->packages->{$packageName};
+                foreach my $packageName ( sort keys %{$upConfig->packages} ) { # make predictable sequence
+                    my $packageInfo = $upConfig->packages->{$packageName};
 
-                # in case you were wondering, here's the filtering that says which packages we want,
-                # in which version and whether we need to download something
+                    # in case you were wondering, here's the filtering that says which packages we want,
+                    # in which version and whether we need to download something
 
-                my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
-                my @packageFileLocalCandidates   = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $upConfigDir, $arch );
+                    my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
+                    my @packageFileLocalCandidates   = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $upConfigDir, $arch );
 
-                # It all depends on whether the upConfig specifies a particular version
-                if( exists( $packageInfo->{$channel} ) && exists( $packageInfo->{$channel}->{version} )) {
-                    my $wantVersion = UBOS::Macrobuild::PackageUtils::parseVersion( $packageInfo->{$channel}->{version} );
+                    # It all depends on whether the upConfig specifies a particular version
+                    if( exists( $packageInfo->{$channel} ) && exists( $packageInfo->{$channel}->{version} )) {
+                        my $wantVersion = UBOS::Macrobuild::PackageUtils::parseVersion( $packageInfo->{$channel}->{version} );
 
-                    if( @packageFileLocalCandidates ) {
-                        my @packageFileLocalCorrectVersions = grep {
-                                UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
-                                        UBOS::Macrobuild::PackageUtils::parsePackageFileName( $_ ),
-                                        $wantVersion ) == 0
-                                } @packageFileLocalCandidates;
-                        if( @packageFileLocalCorrectVersions ) {
-                            # use local one, but emit warning if upstream doesn't have it
-                            if( UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
+                        if( @packageFileLocalCandidates ) {
+                            my @packageFileLocalCorrectVersions = grep {
+                                    UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
+                                            UBOS::Macrobuild::PackageUtils::parsePackageFileName( $_ ),
+                                            $wantVersion ) == 0
+                                    } @packageFileLocalCandidates;
+                            if( @packageFileLocalCorrectVersions ) {
+                                # use local one, but emit warning if upstream doesn't have it
+                                if( UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
+                                        UBOS::Macrobuild::PackageUtils::parsePackageFileName( $packageFileInPackageDatabase ),
+                                        $wantVersion ) != 0 )
+                                {
+                                    warning( 'Package', $packageName, 'exists locally as wanted version', $packageInfo->{$channel}->{version}, ', but not upstream' );
+
+                                    my $url = $upConfig->downloadUrlForPackage( $packageFileLocalCorrectVersions[0] );
+                                    $toDownload->{$upConfigName}->{$packageName} = $url; # See warning above about this being misnamed
+                                }
+
+                            } else {
+                                # have some versions locally, but don't have the right version locally
+
+                                if( UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
                                     UBOS::Macrobuild::PackageUtils::parsePackageFileName( $packageFileInPackageDatabase ),
-                                    $wantVersion ) != 0 )
-                            {
-                                warning( 'Package', $packageName, 'exists locally as wanted version', $packageInfo->{$channel}->{version}, ', but not upstream' );
+                                    $wantVersion ) == 0 )
+                                {
+                                    my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
+                                    $toDownload->{$upConfigName}->{$packageName} = $url;
 
-                                my $url = $upConfig->downloadUrlForPackage( $packageFileLocalCorrectVersions[0] );
-                                $toDownload->{$upConfigName}->{$packageName} = $url; # See warning above about this being misnamed
+                                } else {
+                                    error( 'Package', $packageName, 'found locally (', @packageFileLocalCandidates, ') and upstream (', $packageFileInPackageDatabase, '), but neither in wanted version', $packageInfo->{$channel}->{version} );
+                                    $ret = FAIL;
+                                }
                             }
 
                         } else {
-                            # have some versions locally, but don't have the right version locally
+                            # don't have local candidates
+                            if( !$packageFileInPackageDatabase ) {
+                                # don't have any upstream either
+                                error( 'No package file found locally or upstream for package', $packageName, 'in any version, want', $packageInfo->{$channel}->{version} );
+                                $ret = FAIL;
 
-                            if( UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
+                            } elsif( UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
                                 UBOS::Macrobuild::PackageUtils::parsePackageFileName( $packageFileInPackageDatabase ),
                                 $wantVersion ) == 0 )
                             {
@@ -95,58 +117,41 @@ sub runImpl {
                                 $toDownload->{$upConfigName}->{$packageName} = $url;
 
                             } else {
-                                error( 'Package', $packageName, 'found locally (', @packageFileLocalCandidates, ') and upstream (', $packageFileInPackageDatabase, '), but neither in wanted version', $packageInfo->{$channel}->{version} );
+                                error( 'Package', $packageName, 'found upstream, but as', $packageFileInPackageDatabase, ', not in wanted version', $packageInfo->{$channel}->{version} );
                                 $ret = FAIL;
                             }
                         }
 
                     } else {
-                        # don't have local candidates
-                        if( !$packageFileInPackageDatabase ) {
-                            # don't have any upstream either
-                            error( 'No package file found locally or upstream for package', $packageName, 'in any version, want', $packageInfo->{$channel}->{version} );
-                            $ret = FAIL;
+                        # use any version
 
-                        } elsif( UBOS::Macrobuild::PackageUtils::compareParsedPackageFileNamesByVersion(
-                            UBOS::Macrobuild::PackageUtils::parsePackageFileName( $packageFileInPackageDatabase ),
-                            $wantVersion ) == 0 )
-                        {
-                            my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
-                            $toDownload->{$upConfigName}->{$packageName} = $url;
+                        if( @packageFileLocalCandidates ) {
+                           if( $packageFileInPackageDatabase ) {
+                                my $bestLocalCandidate = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
+                                if( UBOS::Macrobuild::PackageUtils::comparePackageFileNamesByVersion( $bestLocalCandidate, $packageFileInPackageDatabase ) < 0 ) {
+                                    my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
+                                    $toDownload->{$upConfigName}->{$packageName} = $url;
+                                } # else use local
+
+                            } else {
+                                warning( 'No package file found upstream for package', $packageName, ', using local package instead' );
+                            }
 
                         } else {
-                            error( 'Package', $packageName, 'found upstream, but as', $packageFileInPackageDatabase, ', not in wanted version', $packageInfo->{$channel}->{version} );
-                            $ret = FAIL;
-                        }
-                    }
-
-                } else {
-                    # use any version
-
-                    if( @packageFileLocalCandidates ) {
-                       if( $packageFileInPackageDatabase ) {
-                            my $bestLocalCandidate = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @packageFileLocalCandidates ); # most recent now at bottom
-                            if( UBOS::Macrobuild::PackageUtils::comparePackageFileNamesByVersion( $bestLocalCandidate, $packageFileInPackageDatabase ) < 0 ) {
+                           if( $packageFileInPackageDatabase ) {
                                 my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
                                 $toDownload->{$upConfigName}->{$packageName} = $url;
-                            } # else use local
 
-                        } else {
-                            warning( 'No package file found upstream for package', $packageName, ', using local package instead' );
-                        }
-
-                    } else {
-                       if( $packageFileInPackageDatabase ) {
-                            my $url = $upConfig->downloadUrlForPackage( $packageFileInPackageDatabase );
-                            $toDownload->{$upConfigName}->{$packageName} = $url;
-
-                        } else {
-                            error( 'No package file found locally or upstream for package', $packageName, 'in any version' );
-                            $ret = FAIL;
+                            } else {
+                                error( 'No package file found locally or upstream for package', $packageName, 'in any version' );
+                                $ret = FAIL;
+                            }
                         }
                     }
                 }
             }
+        } else {
+            ++$errors;
         }
     }
 
@@ -154,8 +159,8 @@ sub runImpl {
             'packages-to-download' => $toDownload
     } );
 
-    if( $ret == FAIL ) {
-        return $ret;
+    if( $ret == FAIL || $errors ) {
+        return FAIL;
     }
     if( %$toDownload ) {
         return SUCCESS;

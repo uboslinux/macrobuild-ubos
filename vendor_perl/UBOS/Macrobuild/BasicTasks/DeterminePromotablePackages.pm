@@ -32,6 +32,13 @@ sub runImpl {
     my $upConfigs = $self->{upconfigs}->configs( $self );
     my $usConfigs = $self->{usconfigs}->configs( $self );
 
+    unless( $upConfigs ) {
+        return FAIL;
+    }
+    unless( $usConfigs ) {
+        return FAIL;
+    }
+
     my $newPackages = {};
     my $oldPackages = {};
 

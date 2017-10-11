@@ -23,7 +23,7 @@ my %knownExtensions = (
 ##
 # Run this task.
 # $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
@@ -31,6 +31,9 @@ sub run {
     my $arch      = $self->getProperty( 'arch' );
 
     my $usConfigs = $self->{usconfigs}->configs( $self );
+    unless( $usConfigs ) {
+        return FAIL;
+    }
 
     my $removedPackages = {};
 
