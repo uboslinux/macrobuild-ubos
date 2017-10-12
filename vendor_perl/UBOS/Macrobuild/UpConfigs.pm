@@ -47,13 +47,13 @@ sub configs {
 
         unless( -d $realDir ) {
             trace( "Upstream packages config dir not found:", $self->{dir}, 'expanded to', $realDir );
-            return undef;
+            return {};
         }
 
         my @files = <$realDir/*.json>;
         unless( @files ) {
             trace( "No config files found in upstream packages config dir:", $self->{dir}, 'expanded to', $realDir );
-            return undef;
+            return {};
         }
 
         $ret = {};
