@@ -86,6 +86,8 @@ sub runImpl {
                 push @already, "$outDir/$localFile$ext";
 
             } else {
+                info( 'Compressing:', "$inDir/$localFile" );
+
                 if( UBOS::Utils::myexec( "$command < '$inDir/$localFile' > '$outDir/$localFile$ext'" )) {
                     error( 'Compressing failed:', "$inDir/$localFile", '->', "$outDir/$localFile$ext" );
                     $ret = FAIL;
