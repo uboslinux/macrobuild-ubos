@@ -43,6 +43,8 @@ sub runImpl {
             # do not report packages not from US for which we don't have a public key
             push @wrongSig, $signedFile;
             $ret = FAIL;
+
+            error( 'Wrong signature on file:', $signedFile );
         }
     }
     if( @unsignedFiles ) {
