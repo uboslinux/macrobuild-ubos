@@ -76,7 +76,7 @@ sub runImpl {
             my( $imageDev, $imageInode ) = ( stat $image )[ 0, 1 ];
 
             my $foundLinkLatest = undef;
-            foreach my $linkLatest ( @{$in->{'linkLatests'}} ) {
+            foreach my $linkLatest ( @{$in->{'linkLatest'}} ) {
                 my( $linkLatestDev, $linkLatestInode ) = ( stat $linkLatest )[ 0, 1 ];
 
                 if( $linkLatestDev == $imageDev && $linkLatestInode == $imageInode ) {
@@ -130,7 +130,7 @@ sub runImpl {
     }
     if( $deleteOriginal ) {
         UBOS::Utils::deleteFile( @$images );
-        UBOS::Utils::deleteFile( grep { $_ } @$linkLatests );
+        UBOS::Utils::deleteFile( @$linkLatests );
     }
 
     $run->setOutput( {

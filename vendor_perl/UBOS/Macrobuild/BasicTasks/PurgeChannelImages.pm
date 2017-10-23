@@ -30,7 +30,8 @@ sub runImpl {
     my %categories = ();
     foreach my $file ( @files ) {
         if( $file =~ m!^$dir/(.*_)(\d{8}-\d{6})(.*)$! ) {
-            my $category = "$1/$3"; # use / as separator, we know there isn't any other
+            my $category = "$1/$3"; # use / as separator, we know there isn't any other, e.g.
+                                    # e.g. "ubos_red_x86_64-pc_/.img"
             $categories{$category} = $category;
         }
     }
@@ -72,8 +73,14 @@ sub runImpl {
         @purgeList = sort { length($b) - length($a) } @purgeList;
 
         foreach my $purge ( @purgeList ) {
-            # This may or may not work, but that's fine
-            UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge/var/lib/machines' > /dev/null 2>&1" );
+            if( -e "$purge/var/lib/machines" ) {
+                # This may or may not work, but that's fine
+                UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge/var/lib/machines' > /dev/null 2>&1" );
+            }
+            if( -e "$purge/.snapshots" ) {
+                # This may or may not work, but that's fine
+                UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge/.snapshots' > /dev/null 2>&1" );
+            }
 
             if( UBOS::Utils::myexec( "sudo btrfs subvolume show '$purge' > /dev/null 2>&1" ) == 0 ) {
                 if( UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge'" )) {

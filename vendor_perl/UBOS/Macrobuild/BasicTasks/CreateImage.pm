@@ -70,9 +70,9 @@ sub runImpl {
 
     if( $errors ) {
         $run->setOutput( {
-                'images'       => [],
-                'failedimages' => [ $image ],
-                'linkLatests'  => []
+                'image'       => [],
+                'failedimage' => [ $image ],
+                'linkLatest'  => []
         });
 
         return FAIL;
@@ -95,14 +95,14 @@ sub runImpl {
 
         if( defined( $linkLatest )) {
             $run->setOutput( {
-                    'images'       => [ $image ],
-                    'failedimages' => [],
-                    'linkLatests'  => [ $linkLatest ]
+                    'image'       => [ $image ],
+                    'failedimage' => [],
+                    'linkLatest'  => [ $linkLatest ]
             });
         } else {
             $run->setOutput( {
-                    'images'       => [ $image ],
-                    'failedimages' => []
+                    'image'       => [ $image ],
+                    'failedimage' => []
             });
         }
 
@@ -110,9 +110,9 @@ sub runImpl {
 
     } else {
         $run->setOutput( {
-                'images'       => [],
-                'failedimages' => [],
-                'linkLatests'  => []
+                'image'       => [],
+                'failedimage' => [],
+                'linkLatest'  => []
         });
 
         return DONE_NOTHING;
