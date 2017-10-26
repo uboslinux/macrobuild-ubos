@@ -26,12 +26,13 @@ sub new {
 
     $self->SUPER::new( @args );
 
-    my @places = qw( images compressed-images );
+    my @places = qw( images uncompressed-images );
 
     foreach my $place ( @places ) {
         $self->addParallelTask(
                 $place,
                 UBOS::Macrobuild::BasicTasks::PurgeChannelImages->new(
+                        'name'   => 'Purge channel images in ' . $place,
                         'dir'    => '${repodir}/${channel}/${arch}/' . $place ));
     }
     $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(

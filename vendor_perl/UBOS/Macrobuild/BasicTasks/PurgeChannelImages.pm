@@ -35,7 +35,7 @@ sub runImpl {
             $categories{$category} = $category;
         }
     }
-    trace( 'Categories', keys %categories );
+    trace( 'Categories:', keys %categories );
 
     my @keepList  = ();
     my @purgeList = ();
@@ -62,8 +62,8 @@ sub runImpl {
         }
     }
 
-    trace( 'Keeping', @keepList );
-    trace( 'Purging', @purgeList );
+    trace( 'Keeping:', @keepList );
+    trace( 'Purging:', @purgeList );
 
     my $ret;
     if( @purgeList ) {

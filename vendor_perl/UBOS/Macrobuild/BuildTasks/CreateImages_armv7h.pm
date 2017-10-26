@@ -38,7 +38,6 @@ sub new {
                         'arch'        => '${arch}',
                         'repodir'     => '${repodir}',
                         'depotRoot'   => '${depotRoot}',
-                        'depotRoot'   => '${depotRoot}/${channel}',
                         'channel'     => '${channel}',
                         'deviceclass' => $deviceclass,
                         'imagesize'   => '3G',
