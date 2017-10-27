@@ -12,6 +12,7 @@ use fields qw( arch usconfigs sourcedir );
 
 use Macrobuild::Task;
 use UBOS::Logging;
+use UBOS::Macrobuild::PackageUtils;
 use UBOS::Macrobuild::Utils;
 
 my %knownExtensions = (

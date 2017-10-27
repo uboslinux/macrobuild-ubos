@@ -10,8 +10,10 @@ package UBOS::Macrobuild::BuildTasks::RemoveBuiltPackages;
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
 use fields qw( arch builddir channel repodir localSourcesDir db dbSignKey m2builddir );
 
+use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::Task;
 use UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages;
+use UBOS::Macrobuild::UsConfigs;
 
 ##
 # Constructor

@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::Unstage;
 
 use base qw( Macrobuild::Task );
-use fields qw( stagedir );
+use fields qw( stagedir arch );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::Utils;
@@ -23,42 +23,37 @@ sub runImpl {
 
     my $in = $run->getInput();
 
-    my $unstaged = {};
+    my $unstaged     = {};
+    my $removedFiles = [];
+
     if( exists( $in->{'removed-packages'} )) {
 
         my $removedPackages = $in->{'removed-packages'};
 
-        my $destDir = $self->getProperty( 'stagedir' );
+        my $stagedir = $self->getProperty( 'stagedir' );
+        my $arch     = $self->getProperty( 'arch' );
 
-        UBOS::Macrobuild::Utils::ensureDirectories( $destDir );
+        UBOS::Macrobuild::Utils::ensureDirectories( $stagedir );
 
         if( %$removedPackages ) {
             foreach my $uXConfigName ( sort keys %$removedPackages ) {
                 my $uXConfigData = $removedPackages->{$uXConfigName};
 
                 foreach my $packageName ( sort keys %$uXConfigData ) {
-                    $unstaged->{$packageName} = [];
 
-                    foreach my $fileName ( @{$uXConfigData->{$packageName}} ) {
+                    my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $stagedir, $arch );
+                    @files    = map { "$stagedir/$_" } @files;
+                    UBOS::Utils::deleteFile( @files );
 
-                        my $localFileName = $fileName;
-                        $localFileName =~ s!.*/!!;
-
-                        UBOS::Utils::myexec( "rm '$destDir/$localFileName'" );
-                        if( -e "$destDir/$localFileName.sig" ) {
-                            UBOS::Utils::myexec( "rm '$destDir/$localFileName'" );
-                        }
-
-                        push @{$unstaged->{$packageName}}, "$destDir/$localFileName";
-                    }
-                    trace( "Unstaged:", $packageName, @{$unstaged->{$packageName}} );
+                    push @$removedFiles, @files;
                 }
             }
         }
     }
 
     $run->setOutput( {
-            'unstaged-packages' => $unstaged
+            'unstaged-packages' => $unstaged,
+            'removed-files'     => $removedFiles
     } );
 
     if( %$unstaged ) {

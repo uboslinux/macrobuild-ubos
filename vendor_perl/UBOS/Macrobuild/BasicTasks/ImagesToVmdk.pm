@@ -21,7 +21,7 @@ sub runImpl {
     my $run  = shift;
 
     my $in              = $run->getInput();
-    my $images          = $in->{'images'};
+    my $images          = $in->{'image'};
     my $linkLatests     = [];
     my $vmdkImages      = [];
     my $vmdkLinkLatests = [];
@@ -134,7 +134,7 @@ sub runImpl {
     }
 
     $run->setOutput( {
-            'vmdkimages'     => $vmdkImages,
+            'vmdkimage'      => $vmdkImages,
             'vmdkLinkLatest' => $vmdkLinkLatests
     } );
 
