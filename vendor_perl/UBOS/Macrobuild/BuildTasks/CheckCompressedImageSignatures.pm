@@ -29,7 +29,7 @@ sub new {
     $self->setDelegate( UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
             'name'  => 'Check signatures for compressed images',
             'dir'   => '${repodir}/${channel}/${arch}/images',
-            'glob'  => '*.tar.xz' ));
+            'glob'  => '*.xz' ));
 
     return $self;
 }

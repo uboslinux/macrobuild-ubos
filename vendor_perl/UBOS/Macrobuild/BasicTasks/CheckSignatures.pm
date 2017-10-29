@@ -48,6 +48,8 @@ sub runImpl {
         }
     }
     if( @unsignedFiles ) {
+        error( 'Unsigned files exist:', @unsignedFiles );
+
         $ret = FAIL;
     }
 
