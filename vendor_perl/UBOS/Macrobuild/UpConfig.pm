@@ -1,4 +1,4 @@
-# 
+#
 # Config file for upstream packages
 #
 
@@ -75,7 +75,7 @@ sub directory {
 }
 
 ##
-# Get the list of packages
+# Get the set of packages, keyed by package name
 sub packages {
     my $self = shift;
 
@@ -83,7 +83,22 @@ sub packages {
 }
 
 ##
-# Get the list of packages to be removed
+# Determine whether this UpConfig contains this package.
+# $candidatePackage: name of the package
+# return: def or undef
+sub containsPackage {
+    my $self             = shift;
+    my $candidatePackage = shift;
+
+    if( exists( $self->{packages}->{$candidatePackage} )) {
+        return $self->{packages}->{$candidatePackage};
+    } else {
+        return undef;
+    }
+}
+
+##
+# Get the set of packages to be removed, keyed by package name
 sub removePackages {
     my $self = shift;
 

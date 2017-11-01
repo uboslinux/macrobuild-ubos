@@ -42,10 +42,14 @@ sub runImpl {
                 foreach my $packageName ( sort keys %$uXConfigData ) {
 
                     my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $stagedir, $arch );
-                    @files    = map { "$stagedir/$_" } @files;
-                    UBOS::Utils::deleteFile( @files );
+                    if( @files ) {
+                        my @allFiles    = map { "$stagedir/$_" } @files;
+                        my @allSigFiles = grep { -e $_ } map { "$stagedir/$_.sig" } @files;
 
-                    push @$removedFiles, @files;
+                        UBOS::Utils::deleteFile( @allFiles, @allSigFiles );
+
+                        push @$removedFiles, @files;
+                    }
                 }
             }
         }

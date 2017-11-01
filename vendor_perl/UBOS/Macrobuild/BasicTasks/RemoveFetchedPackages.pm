@@ -42,7 +42,13 @@ sub runImpl {
         foreach my $removePackage ( keys %$removePackages ) {
             my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $removePackage, $downloadDir, $arch );
 
-            UBOS::Utils::deleteFile( @files );
+            if( @files ) {
+                my @allFiles    = map { "$downloadDir/$_" } @files;
+                my @allSigFiles = grep { -e $_ } map { "$downloadDir/$_.sig" } @files;
+
+                UBOS::Utils::deleteFile( @allFiles, @allSigFiles );
+            }
+
             $removedPackages->{$repoName}->{$removePackage} = \@files;
         }
     }

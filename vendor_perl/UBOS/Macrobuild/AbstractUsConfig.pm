@@ -1,4 +1,4 @@
-# 
+#
 # Abstract supertype for various implementations of config files for upstream sources
 #
 
@@ -99,7 +99,7 @@ sub url {
 }
 
 ##
-# Get the list of packages
+# Get the set of packages, keyed by package name
 sub packages {
     my $self = shift;
 
@@ -107,7 +107,22 @@ sub packages {
 }
 
 ##
-# Get the list of packages to be removed
+# Determine whether this UsConfig contains this package.
+# $candidatePackage: name of the package
+# return: def or undef
+sub containsPackage {
+    my $self             = shift;
+    my $candidatePackage = shift;
+
+    if( exists( $self->{packages}->{$candidatePackage} )) {
+        return $self->{packages}->{$candidatePackage};
+    } else {
+        return undef;
+    }
+}
+
+##
+# Get the set of packages to be removed, keyed by package name
 sub removePackages {
     my $self = shift;
 
@@ -118,7 +133,7 @@ sub removePackages {
 # Get a list of webapptests
 sub webapptests {
     my $self = shift;
-    
+
     return $self->{webapptests};
 }
 
