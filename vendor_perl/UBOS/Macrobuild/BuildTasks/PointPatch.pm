@@ -54,7 +54,7 @@ sub new {
             'name'        => 'Determine into which db packages go',
             'upconfigs'   => $repoUpConfigs,
             'usconfigs'   => $repoUsConfigs,
-            'packageFile' => '${packageFile}',
+            'packageFile' => $self->getProperty( 'packageFile' ),
             'splitPrefix' => 'patch-' ));
 
     my @buildTasksSequence = ();

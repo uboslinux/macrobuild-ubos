@@ -37,6 +37,7 @@ sub runImpl {
         $ret = SUCCESS;
 
         foreach my $packageFile ( @$packageFiles ) {
+print "XXX Looking at packageFile $packageFile\n";
             my $shortPackageFile = $packageFile;
             $shortPackageFile =~ s!.*/!!;
 
@@ -50,10 +51,12 @@ sub runImpl {
                 my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
                 my $section = defined( $self->{splitPrefix} ) ? ( $self->{splitPrefix} .  $shortDb ) : $shortDb;
 
-                $out->{$section} = {
-                        'new-packages' => {},
-                        'old-packages' => {}
-                };
+                unless( exists( $out->{$section} )) {
+                    $out->{$section} = {
+                            'new-packages' => {},
+                            'old-packages' => {}
+                    };
+                }
 
                 foreach my $upConfigName ( sort keys %$configs ) {
                     my $upConfig = $configs->{$upConfigName};
