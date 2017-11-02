@@ -64,13 +64,13 @@ sub new {
 
         my $buildTaskName = "patch-$shortDb";
 
-        my $t = Macrobuild::CompositeTasks::Sequential->new();
+        my $t = Macrobuild::CompositeTasks::Sequential->new( 'name' => 'Stage and update package db for ' . $db );
         $t->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
-                'name'        => 'Stage new packages in local repository',
+                'name'        => 'Stage new packages in local repository for ' . $db,
                 'stagedir'    => '${repodir}/${channel}/${arch}/' . $shortDb ));
 
         $t->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
-                'name'        => 'Update package database with new packages',
+                'name'        => 'Update package database with new packages for ' . $db,
                 'dbfile'      => '${repodir}/${channel}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz',
                 'dbSignKey'   => '${dbSignKey}' ));
 
