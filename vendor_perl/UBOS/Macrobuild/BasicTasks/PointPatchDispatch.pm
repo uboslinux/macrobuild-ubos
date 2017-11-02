@@ -8,7 +8,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::PointPatchDispatch;
 
 use base qw( Macrobuild::Task );
-use fields qw( upconfigs usconfigs packageFile );
+use fields qw( upconfigs usconfigs packageFile splitPrefix );
 
 use Macrobuild::Task;
 use UBOS::Logging;
@@ -30,8 +30,8 @@ sub run {
     my $upconfigs = $self->getProperty( 'upconfigs' );
     my $usconfigs = $self->getProperty( 'usconfigs' );
 
-    my $dispatched  = {};
-    my $found       = {};
+    my $out   = {};
+    my $found = {};
     my $ret;
     if( @$packageFiles ) {
         $ret = SUCCESS;
@@ -46,11 +46,19 @@ sub run {
             $found->{$packageName} = 0;
             OUTER1: foreach my $db ( sort keys %$upconfigs ) {
                 my $configs = $upconfigs->{$db}->configs( $self );
+
+                my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+
+                $out->{$shortDb} = {
+                        'new-packages' => {},
+                        'old-packages' => {}
+                };
+
                 foreach my $upConfigName ( sort keys %$configs ) {
                     my $upConfig = $configs->{$upConfigName};
 
                     if( $upConfig->containsPackage( $packageName )) {
-                        $dispatched->{$upConfigName}->{$packageName} = $packageFile;
+                        $out->{$shortDb}->{'new-packages'}->{$upConfigName}->{$packageName} = $packageFile;
                         $found->{$packageName} = 1;
                         last OUTER1;
                     }
@@ -63,7 +71,7 @@ sub run {
                         my $usConfig = $configs->{$usConfigName};
 
                         if( $usConfig->containsPackage( $packageName )) {
-                            $dispatched->{$usConfigName}->{$packageName} = $packageFile;
+                            $out->{$shortDb}->{'new-packages'}->{$usConfigName}->{$packageName} = $packageFile;
                             $found->{$packageName} = 1;
                             last OUTER2;
                         }
@@ -81,10 +89,7 @@ sub run {
         $ret = DONE_NOTHING;
     }
 
-    $run->setOutput( {
-            'new-packages' => $dispatched,
-            'old-packages' => {}
-    } );
+    $run->setOutput( $out );
 
     return $ret;
 }

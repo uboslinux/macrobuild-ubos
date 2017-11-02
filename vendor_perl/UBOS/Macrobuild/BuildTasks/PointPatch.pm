@@ -33,6 +33,8 @@ sub new {
 
     $self->SUPER::new( @args );
 
+    $self->{splitSplitTaskOutput} = 1;
+
     my $dbs = $self->getProperty( 'db' );
     unless( ref( $dbs )) {
         $dbs = [ $dbs ];
@@ -52,7 +54,8 @@ sub new {
             'name'        => 'Determine into which db packages go',
             'upconfigs'   => $repoUpConfigs,
             'usconfigs'   => $repoUsConfigs,
-            'packageFile' => '${packageFile}' ));
+            'packageFile' => '${packageFile}',
+            'splitPrefix' => 'patch-' ));
 
     my @buildTasksSequence = ();
 
