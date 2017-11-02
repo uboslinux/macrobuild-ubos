@@ -52,7 +52,7 @@ sub new {
             'name'        => 'Determine into which db packages go',
             'upconfigs'   => $repoUpConfigs,
             'usconfigs'   => $repoUsConfigs,
-            'packageFile' => '${packageFile}' );
+            'packageFile' => '${packageFile}' ));
 
     my @buildTasksSequence = ();
 
@@ -64,11 +64,11 @@ sub new {
         my $t = Macrobuild::CompositeTasks::Sequential->new();
         $t->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
                 'name'        => 'Stage new packages in local repository',
-                'stagedir'    => '${repodir}/${channel}/${arch}/' . $db ));
+                'stagedir'    => '${repodir}/${channel}/${arch}/' . $shortDb ));
 
         $t->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
                 'name'        => 'Update package database with new packages',
-                'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+                'dbfile'      => '${repodir}/${channel}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz',
                 'dbSignKey'   => '${dbSignKey}' ));
 
         $self->addParallelTask( $buildTaskName, $t );

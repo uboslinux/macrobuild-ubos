@@ -24,9 +24,11 @@ sub run {
     my $packageFiles = $self->getProperty( 'packageFile' );
     if( !$packageFiles ) {
         $packageFiles = [];
-    elsif( !ref( $packageFiles )) {
+    } elsif( !ref( $packageFiles )) {
         $packageFiles = [ $packageFiles ];
     }
+    my $upconfigs = $self->getProperty( 'upconfigs' );
+    my $usconfigs = $self->getProperty( 'usconfigs' );
 
     my $dispatched  = {};
     my $found       = {};
@@ -38,27 +40,33 @@ sub run {
             my $shortPackageFile = $packageFile;
             $shortPackageFile =~ s!.*/!!;
 
-            my $parsedPackageFile = UBOS::Macrobuild::PackageUtils;
+            my $parsedPackageFile = UBOS::Macrobuild::PackageUtils::parsePackageFileName( $shortPackageFile );
             my $packageName       = $parsedPackageFile->{'name'};
 
             $found->{$packageName} = 0;
-            foreach my $upConfigName ( sort keys %$upconfigs ) {
-                my $upConfig = $upconfigs->{$upConfigName};
+            OUTER1: foreach my $db ( sort keys %$upconfigs ) {
+                my $configs = $upconfigs->{$db}->configs( $self );
+                foreach my $upConfigName ( sort keys %$configs ) {
+                    my $upConfig = $configs->{$upConfigName};
 
-                if( $upConfig->containsPackage( $packageName )) {
-                    $dispatched->{$upConfigName}->{$packageName} = $packageFile;
-                    $found->{$packageName} = 1;
-                    last;
+                    if( $upConfig->containsPackage( $packageName )) {
+                        $dispatched->{$upConfigName}->{$packageName} = $packageFile;
+                        $found->{$packageName} = 1;
+                        last OUTER1;
+                    }
                 }
             }
             unless( $found->{$packageName} ) {
-                foreach my $usConfigName ( sort keys %$usconfigs ) {
-                    my $usConfig = $usconfigs->{$usConfigName};
+                OUTER2: foreach my $db ( sort keys %$usconfigs ) {
+                    my $configs = $usconfigs->{$db}->configs( $self );
+                    foreach my $usConfigName ( sort keys %$configs ) {
+                        my $usConfig = $configs->{$usConfigName};
 
-                    if( $usConfig->containsPackage( $packageName )) {
-                        $dispatched->{$usConfigName}->{$packageName} = $packageFile;
-                        $found->{$packageName} = 1;
-                        last;
+                        if( $usConfig->containsPackage( $packageName )) {
+                            $dispatched->{$usConfigName}->{$packageName} = $packageFile;
+                            $found->{$packageName} = 1;
+                            last OUTER2;
+                        }
                     }
                 }
             }
