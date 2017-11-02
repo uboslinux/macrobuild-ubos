@@ -48,8 +48,9 @@ sub runImpl {
                 my $configs = $upconfigs->{$db}->configs( $self );
 
                 my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+                my $section = defined( $self->{splitPrefix} ) ? ( $self->{splitPrefix} .  $shortDb ) : $shortDb;
 
-                $out->{$shortDb} = {
+                $out->{$section} = {
                         'new-packages' => {},
                         'old-packages' => {}
                 };
@@ -58,7 +59,7 @@ sub runImpl {
                     my $upConfig = $configs->{$upConfigName};
 
                     if( $upConfig->containsPackage( $packageName )) {
-                        $out->{$shortDb}->{'new-packages'}->{$upConfigName}->{$packageName} = $packageFile;
+                        $out->{$section}->{'new-packages'}->{$upConfigName}->{$packageName} = $packageFile;
                         $found->{$packageName} = 1;
                         last OUTER1;
                     }
@@ -67,11 +68,15 @@ sub runImpl {
             unless( $found->{$packageName} ) {
                 OUTER2: foreach my $db ( sort keys %$usconfigs ) {
                     my $configs = $usconfigs->{$db}->configs( $self );
+
+                    my $shortDb = UBOS::Macrobuild::Utils::shortDb( $db );
+                    my $section = defined( $self->{splitPrefix} ) ? ( $self->{splitPrefix} .  $shortDb ) : $shortDb;
+
                     foreach my $usConfigName ( sort keys %$configs ) {
                         my $usConfig = $configs->{$usConfigName};
 
                         if( $usConfig->containsPackage( $packageName )) {
-                            $out->{$shortDb}->{'new-packages'}->{$usConfigName}->{$packageName} = $packageFile;
+                            $out->{$section}->{'new-packages'}->{$usConfigName}->{$packageName} = $packageFile;
                             $found->{$packageName} = 1;
                             last OUTER2;
                         }
