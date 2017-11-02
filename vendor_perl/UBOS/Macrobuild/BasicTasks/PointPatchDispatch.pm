@@ -17,7 +17,7 @@ use UBOS::Macrobuild::PackageUtils;
 ##
 # Run this task.
 # $run: the inputs, outputs, settings and possible other context info for the run
-sub run {
+sub runImpl {
     my $self = shift;
     my $run  = shift;
 
