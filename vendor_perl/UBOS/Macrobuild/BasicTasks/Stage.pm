@@ -23,7 +23,6 @@ sub runImpl {
     my $in = $run->getInput();
 
     unless( exists( $in->{'new-packages'} )) {
-        warning( "Stage: No new-packages given in input" );
         return DONE_NOTHING;
     }
 
