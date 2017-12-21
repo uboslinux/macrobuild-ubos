@@ -38,6 +38,7 @@ sub new {
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Unstage->new(
             'name'        => 'Unstage removed packages in local repository',
+            'arch'        => '${arch}',
             'stagedir'    => '${repodir}/${channel}/${arch}/' . $db ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
