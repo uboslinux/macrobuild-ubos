@@ -43,8 +43,8 @@ sub new {
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
             'name'        => 'Update package database with removed packages',
-            'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz' ),
-            'dbSignKey'   => '${dbSignKey}' );
+            'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+            'dbSignKey'   => '${dbSignKey}' ));
 
     return $self;
 }

@@ -13,6 +13,7 @@ use fields qw( arch builddir channel repodir db dbSignKey );
 use Macrobuild::Task;
 use Macrobuild::BasicTasks::MergeValues;
 use UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages;
+use UBOS::Macrobuild::UpConfigs;
 
 ##
 # Constructor
