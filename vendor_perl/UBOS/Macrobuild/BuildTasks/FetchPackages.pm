@@ -10,6 +10,7 @@ package UBOS::Macrobuild::BuildTasks::FetchPackages;
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
 use fields qw( arch channel db builddir repodir dbSignKey );
 
+use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::Task;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
