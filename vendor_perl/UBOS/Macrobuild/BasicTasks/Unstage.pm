@@ -50,6 +50,7 @@ sub runImpl {
 
                         push @$removedFiles, @files;
                     }
+                    $unstaged->{$packageName} = $uXConfigData->{$packageName};
                 }
             }
         }

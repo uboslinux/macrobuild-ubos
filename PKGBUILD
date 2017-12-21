@@ -2,8 +2,8 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=${developer}
 pkgname=macrobuild-ubos
-pkgver=0.248
-pkgrel=2
+pkgver=0.249
+pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
@@ -14,6 +14,8 @@ depends=(
         'automake'
         'binutils'
         'bison'
+        'boost'
+        'boost-libs'
         'btrfs-progs'
         'cmake'
         'curl'
