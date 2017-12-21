@@ -191,7 +191,9 @@ sub _buildPackage {
     trace( 'Build command produced output:', $both );
 
     if( $result ) {
-        if( $both =~ /ERROR: A package has already been built/ ) {
+        if(    ( $both =~ /ERROR: A package has already been built/ )
+            || ( $both =~ /ERROR: The package group has already been built/ ))
+        {
             if( -e "$dir/$failedstamp" ) {
                 UBOS::Utils::deleteFile( "$dir/$failedstamp" );
             }
