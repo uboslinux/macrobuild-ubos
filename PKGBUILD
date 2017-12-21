@@ -2,7 +2,7 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=${developer}
 pkgname=macrobuild-ubos
-pkgver=0.247
+pkgver=0.248
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
@@ -15,6 +15,7 @@ depends=(
         'binutils'
         'bison'
         'btrfs-progs'
+        'cmake'
         'curl'
         'dosfstools'
         'fakeroot'
