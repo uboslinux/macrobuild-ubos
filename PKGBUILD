@@ -3,7 +3,7 @@ url="http://ubos.net/"
 maintainer=${developer}
 pkgname=macrobuild-ubos
 pkgver=0.248
-pkgrel=1
+pkgrel=2
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
 license=('GPL')
@@ -51,6 +51,7 @@ depends=(
         'python-setuptools'
         'python2-setuptools'
         'qt5-base'
+        'qt5-tools'
         'ruby'
         'ruby-bundler'
         'rsync'
