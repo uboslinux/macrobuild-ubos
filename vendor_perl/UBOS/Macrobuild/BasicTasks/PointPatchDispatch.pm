@@ -37,7 +37,10 @@ sub runImpl {
         $ret = SUCCESS;
 
         foreach my $packageFile ( @$packageFiles ) {
-print "XXX Looking at packageFile $packageFile\n";
+            unless( -e $packageFile ) {
+                fatal( 'Cannot find package file', $packageFile );
+            }
+
             my $shortPackageFile = $packageFile;
             $shortPackageFile =~ s!.*/!!;
 
