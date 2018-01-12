@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Update a Git repository by pulling it
+#
+# Copyright (C) 2017 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

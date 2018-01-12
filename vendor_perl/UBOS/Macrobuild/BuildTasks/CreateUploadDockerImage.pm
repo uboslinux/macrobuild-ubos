@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Creates and uploads an UBOS image to Docker
+#
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

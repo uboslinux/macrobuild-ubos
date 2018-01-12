@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Create a bootable UBOS image.
+#
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

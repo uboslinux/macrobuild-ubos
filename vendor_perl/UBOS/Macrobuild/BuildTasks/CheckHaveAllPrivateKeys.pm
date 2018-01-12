@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Check that we have all required private keys
+#
+# Copyright (C) 2017 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

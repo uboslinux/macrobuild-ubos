@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Upload something to the depot
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

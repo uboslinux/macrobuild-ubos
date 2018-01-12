@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Upload a Docker image that exists in the local Docker registry.
+#
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

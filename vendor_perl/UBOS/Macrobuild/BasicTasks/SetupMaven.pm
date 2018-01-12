@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Set up maven ready for building package for UBOS
+#
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

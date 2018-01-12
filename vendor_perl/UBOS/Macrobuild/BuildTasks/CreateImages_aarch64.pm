@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Creates all images for ARM aarch64
+#
+# Copyright (C) 2017 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

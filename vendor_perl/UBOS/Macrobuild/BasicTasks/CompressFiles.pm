@@ -1,6 +1,9 @@
+#!/usr/bin/perl
 #
 # Compress files given by a glob, possible move the compressed files
 # to a different directory, and adjust link-latest symlinks
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

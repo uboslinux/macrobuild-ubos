@@ -1,6 +1,9 @@
+#!/usr/bin/perl
 #
 # Take locally existing package files and inserts them into the package dbs.
 # Useful for point patches.
+#
+# Copyright (C) 2017 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

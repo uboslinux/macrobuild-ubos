@@ -1,5 +1,9 @@
+#!/usr/bin/perl
 #
 # Upgrade the current system. Simply invokes 'ubos-admin update'.
+#
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
+#
 
 use strict;
 use warnings;

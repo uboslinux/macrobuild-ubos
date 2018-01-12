@@ -1,6 +1,9 @@
+#!/usr/bin/perl
 #
 # Purge the images in a channel. We keep the most recent, and
 # the first in any given month.
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

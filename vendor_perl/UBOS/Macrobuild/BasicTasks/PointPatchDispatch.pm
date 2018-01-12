@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Determine into which package dbs the provided packages go.
+#
+# Copyright (C) 2017 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

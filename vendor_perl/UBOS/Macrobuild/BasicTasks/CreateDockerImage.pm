@@ -1,7 +1,11 @@
+#!/usr/bin/perl
 #
 # Create a Docker image from a tarfile. Tag it with the timestamp and with
 # latest, if it is latest.
 #
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
+#
+
 use strict;
 use warnings;
 

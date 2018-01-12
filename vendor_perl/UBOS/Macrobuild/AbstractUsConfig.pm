@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Abstract supertype for various implementations of config files for upstream sources
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

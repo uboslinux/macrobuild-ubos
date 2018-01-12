@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Removes packages fetched from upstream marked to be removed
+#
+# Copyright (C) 2017 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

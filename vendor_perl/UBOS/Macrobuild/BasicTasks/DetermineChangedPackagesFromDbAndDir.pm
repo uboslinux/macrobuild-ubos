@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Determine which packages, of the ones we want, have new versions
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

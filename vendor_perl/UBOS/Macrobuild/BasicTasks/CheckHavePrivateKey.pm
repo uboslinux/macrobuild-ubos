@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Check that GPG has a private key for the given keyId
+#
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

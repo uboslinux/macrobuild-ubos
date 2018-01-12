@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Check that there are no overlaps in any of the UpConfigs and UsConfigs
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

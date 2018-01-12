@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Fetches packages from Arch and updates the package database
+#
+# Copyright (C) 2016 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

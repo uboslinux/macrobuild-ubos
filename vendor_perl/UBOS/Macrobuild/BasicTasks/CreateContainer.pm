@@ -1,8 +1,12 @@
+#!/usr/bin/perl
 #
 # Create a directory hierarchy that can be booted in a Linux container.
 # dir is the name of the directory
 # tarfile is the tar file into which is being archived
 #
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
+#
+
 use strict;
 use warnings;
 

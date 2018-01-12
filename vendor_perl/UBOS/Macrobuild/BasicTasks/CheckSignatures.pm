@@ -1,6 +1,9 @@
+#!/usr/bin/perl
 #
 # Check that files with a certain naming pattern in a directory
 # have corresponding .sig files.
+#
+# Copyright (C) 2016 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

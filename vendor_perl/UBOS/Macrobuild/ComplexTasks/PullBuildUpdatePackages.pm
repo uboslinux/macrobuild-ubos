@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Pulls packages, builds them, and updates the package database
+#
+# Copyright (C) 2016 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

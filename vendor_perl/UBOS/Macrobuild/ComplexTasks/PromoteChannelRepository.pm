@@ -1,6 +1,9 @@
+#!/usr/bin/perl
 #
 # Promotes all promotable packages in a particular repository in a particular
 # channel to another.
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

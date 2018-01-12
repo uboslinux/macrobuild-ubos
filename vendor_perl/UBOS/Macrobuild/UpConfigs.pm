@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Applicable UpConfigs. This is only resolved after construction.
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Runs pacsane on the provided DBs
+#
+# Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

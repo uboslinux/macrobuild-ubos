@@ -1,7 +1,10 @@
+#!/usr/bin/perl
 #
 # Run webapptests in ONE usconfig in a container.
 # This does NOT pull sources for the tests; it is assumed that they are current
 # in the right directories.
+#
+# Copyright (C) 2017 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

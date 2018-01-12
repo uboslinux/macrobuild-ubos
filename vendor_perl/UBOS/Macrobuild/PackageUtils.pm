@@ -1,6 +1,9 @@
+#!/usr/bin/perl
 #
 # Utility methods for packages. Some of the code is directly adapted from
 # libalpm/version.c in pacman.
+#
+# Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;

@@ -1,5 +1,8 @@
+#!/usr/bin/perl
 #
 # Remove the packages marked as to be removed
+#
+# Copyright (C) 2016 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
 
 use strict;
