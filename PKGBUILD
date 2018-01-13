@@ -2,11 +2,11 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=${developer}
 pkgname=macrobuild-ubos
-pkgver=0.251
+pkgver=0.252
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
-license=('AGPL')
+license=('AGPL3')
 depends=(
         'apache'
         'arch-install-scripts'
