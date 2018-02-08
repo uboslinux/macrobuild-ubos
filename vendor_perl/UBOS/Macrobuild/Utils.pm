@@ -106,12 +106,14 @@ sub removeItemsNotForThisArch {
     my $items = shift;
     my $arch  = shift;
 
-    foreach my $itemName ( keys %$items ) {
-        my $itemData = $items->{$itemName};
-        if( defined( $itemData ) && exists( $itemData->{archs} )) {
-            unless( UBOS::Macrobuild::Utils::useForThisArch( $arch, $itemData->{archs} )) {
-                delete $items->{$itemName};
-                trace( 'Skipping item', $itemName, 'for arch', $arch );
+    if( $items ) {
+        foreach my $itemName ( keys %$items ) {
+            my $itemData = $items->{$itemName};
+            if( defined( $itemData ) && exists( $itemData->{archs} )) {
+                unless( UBOS::Macrobuild::Utils::useForThisArch( $arch, $itemData->{archs} )) {
+                    delete $items->{$itemName};
+                    trace( 'Skipping item', $itemName, 'for arch', $arch );
+                }
             }
         }
     }

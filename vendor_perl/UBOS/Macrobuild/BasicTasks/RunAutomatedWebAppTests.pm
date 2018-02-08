@@ -13,7 +13,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::RunAutomatedWebAppTests;
 
 use base qw( Macrobuild::Task );
-use fields qw( usconfigs sourcedir config scaffold directory );
+use fields qw( arch usconfigs sourcedir config scaffold directory );
 
 use Macrobuild::Task;
 use UBOS::Logging;
@@ -31,6 +31,7 @@ sub runImpl {
         $testCmd .= " --config '$config'";
     }
 
+    my $arch      = $self->getProperty( 'arch' );
     my $sourceDir = $self->getProperty( 'sourcedir' );
     my $scaffold  = $self->getProperty( 'scaffold' );
     my $directory = $self->getPropertyOrDefault( 'directory', undef );
@@ -52,6 +53,8 @@ sub runImpl {
         trace( "Now processing upstream source config file", $name );
 
         my $webapptests = $usConfig->webapptests;
+        UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
+
         if( defined( $webapptests ) && keys %$webapptests ) {
             my $sourceSourceDir = "$sourceDir/$name";
             if( -d $sourceSourceDir ) {
