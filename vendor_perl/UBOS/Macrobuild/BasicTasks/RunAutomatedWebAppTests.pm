@@ -13,7 +13,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::RunAutomatedWebAppTests;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch usconfigs sourcedir config scaffold directory );
+use fields qw( arch usconfigs sourcedir config scaffold testplan directory );
 
 use Macrobuild::Task;
 use UBOS::Logging;
@@ -33,11 +33,16 @@ sub runImpl {
 
     my $arch      = $self->getProperty( 'arch' );
     my $sourceDir = $self->getProperty( 'sourcedir' );
-    my $scaffold  = $self->getProperty( 'scaffold' );
+    my $scaffold  = $self->getPropertyOrDefault( 'scaffold', 'container' );
+    my $testplan  = $self->getPropertyOrDefault( 'testplan', 'default' );
     my $directory = $self->getPropertyOrDefault( 'directory', undef );
+
+    $testCmd .= " --scaffold $scaffold";
     if( $directory ) {
-        $testCmd .= " --scaffold 'container:directory=$directory'";
+        $testCmd .= "directory=$directory";
     }
+
+    $testCmd .= " --testplan $testplan";
 
     my $testsSequence = [];
     my $testsPassed   = {};

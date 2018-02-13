@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::RunAutomatedTests;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch builddir channel db repodir testconfig scaffold );
+use fields qw( arch builddir channel db repodir testconfig scaffold testplan );
 
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::Task;
@@ -60,6 +60,7 @@ sub new {
                         'usconfigs' => $repoUsConfigs->{$shortDb},
                         'scaffold'  => '${scaffold}', # allows us to filter out directory parameter if not container, for example
                         'config'    => '${testconfig}',
+                        'testplan'  => '${testplan}',
                         'directory' => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tardir',
                         'sourcedir' => '${builddir}/dbs/' . $shortDb . '/ups' ));
     }
