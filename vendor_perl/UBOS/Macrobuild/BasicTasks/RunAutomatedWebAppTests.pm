@@ -39,7 +39,7 @@ sub runImpl {
 
     $testCmd .= " --scaffold $scaffold";
     if( $directory ) {
-        $testCmd .= "directory=$directory";
+        $testCmd .= ":directory=$directory";
     }
 
     $testCmd .= " --testplan $testplan";
