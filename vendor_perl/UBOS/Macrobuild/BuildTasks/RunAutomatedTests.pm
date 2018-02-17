@@ -55,7 +55,7 @@ sub new {
         $self->addParallelTask(
                 $taskName,
                 UBOS::Macrobuild::BasicTasks::RunAutomatedWebAppTests->new(
-                        'name'      => 'Run automated web app tests in ' . $db,
+                        'name'      => 'Run automated web app tests with ${testplan} in ' . $db,
                         'arch'      => '${arch}',
                         'usconfigs' => $repoUsConfigs->{$shortDb},
                         'scaffold'  => '${scaffold}', # allows us to filter out directory parameter if not container, for example
