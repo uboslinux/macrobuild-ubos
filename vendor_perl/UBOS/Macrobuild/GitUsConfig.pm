@@ -40,7 +40,7 @@ sub new {
         fatal( 'No branch field defined in usConfig', $file );
     }
     unless( $self->{branch} =~ m!^[a-z0-9]+$!i ) {
-        fatal( 'Invalid branch field in usConfig', $file );
+        fatal( 'Invalid branch field in usConfig', $file, ', is', $self->{branch} );
     }
 
     return $self;

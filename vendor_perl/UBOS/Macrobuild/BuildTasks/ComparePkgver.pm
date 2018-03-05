@@ -12,13 +12,16 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::ComparePkgver;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch channel builddir repodir db );
+use fields qw( arch branch channel builddir repodir db );
 
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::SplitJoin;
 use Macrobuild::Task;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::CheckSignatures;
+use UBOS::Macrobuild::BasicTasks::ComparePkgver;
+use UBOS::Macrobuild::BasicTasks::Report;
+use UBOS::Macrobuild::UsConfigs;
+use UBOS::Macrobuild::Utils;
 
 ##
 # Constructor
@@ -55,16 +58,26 @@ sub new {
                 UBOS::Macrobuild::BasicTasks::ComparePkgver->new(
                         'name'           => 'Compare pkgver between PKGBUILD and package in ' . $db,
                         'arch'           => '${arch}',
-                        'builddir'       => '${builddir}',
-                        'repodir'        => '${repodir}',
+                        'branch'         => '${branch}',
+                        'sourcedir'      => '${builddir}/dbs/' . $shortDb . '/ups',
+                        'stagedir'       => '${repodir}/${channel}/${arch}/' . $shortDb,
                         'usconfigs'      => $repoUsConfigs->{$shortDb},
-                        'db'             => $shortDb );
+                        'db'             => $shortDb ));
     }
 
-    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-            'name' => 'Merge check lists from dev dbs: ' . join( ' ', @$dbs ),
-            'keys' => \@compareTaskNames ));
+    my $mergeAndReport = Macrobuild::CompositeTasks::Sequential->new(
+            'name' => 'Merge and report' );
 
+    $mergeAndReport->appendTask(
+            Macrobuild::BasicTasks::MergeValues->new(
+                    'name' => 'Merge check lists from dev dbs: ' . join( ' ', @$dbs ),
+                    'keys' => \@compareTaskNames ));
+
+    $mergeAndReport->appendTask(
+            UBOS::Macrobuild::BasicTasks::Report->new(
+                    'name' => 'Report on ' . ref( $self )));
+
+    $self->setJoinTask( $mergeAndReport );
     return $self;
 }
 
