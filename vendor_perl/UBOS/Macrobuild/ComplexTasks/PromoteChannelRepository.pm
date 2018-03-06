@@ -16,7 +16,7 @@ use fields qw( arch channel upconfigs usconfigs db repodir fromChannel );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages;
-use UBOS::Macrobuild::BasicTasks::Stage;
+use UBOS::Macrobuild::BasicTasks::Promote;
 
 ##
 # Constructor
@@ -43,7 +43,7 @@ sub new {
             'fromDb'      => '${repodir}/${fromChannel}/${arch}/' . $db,
             'toDb'        => '${repodir}/${channel}/${arch}/' . $db ));
 
-    $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::Promote->new(
             'name'        => 'Stage new packages in ' . $db,
             'arch'        => '${arch}',
             'upconfigs'   => $upconfigs,

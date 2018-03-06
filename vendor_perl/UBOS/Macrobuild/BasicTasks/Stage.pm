@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Stage the most recen packages in a stage directory
+# Stage the most recent packages in a stage directory
 #
 # Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
