@@ -16,7 +16,6 @@ use fields qw( arch builddir repodir usconfigs db dbSignKey );
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::RemoveBuiltPackages;
 use UBOS::Macrobuild::BasicTasks::Unstage;
-use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 
 ##
 # Constructor
@@ -41,10 +40,7 @@ sub new {
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Unstage->new(
             'name'        => 'Unstage removed packages in local repository',
             'arch'        => '${arch}',
-            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db ));
-
-    $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
-            'name'        => 'Update package database with removed packages',
+            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
             'dbSignKey'   => '${dbSignKey}' ));
 

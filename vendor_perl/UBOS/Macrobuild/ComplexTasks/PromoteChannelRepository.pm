@@ -17,7 +17,6 @@ use fields qw( arch channel upconfigs usconfigs db repodir fromChannel );
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages;
 use UBOS::Macrobuild::BasicTasks::Stage;
-use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 
 ##
 # Constructor
@@ -46,10 +45,10 @@ sub new {
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
             'name'        => 'Stage new packages in ' . $db,
-            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db ));
-
-    $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
-            'name'        => 'Update package database with new packages in ' . $db,
+            'arch'        => '${arch}',
+            'packages'    => $usconfigs->{$db}->packages(),
+            'sourcedir'   => '${repodir}/${fromChannel}/${arch}/' . $db,
+            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
             'dbSignKey'   => '${dbSignKey}' ));
 

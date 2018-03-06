@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::Unstage;
 
 use base qw( Macrobuild::Task );
-use fields qw( stagedir arch );
+use fields qw( arch stagedir dbfile dbSignKey );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::Utils;
@@ -26,19 +26,21 @@ sub runImpl {
 
     my $in = $run->getInput();
 
-    my $unstaged     = {};
-    my $removedFiles = [];
+    my $ret             = SUCCESS;
+    my @removedPackages = ();
 
     if( exists( $in->{'removed-packages'} )) {
 
         my $removedPackages = $in->{'removed-packages'};
-
-        my $stagedir = $self->getProperty( 'stagedir' );
-        my $arch     = $self->getProperty( 'arch' );
-
-        UBOS::Macrobuild::Utils::ensureDirectories( $stagedir );
-
         if( %$removedPackages ) {
+
+            my $stagedir  = $self->getProperty( 'stagedir' );
+            my $arch      = $self->getProperty( 'arch' );
+            my $dbFile    = UBOS::Macrobuild::PacmanDbFile->new( $self->getProperty( 'dbfile' ));
+            my $dbSignKey = $self->getPropertyOrDefault( 'dbSignKey', undef );
+
+            UBOS::Macrobuild::Utils::ensureDirectories( $stagedir );
+
             foreach my $uXConfigName ( sort keys %$removedPackages ) {
                 my $uXConfigData = $removedPackages->{$uXConfigName};
 
@@ -51,20 +53,25 @@ sub runImpl {
 
                         UBOS::Utils::deleteFile( @allFiles, @allSigFiles );
 
-                        push @$removedFiles, @files;
+                        if( $dbFile->removePackages( $dbSignKey, \@allFiles ) == -1 ) {
+                            $ret = FAIL;
+                        } else {
+                            push @removedPackages, @allFiles;
                     }
-                    $unstaged->{$packageName} = $uXConfigData->{$packageName};
                 }
             }
         }
     }
 
+    if( $ret == FAIL ) {
+        return $ret;
+    }
+
     $run->setOutput( {
-            'unstaged-packages' => $unstaged,
-            'removed-files'     => $removedFiles
+        'removed-packages' => \@removedPackages
     } );
 
-    if( %$unstaged ) {
+    if( @removedPackages ) {
         return SUCCESS;
     } else {
         return DONE_NOTHING;

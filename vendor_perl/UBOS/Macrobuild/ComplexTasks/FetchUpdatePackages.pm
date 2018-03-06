@@ -19,7 +19,6 @@ use UBOS::Macrobuild::BasicTasks::DownloadPackageDbs;
 use UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir;
 use UBOS::Macrobuild::BasicTasks::FetchPackages;
 use UBOS::Macrobuild::BasicTasks::Stage;
-use UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase;
 
 ##
 # Constructor
@@ -53,11 +52,11 @@ sub new {
             'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
-            'name'        => 'Stage new packages in local repository',
-            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db ));
-
-    $self->appendTask( UBOS::Macrobuild::BasicTasks::UpdatePackageDatabase->new(
-            'name'        => 'Update package database with new packages',
+            'name'        => 'Stage fetched packages in local repository for db ' . $self->{db},
+            'arch'        => '${arch}',
+            'packages'    => $upconfigs->{$db}->packages(),
+            'sourcedir'   => '${builddir}/dbs/' . $db . '/upc/${arch}',
+            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
             'dbSignKey'   => '${dbSignKey}' ));
 
