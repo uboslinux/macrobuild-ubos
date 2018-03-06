@@ -46,7 +46,8 @@ sub new {
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
             'name'        => 'Stage new packages in ' . $db,
             'arch'        => '${arch}',
-            'packages'    => $usconfigs->{$db}->packages(),
+            'upconfigs'   => $upconfigs,
+            'usconfigs'   => $usconfigs,
             'sourcedir'   => '${repodir}/${fromChannel}/${arch}/' . $db,
             'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',

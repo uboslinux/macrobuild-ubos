@@ -54,7 +54,7 @@ sub new {
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
             'name'        => 'Stage fetched packages in local repository for db ' . $self->{db},
             'arch'        => '${arch}',
-            'packages'    => $upconfigs->{$db}->packages(),
+            'upconfigs'   => $upconfigs,
             'sourcedir'   => '${builddir}/dbs/' . $db . '/upc/${arch}',
             'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',

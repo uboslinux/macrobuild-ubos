@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::Stage;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch packages sourcedir stagedir dbfile dbSignKey );
+use fields qw( arch upconfigs usconfigs sourcedir stagedir dbfile dbSignKey );
 
 use Macrobuild::Task;
 use UBOS::Logging;
@@ -30,6 +30,52 @@ sub runImpl {
     # passed in (which is brittle in case of errors), we look at what
     # files there are in the relevant directories
 
+    my @addedPackageFiles = ();
+    if( $self->{usconfigs} ) {
+        my $usConfigs = $self->{usconfigs}->configs( $self );
+
+        foreach my $repoName ( sort keys %$usConfigs ) { # make predictable sequence
+            my $usConfig = $usConfigs->{$repoName};
+            my $packages = $usConfig->packages();
+
+            $self->_processPackages( $packages, \@addedPackageFiles );
+        }
+    }
+    if( $self->{upconfigs} ) {
+        my $upConfigs = $self->{upconfigs}->configs( $self );
+
+        foreach my $repoName ( sort keys %$upConfigs ) { # make predictable sequence
+            my $upConfig = $upConfigs->{$repoName};
+            my $packages = $upConfig->packages();
+
+            $self->_processPackages( $packages, \@addedPackageFiles );
+        }
+    }
+
+    if( @addedPackageFiles ) {
+        if( $dbFile->addPackages( $dbSignKey, \@addedPackageFiles ) == -1 ) {
+            return FAIL;
+        }
+
+        $run->setOutput( {
+                'added-package-files' => \@addedPackageFiles,
+        } );
+        return SUCCESS;
+
+    } else {
+        return DONE_NOTHING;
+    }
+}
+
+##
+# Perform the actual work
+# @$packages: the packages to stage
+# @$addedPackageFiles: the actually staged files
+sub _processPackages {
+    my $self              = shift;
+    my $packages          = shift;
+    my $addedPackageFiles = shift;
+
     my $arch      = $self->getProperty( 'arch' );
     my $packages  = $self->getProperty( 'packages' );
     my $sourceDir = $self->getProperty( 'sourcedir' );
@@ -38,8 +84,6 @@ sub runImpl {
     my $dbFile    = UBOS::Macrobuild::PacmanDbFile->new( $self->getProperty( 'dbfile' ));
 
     UBOS::Macrobuild::Utils::ensureDirectories( $stageDir );
-
-    my @addedPackageFiles = ();
 
     foreach my $package ( @$packages ) {
         my @builtPackages  = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $package, $sourceDir, $arch );
@@ -68,26 +112,13 @@ sub runImpl {
                 if( -e "$sourceDir/$mostRecentBuiltPackage.sig" ) {
                     UBOS::Utils::myexec( "cp '$sourceDir/$mostRecentBuiltPackage.sig' '$stagedPackage.sig'" );
                 }
-                push @addedPackageFiles, $stagedPackage;
+                push @$addedPackageFiles, $stagedPackage;
                 trace( "Staged:", $stagedPackage );
             }
 
         } else {
             warning( 'No built packages found in', $sourceDir );
         }
-    }
-    if( $dbFile->addPackages( $dbSignKey, \@addedPackageFiles ) == -1 ) {
-        return FAIL;
-    }
-
-    $run->setOutput( {
-            'added-package-files' => \@addedPackageFiles,
-    } );
-
-    if( @addedPackageFiles ) {
-        return SUCCESS;
-    } else {
-        return DONE_NOTHING;
     }
 }
 
