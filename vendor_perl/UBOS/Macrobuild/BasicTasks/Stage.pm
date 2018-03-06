@@ -38,7 +38,9 @@ sub runImpl {
             my $usConfig = $usConfigs->{$repoName};
             my $packages = $usConfig->packages();
 
-            $self->_processPackages( $packages, \@addedPackageFiles );
+            if( $packages ) {
+                $self->_processPackages( $repoName, $packages, \@addedPackageFiles );
+            }
         }
     }
     if( $self->{upconfigs} ) {
@@ -48,11 +50,16 @@ sub runImpl {
             my $upConfig = $upConfigs->{$repoName};
             my $packages = $upConfig->packages();
 
-            $self->_processPackages( $packages, \@addedPackageFiles );
+            if( $packages ) {
+                $self->_processPackages( $repoName, $packages, \@addedPackageFiles );
+            }
         }
     }
 
     if( @addedPackageFiles ) {
+        my $dbFile    = UBOS::Macrobuild::PacmanDbFile->new( $self->getProperty( 'dbfile' ));
+        my $dbSignKey = $self->getPropertyOrDefault( 'dbSignKey', undef );
+
         if( $dbFile->addPackages( $dbSignKey, \@addedPackageFiles ) == -1 ) {
             return FAIL;
         }
@@ -69,28 +76,34 @@ sub runImpl {
 
 ##
 # Perform the actual work
+# $repoName: name of the current repo
 # @$packages: the packages to stage
 # @$addedPackageFiles: the actually staged files
 sub _processPackages {
     my $self              = shift;
+    my $repoName          = shift;
     my $packages          = shift;
     my $addedPackageFiles = shift;
 
     my $arch      = $self->getProperty( 'arch' );
-    my $packages  = $self->getProperty( 'packages' );
     my $sourceDir = $self->getProperty( 'sourcedir' );
     my $stageDir  = $self->getProperty( 'stagedir' );
-    my $dbSignKey = $self->getPropertyOrDefault( 'dbSignKey', undef );
-    my $dbFile    = UBOS::Macrobuild::PacmanDbFile->new( $self->getProperty( 'dbfile' ));
 
     UBOS::Macrobuild::Utils::ensureDirectories( $stageDir );
 
-    foreach my $package ( @$packages ) {
-        my @builtPackages  = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $package, $sourceDir, $arch );
+    foreach my $package ( keys %$packages ) {
+        my $packageSourceDir = "$sourceDir/$repoName";
+        if( $package eq '.' ) {
+            $package = $repoName; # special convention
+        } else {
+             $packageSourceDir .= "/$package";
+        }
+ 
+        my @builtPackages  = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $package, $packageSourceDir, $arch );
         my @stagedPackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $package, $stageDir, $arch );
         if( @builtPackages ) {
             my $mostRecentBuiltPackage = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @builtPackages );
-            trace( 'Found in', $sourceDir, 'built packages:', @builtPackages );
+            trace( 'Found in', $packageSourceDir, 'built packages:', @builtPackages );
             trace( 'Most recent:', $mostRecentBuiltPackage );
 
             my $updateRequired = 0;
@@ -98,26 +111,26 @@ sub _processPackages {
             if( @stagedPackages ) {
                 my $mostRecentStagedPackage = UBOS::Macrobuild::PackageUtils::mostRecentPackageVersion( @stagedPackages );
                 if( UBOS::Macrobuild::PackageUtils::comparePackageFileNamesByVersion( $mostRecentBuiltPackage, $mostRecentStagedPackage ) > 0 ) {
-                    trace( 'Update required:', $mostRecentBuiltPackage, "($sourceDir) vs", $mostRecentStagedPackage, "($stageDir)" );
+                    trace( 'Update required:', $mostRecentBuiltPackage, "($packageSourceDir) vs", $mostRecentStagedPackage, "($stageDir)" );
                     $updateRequired = 1;
                 }
             } else {
-                trace( 'No staged package found in', $stageDir, 'for', $package, "(built in $sourceDir)" );
+                trace( 'No staged package found in', $stageDir, 'for', $package, "(built in $packageSourceDir)" );
                 $updateRequired = 1;
             }
 
             if( $updateRequired ) {
                 my $stagedPackage = "$stageDir/$mostRecentBuiltPackage";
-                UBOS::Utils::myexec( "cp '$sourceDir/$mostRecentBuiltPackage' '$stagedPackage'" );
-                if( -e "$sourceDir/$mostRecentBuiltPackage.sig" ) {
-                    UBOS::Utils::myexec( "cp '$sourceDir/$mostRecentBuiltPackage.sig' '$stagedPackage.sig'" );
+                UBOS::Utils::myexec( "cp '$packageSourceDir/$mostRecentBuiltPackage' '$stagedPackage'" );
+                if( -e "$packageSourceDir/$mostRecentBuiltPackage.sig" ) {
+                    UBOS::Utils::myexec( "cp '$packageSourceDir/$mostRecentBuiltPackage.sig' '$stagedPackage.sig'" );
                 }
                 push @$addedPackageFiles, $stagedPackage;
                 trace( "Staged:", $stagedPackage );
             }
 
         } else {
-            warning( 'No built packages found in', $sourceDir );
+            warning( 'No built packages found in', $packageSourceDir );
         }
     }
 }

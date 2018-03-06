@@ -57,6 +57,7 @@ sub runImpl {
                             $ret = FAIL;
                         } else {
                             push @removedPackages, @allFiles;
+                        }
                     }
                 }
             }
