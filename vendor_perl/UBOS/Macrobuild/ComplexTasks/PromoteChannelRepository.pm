@@ -44,10 +44,7 @@ sub new {
             'toDb'        => '${repodir}/${channel}/${arch}/' . $db ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Promote->new(
-            'name'        => 'Stage new packages in ' . $db,
-            'arch'        => '${arch}',
-            'upconfigs'   => $upconfigs,
-            'usconfigs'   => $usconfigs,
+            'name'        => 'Promote new packages in ' . $db,
             'sourcedir'   => '${repodir}/${fromChannel}/${arch}/' . $db,
             'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',

@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::Promote;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch upconfigs usconfigs sourcedir stagedir dbfile dbSignKey );
+use fields qw( sourcedir stagedir dbfile dbSignKey );
 
 use Macrobuild::Task;
 use UBOS::Logging;
