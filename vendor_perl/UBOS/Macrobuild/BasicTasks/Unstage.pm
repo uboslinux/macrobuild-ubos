@@ -14,6 +14,7 @@ use base qw( Macrobuild::Task );
 use fields qw( arch stagedir dbfile dbSignKey );
 
 use Macrobuild::Task;
+use UBOS::Macrobuild::PacmanDbFile;
 use UBOS::Macrobuild::Utils;
 use UBOS::Logging;
 use UBOS::Utils;
