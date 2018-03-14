@@ -43,7 +43,7 @@ sub new {
                         'depotRoot'   => '${depotRoot}',
                         'channel'     => '${channel}',
                         'deviceclass' => $deviceclass,
-                        'imagesize'   => '3G',
+                        'imagesize'   => '7G',
                         'image'       => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.img',
                         'linkLatest'  => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
     }
