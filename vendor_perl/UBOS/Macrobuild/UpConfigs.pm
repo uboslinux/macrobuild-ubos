@@ -99,6 +99,11 @@ sub configs {
             my $lastModified   = (stat( $file ))[9];
             my $removePackages = $upConfigJson->{'remove-packages'};
 
+            if( grep { $_ eq '.' } @$removePackages ) {
+                warning( 'Invalid value for remote-packages in', $file, ': .' );
+                $removePackages = [ grep { $_ ne '.' } @$removePackages ];
+            }
+
             $ret->{$shortRepoName} =
                     UBOS::Macrobuild::UpConfig->new( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
         }

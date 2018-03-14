@@ -99,6 +99,11 @@ sub configs {
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages,    $arch );
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
 
+            if( grep { $_ eq '.' } @$removePackages ) {
+                warning( 'Invalid value for remote-packages in', $file, ': .' );
+                $removePackages = [ grep { $_ ne '.' } @$removePackages ];
+            }
+
             if( $usConfigJson->{type} eq 'git' ) {
                 my $branch = $task->replaceVariables( $usConfigJson->{branch} );
 
