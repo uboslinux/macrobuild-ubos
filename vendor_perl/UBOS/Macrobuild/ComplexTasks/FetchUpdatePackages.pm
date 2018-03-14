@@ -38,26 +38,26 @@ sub new {
     $self->appendTask( UBOS::Macrobuild::BasicTasks::DownloadPackageDbs->new(
             'name'        => 'Download package database files from Arch',
             'upconfigs'   => $upconfigs,
-            'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
+            'downloaddir' => '${builddir}/dbs/' . $db . '/upc' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir->new(
             'name'        => 'Determining which packages changed in Arch',
             'upconfigs'   => $upconfigs,
-            'dir'         => '${builddir}/dbs/' . $db . '/upc/${arch}',
+            'dir'         => '${builddir}/dbs/' . $db . '/upc',
             'channel'     => '${channel}',
             'arch'        => '${arch}' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::FetchPackages->new(
             'name'        => 'Fetching packages downloaded from Arch',
-            'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
+            'downloaddir' => '${builddir}/dbs/' . $db . '/upc' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
             'name'        => 'Stage fetched packages in local repository for db ' . $self->{db},
             'arch'        => '${arch}',
             'upconfigs'   => $upconfigs,
-            'sourcedir'   => '${builddir}/dbs/' . $db . '/upc/${arch}',
-            'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
-            'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
+            'sourcedir'   => '${builddir}/dbs/' . $db . '/upc',
+            'stagedir'    => '${repodir}/${channel}/' . $db,
+            'dbfile'      => '${repodir}/${channel}/s' . $db . '/' . $db . '.db.tar.xz',
             'dbSignKey'   => '${dbSignKey}' ));
 
     return $self;

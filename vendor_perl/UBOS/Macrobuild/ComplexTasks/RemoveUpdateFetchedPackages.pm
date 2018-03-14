@@ -36,7 +36,7 @@ sub new {
             'name'        => 'Removed packages fetched from Arch',
             'arch'        => '${arch}',
             'upconfigs'   => $upconfigs,
-            'downloaddir' => '${builddir}/dbs/' . $db . '/upc/${arch}' ));
+            'downloaddir' => '${builddir}/dbs/' . $db . '/upc' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Unstage->new(
             'name'        => 'Unstage removed packages in local repository',
