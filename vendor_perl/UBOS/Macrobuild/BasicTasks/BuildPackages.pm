@@ -161,6 +161,7 @@ sub _buildPackage {
     $cmd    .= ' env -i';
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=en_US.utf8';
+    $cmd    .=   ' TERM=xterm'; # Avahi currently needs this per https://github.com/mono/mono/issues/6768
 
     if( $m2repository ) {
         $cmd .= " DIET4J_REPO='" . $m2repository . "'";
