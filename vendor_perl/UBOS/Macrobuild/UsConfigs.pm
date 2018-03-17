@@ -99,9 +99,9 @@ sub configs {
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages,    $arch );
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
 
-            if( grep { $_ eq '.' } @$removePackages ) {
-                warning( 'Invalid value for remote-packages in', $file, ': .' );
-                $removePackages = [ grep { $_ ne '.' } @$removePackages ];
+            if( exists( $removePackages->{'.'} ) {
+                warning( 'Invalid value for remove-packages in', $file, ': .' );
+                delete $removePackages->{'.'};
             }
 
             if( $usConfigJson->{type} eq 'git' ) {
