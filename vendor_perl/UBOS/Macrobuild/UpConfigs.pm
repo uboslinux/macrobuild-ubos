@@ -99,7 +99,7 @@ sub configs {
             my $lastModified   = (stat( $file ))[9];
             my $removePackages = $upConfigJson->{'remove-packages'};
 
-            if( exists( $removePackages->{'.'} ) {
+            if( exists( $removePackages->{'.'} )) {
                 warning( 'Invalid value for remove-packages in', $file, ': .' );
                 delete $removePackages->{'.'};
             }
