@@ -60,12 +60,13 @@ sub runImpl {
 
                 foreach my $packageName ( sort keys %{$upConfig->packages} ) { # make predictable sequence
                     my $packageInfo = $upConfig->packages->{$packageName};
+                    my $packageDir  = "$upConfigDir/$packageName";
 
                     # in case you were wondering, here's the filtering that says which packages we want,
                     # in which version and whether we need to download something
 
                     my $packageFileInPackageDatabase = $packagesInDatabase->{$packageName};
-                    my @packageFileLocalCandidates   = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $upConfigDir, $arch );
+                    my @packageFileLocalCandidates   = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $packageDir, $arch );
 
                     # It all depends on whether the upConfig specifies a particular version
                     if( exists( $packageInfo->{$channel} ) && exists( $packageInfo->{$channel}->{version} )) {
