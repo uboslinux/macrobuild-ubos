@@ -45,7 +45,11 @@ sub runImpl {
                 my $localName = $packageUrl;
                 $localName =~ s!(.*/)!!;
 
-                my $fullLocalName = "$upConfigDownloadDir/$localName";
+                unless( -d "$upConfigDownloadDir/$packageName" ) {
+                    UBOS::Utils::mkdir( "$upConfigDownloadDir/$packageName" )
+                }
+
+                my $fullLocalName = "$upConfigDownloadDir/$packageName/$localName";
                 if( -e $fullLocalName ) {
                     trace( 'Skipping download, exists already:', $fullLocalName );
                     $haveAlready->{$upConfigName}->{$packageName} = $fullLocalName;
