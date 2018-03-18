@@ -180,7 +180,7 @@ sub _buildPackage {
     if( $packageSignKey ) {
         $cmd .= " PACKAGER='$packageSignKey'";
     }
-    $cmd .= ' makepkg --clean --syncdeps --ignorearch --nocheck';
+    $cmd .= ' makepkg --clean --syncdeps --noconfirm --ignorearch --nocheck';
     if( $alwaysRebuild ) {
         $cmd .= ' --force --cleanbuild';
     }
