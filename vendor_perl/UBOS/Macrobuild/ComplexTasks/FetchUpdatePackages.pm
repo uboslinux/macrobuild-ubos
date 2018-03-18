@@ -57,7 +57,7 @@ sub new {
             'upconfigs'   => $upconfigs,
             'sourcedir'   => '${builddir}/dbs/' . $db . '/upc',
             'stagedir'    => '${repodir}/${channel}/' . $db,
-            'dbfile'      => '${repodir}/${channel}/s' . $db . '/' . $db . '.db.tar.xz',
+            'dbfile'      => '${repodir}/${channel}/' . $db . '/' . $db . '.db.tar.xz',
             'dbSignKey'   => '${dbSignKey}' ));
 
     return $self;
