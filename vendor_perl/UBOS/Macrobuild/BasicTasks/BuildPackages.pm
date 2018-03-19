@@ -271,8 +271,7 @@ sub _readVarsFromPkgbuild {
     }
 
     my $out;
-    # /usr/share/macrobuild-ubos/
-    if( UBOS::Utils::myexec( "bin/print-pkg-vars.sh '$pkgBuild'", undef, \$out )) {
+    if( UBOS::Utils::myexec( "/usr/share/macrobuild-ubos/bin/print-pkg-vars.sh '$pkgBuild'", undef, \$out )) {
         error( 'Executing PKGBUILD failed:', $pkgBuild );
         return {};
     }
