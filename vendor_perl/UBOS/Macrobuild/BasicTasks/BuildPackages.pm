@@ -74,7 +74,16 @@ sub runImpl {
                 $packageToDir{$packageName} = $dir;
                 $dirToPackage{$dir}         = $packageName;
 
-                my %dependencies = map { $_ => 1 } ( @{$packageInfo->{depends}}, @{$packageInfo->{makedepends}} );
+                my %dependencies = ();
+                for my $section ( 'depends', 'makedepends' ) {
+                    if( $packageInfo->{$section} ) {
+                        if( 'ARRAY' eq ref( $packageInfo->{section} )) {
+                            map { $dependencies{$_} = 1 } @{$packageInfo->{section}};
+                        } else {
+                            $dependencies{$packageInfo->{section}} = 1;
+                        }
+                    }
+                }
                 $packageDependencies{$packageName} = \%dependencies;
             } else {
                 trace( 'No need to build:', "dir/$pkgFileName" );
