@@ -45,7 +45,7 @@ sub runImpl {
     my %dirToUXConfigName   = ();
     my %packageDependencies = ();
     my %packageToDir        = ();
-    my $dirToPackage        = ();
+    my %dirToPackage        = ();
     my $sourceDir           = $self->getProperty( 'sourcedir' );
     my $alwaysRebuild       = $self->getValueOrDefault( 'alwaysRebuild', 0 );
 
