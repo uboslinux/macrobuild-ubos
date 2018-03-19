@@ -45,6 +45,7 @@ sub runImpl {
     my %dirToUXConfigName   = ();
     my %packageDependencies = ();
     my %packageToDir        = ();
+    my $dirToPackage        = ();
     my $sourceDir           = $self->getProperty( 'sourcedir' );
     my $alwaysRebuild       = $self->getValueOrDefault( 'alwaysRebuild', 0 );
 
@@ -71,8 +72,9 @@ sub runImpl {
                 trace( 'Need to build:', "dir/$pkgFileName" );
 
                 $packageToDir{$packageName} = $dir;
+                $dirToPackage{$dir}         = $packageName;
 
-                my %dependencies = map { $_ => 1 } ( $packageInfo->{depends}, $packageInfo->{makedepends} );
+                my %dependencies = map { $_ => 1 } ( @{$packageInfo->{depends}}, @{$packageInfo->{makedepends}} );
                 $packageDependencies{$packageName} = \%dependencies;
             } else {
                 trace( 'No need to build:', "dir/$pkgFileName" );
@@ -80,7 +82,7 @@ sub runImpl {
         }
     }
 
-    trace( sub { "Package dependencies:\n" . join( "\n", map { "    $_ => " . join( ', ', keys %{$packageDependencies{$_}} ) } keys %packageDependencies ) } );
+    trace( sub { "Package dependencies:\n" . join( "\n", map { "    $_ => " . join( ', ', map { "'$_'" } keys %{$packageDependencies{$_}} ) } keys %packageDependencies ) } );
 
     # determine in which sequence to build
     my @packageSequence = _determinePackageSequence( \%packageDependencies );
