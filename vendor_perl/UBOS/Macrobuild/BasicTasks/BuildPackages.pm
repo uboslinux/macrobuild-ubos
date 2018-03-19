@@ -282,7 +282,12 @@ sub _readVarsFromPkgbuild {
     foreach my $line ( split /\n/, $out ) {
         if( $line =~ m!^([a-z]+)\s*:\s*(.*)$! ) {
             my( $key, $value ) = ( $1, $2 );
-            if( $value =~ m!\s+! ) {
+            $value =~ s!^\s+!!;
+            $value =~ s!\s+$!!;
+            if( !$value ) {
+                $ret->{$key} = undef;
+
+            } elsif( $value =~ m!\s+! ) {
                 # list
                 $ret->{$key} = [ split( /\s+/, $value ) ];
                 
