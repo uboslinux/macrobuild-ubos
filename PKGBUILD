@@ -2,7 +2,7 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=${developer}
 pkgname=macrobuild-ubos
-pkgver=0.263
+pkgver=0.264
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
@@ -60,5 +60,5 @@ package() {
         install -D -m644 ${startdir}/vendor_perl/UBOS/${d}/*.pm -t ${pkgdir}${_vendor_perl}/UBOS/${d}/
     done
 
-    install -D -m755 ${startdir}/bin/print-dependencies.sh -t ${pkgdir}/usr/share/macrobuild-ubos/bin/
+    install -D -m755 ${startdir}/bin/* -t ${pkgdir}/usr/share/macrobuild-ubos/bin/
 }

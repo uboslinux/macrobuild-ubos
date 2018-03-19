@@ -10,13 +10,13 @@ use warnings;
 
 package UBOS::Macrobuild::BasicTasks::BuildPackages;
 
-use base qw( Macrobuild::Task );
-use fields qw( sourcedir m2settingsfile m2repository );
-
 use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
+
+use base qw( Macrobuild::Task );
+use fields qw( sourcedir m2settingsfile m2repository );
 
 my $failedstamp = ".build-in-progress-or-failed";
 
@@ -46,6 +46,8 @@ sub runImpl {
     my %packageDependencies = ();
     my %packageToDir        = ();
     my $sourceDir           = $self->getProperty( 'sourcedir' );
+    my $alwaysRebuild       = $self->getValueOrDefault( 'alwaysRebuild', 0 );
+
     foreach my $uXConfigName ( sort keys %allDirs ) {
         my $subdirs = $dirsUpdated->{$uXConfigName} || $dirsNotUpdated->{$uXConfigName};
 
@@ -56,11 +58,25 @@ sub runImpl {
             }
             $dirToUXConfigName{$dir} = $uXConfigName;
 
-            my $packageName = _determinePackageName( $dir );
-            $packageToDir{$packageName} = $dir;
+            my $packageInfo = _readVarsFromPkgbuild( "$dir/PKGBUILD" );
+            my $packageArch = $packageInfo->{arch};
+            my $packageName = $packageInfo->{pkgname};
+            my $packageVer  = $packageInfo->{pkgver};
+            my $packageRel  = $packageInfo->{pkgrel};
 
-            my $dependencies = _readDependenciesFromPkgbuild( $dir );
-            $packageDependencies{$packageName} = $dependencies;
+            my $pkgFileName = "$packageName-$packageVer-$packageRel-$packageArch.pkg.tar.xz";
+
+            # Determine whether we actually have to build
+            if( $alwaysRebuild || ! -e "dir/$pkgFileName" ) {
+                trace( 'Need to build:', "dir/$pkgFileName" );
+
+                $packageToDir{$packageName} = $dir;
+
+                my %dependencies = map { $_ => 1 } ( $packageInfo->{depends}, $packageInfo->{makedepends} );
+                $packageDependencies{$packageName} = \%dependencies;
+            } else {
+                trace( 'No need to build:', "dir/$pkgFileName" );
+            }
         }
     }
 
@@ -71,8 +87,6 @@ sub runImpl {
     my @dirSequence     = map { $packageToDir{$_} } @packageSequence;
 
     trace( sub { "Dir sequence is:\n" . join( "\n", map { "    $_" } @dirSequence ) } );
-
-    my $alwaysRebuild = $self->getValueOrDefault( 'alwaysRebuild', 0 );
 
     # do the build, in @dirSequence
     my $ret        = DONE_NOTHING;
@@ -180,7 +194,9 @@ sub _buildPackage {
     if( $packageSignKey ) {
         $cmd .= " PACKAGER='$packageSignKey'";
     }
-    $cmd .= ' makepkg --clean --syncdeps --noconfirm --ignorearch --nocheck';
+
+    # Now do --cleanbuild because we only build if we don't have the file yet
+    $cmd .= ' makepkg --clean --cleanbuild --syncdeps --noconfirm --ignorearch --nocheck';
     if( $alwaysRebuild ) {
         $cmd .= ' --force --cleanbuild';
     }
@@ -242,32 +258,42 @@ sub _buildPackage {
     }
 }
 
-sub _determinePackageName {
-    my $dir = shift;
+##
+# Helper to read key variables from a PKGBUILD file
+# $pkgBuild: the PKGBUILD file name
+# return: name-value pairs
+sub _readVarsFromPkgbuild {
+    my $pkgBuild = shift;
 
-    my $packageName = $dir;
-    $packageName =~ s!.*/!!;
-    return $packageName;
-}
-
-sub _readDependenciesFromPkgbuild {
-    my $dir = shift;
-
-    my $pkgBuild = "$dir/PKGBUILD";
     unless( -r $pkgBuild ) {
-        error( 'Cannot read PKGBUILD in dir', $dir );
+        error( 'Cannot read', $pkgBuild );
         return {};
     }
-    my $out;
-    if( UBOS::Utils::myexec( "/usr/share/macrobuild-ubos/bin/print-dependencies.sh '$dir/PKGBUILD'", undef, \$out )) {
-        error( 'Executing PKGBUILD to find $depends failed in', $dir );
-        return {};
-    }
-    my @packages = split /\s+/, $out;
-    my %ret = ();
-    @ret{@packages} = 0..$#packages;   # per http://stackoverflow.com/questions/2957879/perl-map-need-to-map-an-array-into-a-hash-as-arrayelement-array-index#2957903
 
-    return \%ret;
+    my $out;
+    # /usr/share/macrobuild-ubos/
+    if( UBOS::Utils::myexec( "bin/print-pkg-vars.sh '$pkgBuild'", undef, \$out )) {
+        error( 'Executing PKGBUILD failed:', $pkgBuild );
+        return {};
+    }
+
+    my $ret = {};
+    foreach my $line ( split /\n/, $out ) {
+        if( $line =~ m!^([a-z]+)\s*:\s*(.*)$! ) {
+            my( $key, $value ) = ( $1, $2 );
+            if( $value =~ m!\s+! ) {
+                # list
+                $ret->{$key} = [ split( /\s+/, $value ) ];
+                
+            } else {
+                $ret->{$key} = $value;
+            }
+        } else {
+            warning( 'Ignoring PKGBUILD/print-pkg-vars.sh line in', $pkgBuild, ':', $line );
+        }
+    }
+
+    return $ret;
 }
 
 ##
