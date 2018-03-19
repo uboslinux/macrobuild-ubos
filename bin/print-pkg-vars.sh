@@ -10,6 +10,7 @@
 echo arch: ${arch}
 echo depends: ${depends[@]}
 echo makedepends: ${makedepends[@]}
-echo pkgname: ${pkgname}
+echo pkgname: ${pkgname[@]}
+echo pkgbase: ${pkgbase}
 echo pkgrel: ${pkgrel}
 echo pkgver: ${pkgver}

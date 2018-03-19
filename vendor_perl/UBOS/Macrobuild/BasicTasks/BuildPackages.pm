@@ -61,15 +61,15 @@ sub runImpl {
 
             my $packageInfo = _readVarsFromPkgbuild( "$dir/PKGBUILD" );
             my $packageArch = $packageInfo->{arch};
-            my $packageName = $packageInfo->{pkgname};
+            my $packageName = $packageInfo->{pkgbase} || $packageInfo->{pkgname}; # handle multi-package PKGBUILDs
             my $packageVer  = $packageInfo->{pkgver};
             my $packageRel  = $packageInfo->{pkgrel};
 
             my $pkgFileName = "$packageName-$packageVer-$packageRel-$packageArch.pkg.tar.xz";
 
             # Determine whether we actually have to build
-            if( $alwaysRebuild || ! -e "dir/$pkgFileName" ) {
-                trace( 'Need to build:', "dir/$pkgFileName" );
+            if( $alwaysRebuild || ! -e "$dir/$pkgFileName" ) {
+                trace( 'Need to build:', "$dir/$pkgFileName" );
 
                 $packageToDir{$packageName} = $dir;
                 $dirToPackage{$dir}         = $packageName;
@@ -80,7 +80,7 @@ sub runImpl {
                         if( 'ARRAY' eq ref( $packageInfo->{section} )) {
                             map { $dependencies{$_} = 1 } @{$packageInfo->{section}};
                         } else {
-                            $dependencies{$packageInfo->{section}} = 1;
+                            $dependencies{$packageInfo->{$section}} = 1;
                         }
                     }
                 }
@@ -106,7 +106,7 @@ sub runImpl {
 
     foreach my $dir ( @dirSequence ) {
 
-        my $packageName  = _determinePackageName( $dir );
+        my $packageName  = $dirToPackage{$dir};
         my $uXConfigName = $dirToUXConfigName{$dir};
 
         my $mostRecentPackage = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
