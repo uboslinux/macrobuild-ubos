@@ -74,7 +74,8 @@ sub mostRecentPackageInDir {
         warning( 'Cannot read directory', $dir );
         return undef;
     }
-    my @packages = grep { /^$packageName-.*\.pkg\.tar\.(xz|gz)$/ } readdir( $dh );
+    my @packages = grep { /^$packageName-\d.*\.pkg\.tar\.(xz|gz)$/ } readdir( $dh );
+    # Look for $packageName-Number so we don't catch mariadb-clients when looking for mariadb
     closedir $dh;
 
     return mostRecentPackageVersion( @packages );
