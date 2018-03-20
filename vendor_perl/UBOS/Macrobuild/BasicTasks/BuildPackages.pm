@@ -59,7 +59,7 @@ sub runImpl {
             }
             $dirToUXConfigName{$dir} = $uXConfigName;
 
-            my $packageInfo = _readVarsFromPkgbuild( "$dir/PKGBUILD" );
+            my $packageInfo = _readVarsFromPkgbuildIn( $dir );
             my $packageArch = $packageInfo->{arch};
             my $packageName = $packageInfo->{pkgbase} || $packageInfo->{pkgname}; # handle multi-package PKGBUILDs
             my $packageVer  = $packageInfo->{pkgver};
@@ -271,10 +271,11 @@ sub _buildPackage {
 
 ##
 # Helper to read key variables from a PKGBUILD file
-# $pkgBuild: the PKGBUILD file name
+# $pkgBuildDir: the directory that contains the PKGBUILD file
 # return: name-value pairs
 sub _readVarsFromPkgbuild {
-    my $pkgBuild = shift;
+    my $pkgBuildDir = shift;
+    my $pkgBuild    = "$pkgBuildDir/PKGBUILD";
 
     unless( -r $pkgBuild ) {
         error( 'Cannot read', $pkgBuild );
@@ -282,7 +283,8 @@ sub _readVarsFromPkgbuild {
     }
 
     my $out;
-    if( UBOS::Utils::myexec( "/usr/share/macrobuild-ubos/bin/print-pkg-vars.sh '$pkgBuild'", undef, \$out )) {
+    # This must be executed in the correct directory, because PKGBUILD may contain ${dirname}
+    if( UBOS::Utils::myexec( "cd '$dir'; /usr/share/macrobuild-ubos/bin/print-pkg-vars.sh '$pkgBuild'", undef, \$out )) {
         error( 'Executing PKGBUILD failed:', $pkgBuild );
         return {};
     }
@@ -304,7 +306,7 @@ sub _readVarsFromPkgbuild {
                 $ret->{$key} = $value;
             }
         } else {
-            warning( 'Ignoring PKGBUILD/print-pkg-vars.sh line in', $pkgBuild, ':', $line );
+            warning( 'Ignoring PKGBUILD read by print-pkg-vars.sh line in', $pkgBuild, ':', $line );
         }
     }
 
