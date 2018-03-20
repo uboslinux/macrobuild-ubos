@@ -273,7 +273,7 @@ sub _buildPackage {
 # Helper to read key variables from a PKGBUILD file
 # $pkgBuildDir: the directory that contains the PKGBUILD file
 # return: name-value pairs
-sub _readVarsFromPkgbuild {
+sub _readVarsFromPkgbuildIn {
     my $pkgBuildDir = shift;
     my $pkgBuild    = "$pkgBuildDir/PKGBUILD";
 
@@ -284,7 +284,7 @@ sub _readVarsFromPkgbuild {
 
     my $out;
     # This must be executed in the correct directory, because PKGBUILD may contain ${dirname}
-    if( UBOS::Utils::myexec( "cd '$dir'; /usr/share/macrobuild-ubos/bin/print-pkg-vars.sh '$pkgBuild'", undef, \$out )) {
+    if( UBOS::Utils::myexec( "cd '$pkgBuildDir'; /usr/share/macrobuild-ubos/bin/print-pkg-vars.sh '$pkgBuild'", undef, \$out )) {
         error( 'Executing PKGBUILD failed:', $pkgBuild );
         return {};
     }
