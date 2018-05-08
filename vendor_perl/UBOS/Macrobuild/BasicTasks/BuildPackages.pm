@@ -284,7 +284,7 @@ sub _readVarsFromPkgbuildIn {
 
     my $out;
     # This must be executed in the correct directory, because PKGBUILD may contain ${dirname}
-    if( UBOS::Utils::myexec( "cd '$pkgBuildDir'; /usr/share/macrobuild-ubos/bin/print-pkg-vars.sh '$pkgBuild'", undef, \$out )) {
+    if( UBOS::Utils::myexec( "cd '$pkgBuildDir'; /usr/share/macrobuild-ubos/bin/print-pkg-vars.sh PKGBUILD", undef, \$out )) {
         error( 'Executing PKGBUILD failed:', $pkgBuild );
         return {};
     }
