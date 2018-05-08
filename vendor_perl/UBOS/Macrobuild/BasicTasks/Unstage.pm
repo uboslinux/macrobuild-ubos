@@ -49,12 +49,13 @@ sub runImpl {
 
                     my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $packageName, $stagedir, $arch );
                     if( @files ) {
+                        # We only take the package out of the repository index, if at least one file existed; reasonable?
                         my @allFiles    = map { "$stagedir/$_" } @files;
                         my @allSigFiles = grep { -e $_ } map { "$stagedir/$_.sig" } @files;
 
                         UBOS::Utils::deleteFile( @allFiles, @allSigFiles );
 
-                        if( $dbFile->removePackages( $dbSignKey, \@allFiles ) == -1 ) {
+                        if( $dbFile->removePackages( $dbSignKey, [ $packageName ] ) == -1 ) {
                             $ret = FAIL;
                         } else {
                             push @removedPackages, @allFiles;
