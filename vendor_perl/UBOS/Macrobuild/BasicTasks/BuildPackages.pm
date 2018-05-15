@@ -77,8 +77,8 @@ sub runImpl {
                 my %dependencies = ();
                 for my $section ( 'depends', 'makedepends' ) {
                     if( $packageInfo->{$section} ) {
-                        if( 'ARRAY' eq ref( $packageInfo->{section} )) {
-                            map { $dependencies{$_} = 1 } @{$packageInfo->{section}};
+                        if( 'ARRAY' eq ref( $packageInfo->{$section} )) {
+                            map { $dependencies{$_} = 1 } @{$packageInfo->{$section}};
                         } else {
                             $dependencies{$packageInfo->{$section}} = 1;
                         }
