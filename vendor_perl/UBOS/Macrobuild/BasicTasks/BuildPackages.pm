@@ -207,7 +207,7 @@ sub _buildPackage {
     }
 
     # Now do --cleanbuild because we only build if we don't have the file yet
-    $cmd .= ' makepkg --clean --cleanbuild --syncdeps --noconfirm --ignorearch --nocheck';
+    $cmd .= ' makepkg --clean --cleanbuild --syncdeps --noconfirm --ignorearch --nocheck --install';
     if( $alwaysRebuild ) {
         $cmd .= ' --force --cleanbuild';
     }
