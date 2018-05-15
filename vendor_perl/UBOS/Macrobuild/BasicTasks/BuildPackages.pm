@@ -221,20 +221,13 @@ sub _buildPackage {
 
     trace( 'Build command produced output:', $both );
 
-    if( $result ) {
-        if(    ( $both =~ /ERROR: A package has already been built/ )
-            || ( $both =~ /ERROR: The package group has already been built/ ))
-        {
-            if( -e "$dir/$failedstamp" ) {
-                UBOS::Utils::deleteFile( "$dir/$failedstamp" );
-            }
-            return DONE_NOTHING;
-
-        } else {
-            error( "makepkg in $dir failed: ", $cmd, $both );
-
-            return FAIL;
+    if(    ( $both =~ /ERROR: A package has already been built/ )
+        || ( $both =~ /ERROR: The package group has already been built/ ))
+    {
+        if( -e "$dir/$failedstamp" ) {
+            UBOS::Utils::deleteFile( "$dir/$failedstamp" );
         }
+        return DONE_NOTHING;
 
     } elsif( $both =~ m!Finished making:\s+(\S+)\s+(\S+)\s+\(! ) {
         my $builtPackageName    = $1;
@@ -264,7 +257,7 @@ sub _buildPackage {
         return SUCCESS;
 
     } else {
-        error( "could not find package built by makepkg in", $dir, $both );
+        error( "could not find package built by makepkg in", $dir, ", cmd", $cmd, ", result", $both );
         return FAIL;
     }
 }
