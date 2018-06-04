@@ -16,7 +16,7 @@ use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
 
 use base qw( Macrobuild::Task );
-use fields qw( sourcedir m2settingsfile m2repository );
+use fields qw( arch sourcedir m2settingsfile m2repository );
 
 my $failedstamp = ".build-in-progress-or-failed";
 
@@ -46,6 +46,7 @@ sub runImpl {
     my %packageDependencies = ();
     my %packageToDir        = ();
     my %dirToPackage        = ();
+    my $arch                = $self->getProperty( 'arch' );
     my $sourceDir           = $self->getProperty( 'sourcedir' );
     my $alwaysRebuild       = $self->getValueOrDefault( 'alwaysRebuild', 0 );
 
@@ -68,6 +69,11 @@ sub runImpl {
             my $packageVer  = $packageInfo->{pkgver};
             my $packageRel  = $packageInfo->{pkgrel};
 
+            # Some of the packages say they are x86_64 only, but we build them
+            # on ARM anyway
+            if( $packageArch ne 'any' ) {
+                $packageArch = $arch;
+            }
             my $pkgFileName = "$packageName-$packageVer-$packageRel-$packageArch.pkg.tar.xz";
 
             # Determine whether we actually have to build
@@ -218,7 +224,7 @@ sub _buildPackage {
     # Now do --cleanbuild because we only build if we don't have the file yet
     $cmd .= ' makepkg --clean --cleanbuild --syncdeps --noconfirm --ignorearch --nocheck --install';
     if( $alwaysRebuild ) {
-        $cmd .= ' --force --cleanbuild';
+        $cmd .= ' --force';
     }
     # do not invoke --sign --key <key> here, due to https://bbs.archlinux.org/viewtopic.php?id=215045
 

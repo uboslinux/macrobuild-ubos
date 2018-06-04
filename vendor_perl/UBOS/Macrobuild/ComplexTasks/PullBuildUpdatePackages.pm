@@ -40,6 +40,7 @@ sub new {
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::BuildPackages->new(
             'name'           => 'Building packages locally for db ' . $db,
+            'arch'           => '${arch}',
             'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
             'stopOnError'    => 0,
             'm2settingsfile' => '${m2settingsfile}',
