@@ -81,7 +81,7 @@ sub runImpl {
                 for my $section ( 'depends', 'makedepends' ) {
                     if( $packageInfo->{$section} ) {
                         if( 'ARRAY' eq ref( $packageInfo->{$section} )) {
-                            map { $dependencies{$_} = 1 } @{$packageInfo->{$section}};
+                            map { $dependencies{$_} = 1; } @{$packageInfo->{$section}};
                         } else {
                             $dependencies{$packageInfo->{$section}} = 1;
                         }
@@ -94,7 +94,13 @@ sub runImpl {
         }
     }
 
-    trace( sub { "Package dependencies:\n" . join( "\n", map { "    $_ => " . join( ', ', map { "'$_'" } keys %{$packageDependencies{$_}} ) } keys %packageDependencies ) } );
+    trace( sub {
+            "Package dependencies:\n"
+            . join( "\n",
+                    map {
+                            "    $_ => "
+                            . join( ', ', ( map { "'$_'" } keys %{$packageDependencies{$_}} ))
+                    } keys %packageDependencies ) } );
 
     # determine in which sequence to build
     my @packageSequence = _determinePackageSequence( \%packageDependencies );
