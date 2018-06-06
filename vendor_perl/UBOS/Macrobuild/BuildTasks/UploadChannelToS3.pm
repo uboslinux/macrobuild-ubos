@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Uploads a locally staged channel to Amazon S3
+# Uploads a locally staged channel to Amazon S3.
 #
 # Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
@@ -28,6 +28,7 @@ sub new {
     $self->SUPER::new( @args );
 
     $self->setDelegate( UBOS::Macrobuild::BasicTasks::UploadToS3->new(
+            'arch'      => '${arch}',
             'from'      => '${repodir}/${channel}/${arch}',
             'to'        => '${uploadDest}/${arch}',
             'inexclude' => '${uploadInExclude}' ));
