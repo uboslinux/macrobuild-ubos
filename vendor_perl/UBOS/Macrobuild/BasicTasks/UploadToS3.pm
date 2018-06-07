@@ -57,11 +57,11 @@ sub runImpl {
                 error( "aws s3 sync failed:", $out );
                 $ret = FAIL;
             } else {
-                my @fileMessages = split "\n", $out;
+                my @fileMessages = split( "\n", $out );
 
-print "XXX FileMessages:\n" . join( "\n", @fileMessages ) . "\n";
-print "XXXX grep upload:\n" . join( "\n", grep { /^upload: / } @fileMessages ) . "\n";
-print "XXXX map grep upload:\n" . join( "\n", map { my $s = $_; $s =~ s/^upload:\s+\S+\s+to\s+// ; $s } grep { /^upload: / } @fileMessages ) . "\n";
+print "XXX FileMessages:\nxx " . join( "\nxx ", @fileMessages ) . "\n";
+print "XXXX grep upload:\nxx " . join( "\nxx ", grep { /^upload: / } @fileMessages ) . "\n";
+print "XXXX map grep upload:\nxx " . join( "\nxx ", map { my $s = $_; $s =~ s/^upload:\s+\S+\s+to\s+// ; $s } grep { /^upload: / } @fileMessages ) . "\n";
 
                 $uploadedFiles = [ map { my $s = $_; $s =~ s/^upload:\s+\S+\s+to\s+// ; $s } grep { /^upload: / } @fileMessages ];
                 $deletedFiles  = [ map { my $s = $_; $s =~ s/^delete:\s+//            ; $s } grep { /^delete: / } @fileMessages ];

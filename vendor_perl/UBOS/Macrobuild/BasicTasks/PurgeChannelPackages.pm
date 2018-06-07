@@ -68,14 +68,14 @@ sub runImpl {
 
                 if( $file =~ m!\.pkg\.tar\.[a-z]+\.sig$! ) {
                     $packageSigFiles{$file} = $file;
-                } else {
+                } elsif( $file !~ m!LAST_UPLOADED$! ) {
                     my $parsed = UBOS::Macrobuild::PackageUtils::parsePackageFileName( $file );
                     if( $parsed ) {
                         $packageFiles{$parsed->{name}}->{$file} = $parsed;
                     } else {
                         $uncategorized{$file} = $file;
                     }
-                }
+                } # LAST_UPLOADED is being ignored
             }
             if( %uncategorized ) {
                 warning( 'Found uncategorizable file(s) in dir', $dir, ':', keys %uncategorized );
