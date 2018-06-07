@@ -12,7 +12,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::UploadToS3;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch from to inexclude );
+use fields qw( from to inexclude genindextitle );
 
 use Macrobuild::Task;
 use UBOS::Logging;
@@ -24,9 +24,9 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch = $self->getProperty( 'arch' );
-    my $from = $self->getProperty( 'from' );
-    my $to   = $self->getProperty( 'to' );
+    my $from          = $self->getProperty( 'from' );
+    my $to            = $self->getProperty( 'to' );
+    my $genindextitle = $self->getProperty( 'genindextitle' );
 
     my $ret           = DONE_NOTHING;
     my $uploadedFiles = undef;
@@ -38,8 +38,8 @@ sub runImpl {
         if( @filesInFrom ) {
             UBOS::Utils::saveFile( "$from/LAST_UPLOADED", UBOS::Utils::time2string( time() ) . "\n" );
 
-            if( -d "$from/images" ) {
-                UBOS::Utils::saveFile( "$from/images/index.html", _generateIndex( "$from/images", "Index of $arch images" ));
+            if( $genindextitle ) {
+                UBOS::Utils::saveFile( "$from/index.html", _generateIndex( $from, $genindextitle ));
             }
 
             my $cmd = 'aws s3 sync --dryrun --delete --acl public-read';
