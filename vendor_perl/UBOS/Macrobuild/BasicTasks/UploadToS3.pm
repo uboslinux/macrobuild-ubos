@@ -42,7 +42,7 @@ sub runImpl {
                 UBOS::Utils::saveFile( "$from/index.html", _generateIndex( $from, $genindextitle ));
             }
 
-            my $cmd = 'aws s3 sync --dryrun --delete --acl public-read';
+            my $cmd = 'aws s3 sync --delete --acl public-read';
 
             my $inexclude = $self->getPropertyOrDefault( 'inexclude', undef );
             if( $inexclude ) {
