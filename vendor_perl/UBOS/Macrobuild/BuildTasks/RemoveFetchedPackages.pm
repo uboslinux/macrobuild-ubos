@@ -48,7 +48,7 @@ sub new {
         $self->addParallelTask(
                 $taskName,
                 UBOS::Macrobuild::ComplexTasks::RemoveUpdateFetchedPackages->new(
-                        'name'      => 'Remove fetched packages marked as such from ' . $db,
+                        'name'      => 'Remove fetched packages marked as such from ' . $db . ' on ${channel}',
                         'arch'      => '${arch}',
                         'builddir'  => '${builddir}',
                         'repodir'   => '${repodir}',

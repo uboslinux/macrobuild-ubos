@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::UploadChannelToS3;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch channel repodir uploadDest subdirs uploadInExclude genindextitle );
+use fields qw( arch channel repodir uploadDest subdir uploadInExclude genindextitle );
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::UploadToS3;
@@ -40,7 +40,7 @@ sub new {
         $self->addParallelTask(
                 $taskName,
                 UBOS::Macrobuild::BasicTasks::UploadToS3->new(
-                        'name'          => 'Upload subdir ' . $subdir,
+                        'name'          => 'Upload subdir ' . $subdir . ' to S3 on ${channel}',
                         'from'          => '${repodir}/${channel}/${arch}/' . $subdir,
                         'to'            => '${uploadDest}/${arch}/' . $subdir,
                         'inexclude'     => '${uploadInExclude}',

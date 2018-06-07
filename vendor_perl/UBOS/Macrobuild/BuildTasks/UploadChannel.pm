@@ -28,6 +28,7 @@ sub new {
     $self->SUPER::new( @args );
 
     $self->setDelegate( UBOS::Macrobuild::BasicTasks::Upload->new(
+            'name'      => 'Upload to ubos-repo on ${channel}',
             'from'      => '${repodir}/${channel}/${arch}',
             'to'        => '${uploadDest}/${arch}',
             'inexclude' => '${uploadInExclude}' ));

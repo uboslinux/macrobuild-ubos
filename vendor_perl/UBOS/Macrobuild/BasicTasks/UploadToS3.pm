@@ -59,6 +59,10 @@ sub runImpl {
             } else {
                 my @fileMessages = split "\n", $out;
 
+print "XXX FileMessages:\n" . join( "\n", @fileMessages ) . "\n";
+print "XXXX grep upload:\n" . join( "\n", grep { /^upload: / } @fileMessages ) . "\n";
+print "XXXX map grep upload:\n" . join( "\n", map { my $s = $_; $s =~ s/^upload:\s+\S+\s+to\s+// ; $s } grep { /^upload: / } @fileMessages ) . "\n";
+
                 $uploadedFiles = [ map { my $s = $_; $s =~ s/^upload:\s+\S+\s+to\s+// ; $s } grep { /^upload: / } @fileMessages ];
                 $deletedFiles  = [ map { my $s = $_; $s =~ s/^delete:\s+//            ; $s } grep { /^delete: / } @fileMessages ];
                 $ret = SUCCESS;

@@ -34,12 +34,12 @@ sub new {
     my $usconfigs = $self->getProperty( 'usconfigs' );
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::PullSources->new(
-            'name'           => 'Pull the sources that need to be built for db ' . $db,
+            'name'           => 'Pull the sources that need to be built for db ' . $db . ' on ${channel}',
             'usconfigs'      => $usconfigs,
             'sourcedir'      => '${builddir}/dbs/' . $db . '/ups'  ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::BuildPackages->new(
-            'name'           => 'Building packages locally for db ' . $db,
+            'name'           => 'Building packages locally for db ' . $db . ' on ${channel}',
             'arch'           => '${arch}',
             'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
             'stopOnError'    => 0,
@@ -47,7 +47,7 @@ sub new {
             'm2repository'   => '${m2repository}' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
-            'name'           => 'Stage new packages in local repository for db ' . $db,
+            'name'           => 'Stage new packages in local repository for db ' . $db . ' on ${channel}',
             'arch'           => '${arch}',
             'usconfigs'      => $usconfigs,
             'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',

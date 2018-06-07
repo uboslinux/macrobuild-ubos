@@ -52,7 +52,7 @@ sub new {
         $self->addParallelTask(
                 $removeTaskName,
                 UBOS::Macrobuild::ComplexTasks::RemoveUpdateBuiltPackages->new(
-                        'name'      => 'Remove built packages marked as such from ' . $db,
+                        'name'      => 'Remove built packages marked as such from ' . $db . ' on ${channel}',
                         'arch'      => '${arch}',
                         'builddir'  => '${builddir}',
                         'repodir'   => '${repodir}',

@@ -47,7 +47,7 @@ sub new {
         $self->addParallelTask(
                 $taskName,
                 UBOS::Macrobuild::BasicTasks::PurgeChannelPackages->new(
-                        'name'   => 'Purge channel packages on db ' . $db,
+                        'name'   => 'Purge channel packages on db ' . $db . ' on ${channel}',
                         'dir'    => '${repodir}/${channel}/${arch}/' . $shortDb,
                         'maxAge' => '${maxAge}' ));
     }

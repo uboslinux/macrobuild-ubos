@@ -33,13 +33,13 @@ sub new {
     my $upconfigs = $self->getProperty( 'upconfigs' );
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::RemoveFetchedPackages->new(
-            'name'        => 'Removed packages fetched from Arch',
+            'name'        => 'Removed packages fetched from Arch on ${channel}',
             'arch'        => '${arch}',
             'upconfigs'   => $upconfigs,
             'downloaddir' => '${builddir}/dbs/' . $db . '/upc' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Unstage->new(
-            'name'        => 'Unstage removed packages in local repository',
+            'name'        => 'Unstage removed packages in local repository on ${channel}',
             'arch'        => '${arch}',
             'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',

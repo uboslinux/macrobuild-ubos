@@ -35,7 +35,7 @@ sub new {
     my $usconfigs = $self->getProperty( 'usconfigs' );
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::DeterminePromotablePackages->new(
-            'name'        => 'Determine which packages should be promoted in ' . $db,
+            'name'        => 'Determine which packages should be promoted in ' . $db . ' from ${fromChannel} to ${channel}',
             'upconfigs'   => $upconfigs,
             'usconfigs'   => $usconfigs,
             'arch'        => '${arch}',
@@ -44,7 +44,7 @@ sub new {
             'toDb'        => '${repodir}/${channel}/${arch}/' . $db ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Promote->new(
-            'name'        => 'Promote new packages in ' . $db,
+            'name'        => 'Promote new packages in ' . $db . ' from ${fromChannel} to ${channel}',
             'sourcedir'   => '${repodir}/${fromChannel}/${arch}/' . $db,
             'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',

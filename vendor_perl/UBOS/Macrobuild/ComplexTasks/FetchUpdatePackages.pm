@@ -41,18 +41,18 @@ sub new {
             'downloaddir' => '${builddir}/dbs/' . $db . '/upc' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::DetermineChangedPackagesFromDbAndDir->new(
-            'name'        => 'Determining which packages changed in Arch',
+            'name'        => 'Determining which packages changed in Arch on ${channel}',
             'upconfigs'   => $upconfigs,
             'dir'         => '${builddir}/dbs/' . $db . '/upc',
             'channel'     => '${channel}',
             'arch'        => '${arch}' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::FetchPackages->new(
-            'name'        => 'Fetching packages downloaded from Arch',
+            'name'        => 'Fetching packages downloaded from Arch on ${channel}',
             'downloaddir' => '${builddir}/dbs/' . $db . '/upc' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
-            'name'        => 'Stage fetched packages in local repository for db ' . $self->{db},
+            'name'        => 'Stage fetched packages in local repository for db ' . $self->{db} . ' on ${channel}',
             'arch'        => '${arch}',
             'upconfigs'   => $upconfigs,
             'sourcedir'   => '${builddir}/dbs/' . $db . '/upc',

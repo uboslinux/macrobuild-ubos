@@ -46,7 +46,7 @@ sub new {
         $self->addParallelTask(
                 $checkTaskName,
                 UBOS::Macrobuild::BasicTasks::CheckSignatures->new(
-                        'name'  => 'Check signatures for ' . $db,
+                        'name'  => 'Check signatures for ' . $db . ' on ${channel}',
                         'dir'   => '${repodir}/${channel}/${arch}/' . $shortDb,
                         'glob'  => '*.pkg.tar.xz' ));
 

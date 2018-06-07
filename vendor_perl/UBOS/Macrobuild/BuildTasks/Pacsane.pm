@@ -48,7 +48,7 @@ sub new {
         $self->addParallelTask(
                 $taskName,
                 UBOS::Macrobuild::BasicTasks::PacsaneRepository->new(
-                        'name'   => 'Pacsane on db ' . $shortDb,
+                        'name'   => 'Pacsane on db ' . $shortDb . ' on ${channel}',
                         'dbfile' => '${repodir}/${channel}/${arch}/' . $shortDb . '/' . $shortDb . '.db.tar.xz' ));
     }
 

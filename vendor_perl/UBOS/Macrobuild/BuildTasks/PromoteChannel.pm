@@ -55,7 +55,7 @@ sub new {
         $self->addParallelTask(
                 $promoteTaskName,
                 UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository->new(
-                        'name'        => 'Promote channel repository ' . $shortDb,
+                        'name'        => 'Promote channel repository ' . $shortDb . ' from ${fromChannel} to ${channel}',
                         'arch'        => '${arch}',
                         'channel'     => '${channel}',
                         'upconfigs'   => $repoUpConfigs->{$shortDb},
