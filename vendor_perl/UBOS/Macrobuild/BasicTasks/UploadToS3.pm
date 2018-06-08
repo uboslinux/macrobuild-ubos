@@ -18,6 +18,8 @@ use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Utils;
 
+my $LAST_UPLOADED = 'LAST_UPLOADED';
+
 ##
 # @Overridden
 sub runImpl {
@@ -36,7 +38,7 @@ sub runImpl {
         my @filesInFrom = <$from/*>;
         # we don't upload hidden files
         if( @filesInFrom ) {
-            UBOS::Utils::saveFile( "$from/LAST_UPLOADED", UBOS::Utils::time2string( time() ) . "\n" );
+            UBOS::Utils::saveFile( "$from/$LAST_UPLOADED", UBOS::Utils::time2string( time() ) . "\n" );
 
             if( $genindextitle ) {
                 UBOS::Utils::saveFile( "$from/index.html", _generateIndex( $from, $genindextitle ));
@@ -90,7 +92,7 @@ sub _generateIndex {
     my $title = shift;
 
     my @files = <$dir/*>;
-    @files = grep { ! m/index\.html$/ }
+    @files = grep { ! m/index\.html$/ && ! m/$LAST_UPLOADED$/ }
              map { my $x = $_; $x =~ s!.*/!!; $x; } @files;
 
     my $html = <<HTML;
