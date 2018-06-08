@@ -59,11 +59,11 @@ sub runImpl {
                 error( "aws s3 sync failed:", $out );
                 $ret = FAIL;
             } else {
-                my @fileMessages = split( "\n", $out );
+                my @fileMessages = split( /[\n\r]+/, $out );
 
-print "XXX FileMessages:\nxx " . join( "\nxx ", @fileMessages ) . "\n";
-print "XXXX grep upload:\nxx " . join( "\nxx ", grep { /^upload: / } @fileMessages ) . "\n";
-print "XXXX map grep upload:\nxx " . join( "\nxx ", map { my $s = $_; $s =~ s/^upload:\s+\S+\s+to\s+// ; $s } grep { /^upload: / } @fileMessages ) . "\n";
+                # These dudes emit "progress message\ractual message\n", where
+                # the progress message does not actually show in a terminal.
+                # We treat those as two lines.
 
                 $uploadedFiles = [ map { my $s = $_; $s =~ s/^upload:\s+\S+\s+to\s+// ; $s } grep { /^upload: / } @fileMessages ];
                 $deletedFiles  = [ map { my $s = $_; $s =~ s/^delete:\s+//            ; $s } grep { /^delete: / } @fileMessages ];
