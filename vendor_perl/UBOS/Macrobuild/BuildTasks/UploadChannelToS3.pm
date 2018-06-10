@@ -13,6 +13,7 @@ package UBOS::Macrobuild::BuildTasks::UploadChannelToS3;
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
 use fields qw( arch channel repodir uploadDest subdir uploadInExclude genindextitle );
 
+use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::UploadToS3;
 
