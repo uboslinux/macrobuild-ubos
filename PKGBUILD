@@ -11,6 +11,7 @@ depends=(
         'arch-install-scripts'
         'autoconf'
         'automake'
+        'aws-cli'
         'binutils'
         'bison'
         'btrfs-progs'
