@@ -217,6 +217,10 @@ sub _buildPackage {
         $trimmed =~ s/\s+$//;
         $cmd .= " 'MVN_OPTS=$trimmed'";
     }
+    if( $m2repository ) {
+        # This is for gradle, not maven
+        $cmd .= " 'M2REPOSITORY=$m2repository'";
+    }
     if( $packageSignKey ) {
         $cmd .= " PACKAGER='$packageSignKey'";
     }
