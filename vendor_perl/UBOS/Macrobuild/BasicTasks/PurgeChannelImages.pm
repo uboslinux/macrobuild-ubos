@@ -80,6 +80,10 @@ sub runImpl {
                 # This may or may not work, but that's fine
                 UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge/var/lib/machines' > /dev/null 2>&1" );
             }
+            if( -e "$purge/var/lib/portables" ) {
+                # This may or may not work, but that's fine
+                UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge/var/lib/portables' > /dev/null 2>&1" );
+            }
             if( -e "$purge/.snapshots" ) {
                 # This may or may not work, but that's fine
                 UBOS::Utils::myexec( "sudo btrfs subvolume delete --commit-after '$purge/.snapshots' > /dev/null 2>&1" );
