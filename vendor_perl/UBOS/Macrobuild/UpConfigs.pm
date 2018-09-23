@@ -10,7 +10,7 @@ use warnings;
 
 package UBOS::Macrobuild::UpConfigs;
 
-use fields qw( channel dir configsCache );
+use fields qw( dir configsCache );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::UpConfig;
@@ -19,18 +19,15 @@ use UBOS::Utils;
 
 ##
 # Constructor.
-# $channel: the channel currently being processed
 # $dir: the directory in which to read all files
 sub allIn {
     my $self    = shift;
-    my $channel = shift;
     my $dir     = shift;
 
     unless( ref( $dir )) {
         $self = fields::new( $self );
     }
 
-    $self->{channel}      = $channel;
     $self->{dir}          = $dir;
     $self->{configsCache} = undef;
 
