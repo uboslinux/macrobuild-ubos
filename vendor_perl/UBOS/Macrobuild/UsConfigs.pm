@@ -46,7 +46,8 @@ sub configs {
     my $self = shift;
     my $task = shift;
 
-    my $arch = $task->getValue( 'arch' );
+    my $arch    = $task->getValue( 'arch' );
+    my $channel = $task->getValue( 'channel' );
 
     my $localSourcesDir;
     if( defined( $self->{localSourcesDir} )) {
@@ -82,10 +83,25 @@ sub configs {
                 next;
             }
 
-            my $archs = $usConfigJson->{archs};
+            # If archs are given, make sure ours is one of the values
             if( exists( $usConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $usConfigJson->{archs} )) {
                 trace( 'Skipping', $file, 'for arch', $arch );
                 next;
+            }
+
+            # If channels are given, make sure ours is one of the values
+            if( exists( $usConfigJson->{channels} )) {
+                my $foundChannel = 0;
+                foreach my $candidateChannel ( @{$usConfigJson->{channels}} ) {
+                    if( $channel eq $candidateChannel ) {
+                        $foundChannel = 1;
+                        last;
+                    }
+                }
+                unless( $foundChannel ) {
+                    trace( 'Skipping', $file, 'on channel', $channel );
+                    next;
+                }
             }
 
             if( ! $usConfigJson->{type} ) {

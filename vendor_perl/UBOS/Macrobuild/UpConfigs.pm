@@ -10,7 +10,7 @@ use warnings;
 
 package UBOS::Macrobuild::UpConfigs;
 
-use fields qw( dir configsCache );
+use fields qw( channel dir configsCache );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::UpConfig;
@@ -19,15 +19,18 @@ use UBOS::Utils;
 
 ##
 # Constructor.
+# $channel: the channel currently being processed
 # $dir: the directory in which to read all files
 sub allIn {
-    my $self = shift;
-    my $dir  = shift;
+    my $self    = shift;
+    my $channel = shift;
+    my $dir     = shift;
 
     unless( ref( $dir )) {
         $self = fields::new( $self );
     }
 
+    $self->{channel}      = $channel;
     $self->{dir}          = $dir;
     $self->{configsCache} = undef;
 
@@ -42,7 +45,8 @@ sub configs {
     my $self = shift;
     my $task = shift;
 
-    my $arch = $task->getValue( 'arch' );
+    my $arch    = $task->getValue( 'arch' );
+    my $channel = $task->getValue( 'channel' );
 
     my $ret = $self->{configsCache};
     unless( $ret ) {
@@ -72,11 +76,26 @@ sub configs {
             unless( $upConfigJson ) {
                 next;
             }
-            my $archs = $upConfigJson->{archs};
 
+            # If archs are given, make sure ours is one of the values
             if( exists( $upConfigJson->{archs} ) && !UBOS::Macrobuild::Utils::useForThisArch( $arch, $upConfigJson->{archs} )) {
                 trace( 'Skipping', $file, 'for arch', $arch );
                 next;
+            }
+
+            # If channels are given, make sure ours is one of the values
+            if( exists( $upConfigJson->{channels} )) {
+                my $foundChannel = 0;
+                foreach my $candidateChannel ( @{$upConfigJson->{channels}} ) {
+                    if( $channel eq $candidateChannel ) {
+                        $foundChannel = 1;
+                        last;
+                    }
+                }
+                unless( $foundChannel ) {
+                    trace( 'Skipping', $file, 'on channel', $channel );
+                    next;
+                }
             }
 
             my $upstreamDir = $upConfigJson->{upstreamDir};

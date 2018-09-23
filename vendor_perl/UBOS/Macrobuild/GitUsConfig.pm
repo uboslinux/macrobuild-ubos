@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# 
+#
 # Config file for upstream sources obtained from git
 #
 # Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.

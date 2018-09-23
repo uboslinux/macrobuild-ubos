@@ -48,20 +48,6 @@ sub runImpl {
     foreach my $upConfigName ( sort keys %$upConfigs ) { # make predictable sequence
         my $upConfig = $upConfigs->{$upConfigName};
 
-        # If the upconfig specifies channels, only process if it contains this channel
-        if( exists( $upConfig->{channels} )) {
-            my $foundChannel = 0;
-            foreach my $candidateChannel ( @{$upConfig->{channels}} ) {
-                if( $channel eq $candidateChannel ) {
-                    $foundChannel = 1;
-                    last;
-                }
-            }
-            unless( $foundChannel ) {
-                next;
-            }
-        }
-
         my $packages = $upConfig->packages();
         unless( $packages ) {
             next;
@@ -95,20 +81,6 @@ sub runImpl {
     # usconfig uses very similar code to upconfig
     foreach my $usConfigName ( sort keys %$usConfigs ) {
         my $usConfig = $usConfigs->{$usConfigName};
-
-        # If the usconfig specifies channels, only process if it contains this channel
-        if( exists( $usConfig->{channels} )) {
-            my $foundChannel = 0;
-            foreach my $candidateChannel ( @{$usConfig->{channels}} ) {
-                if( $channel eq $candidateChannel ) {
-                    $foundChannel = 1;
-                    last;
-                }
-            }
-            unless( $foundChannel ) {
-                next;
-            }
-        }
 
         my $packages = $usConfig->packages();
         unless( $packages ) {
