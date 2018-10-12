@@ -112,8 +112,9 @@ sub configs {
             my $removePackages = $usConfigJson->{'remove-packages'};
             my $webapptests    = $usConfigJson->{webapptests};
 
-            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages,    $arch );
-            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests, $arch );
+            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $packages,       $arch );
+            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $removePackages, $arch );
+            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $webapptests,    $arch );
 
             if( exists( $removePackages->{'.'} )) {
                 warning( 'Invalid value for remove-packages in', $file, ': .' );
