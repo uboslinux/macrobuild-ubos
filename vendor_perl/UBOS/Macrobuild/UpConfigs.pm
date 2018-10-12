@@ -119,6 +119,7 @@ sub configs {
                 warning( 'Invalid value for remove-packages in', $file, ': .' );
                 delete $removePackages->{'.'};
             }
+            UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $removePackages, $arch );
 
             $ret->{$shortRepoName} =
                     UBOS::Macrobuild::UpConfig->new( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
