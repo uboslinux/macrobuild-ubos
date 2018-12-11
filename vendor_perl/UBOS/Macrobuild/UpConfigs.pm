@@ -50,7 +50,7 @@ sub configs {
         my $realDir = $self->{dir};
 
         unless( -d $realDir ) {
-            trace( "Upstream packages config dir not found:", $self->{dir}, 'expanded to', $realDir );
+            error( "Upstream packages config dir not found:", $self->{dir}, 'expanded to', $realDir );
             return {};
         }
 

@@ -59,7 +59,7 @@ sub configs {
         my $realDir = $task->replaceVariables( $self->{dir} );
 
         unless( -d $realDir ) {
-            trace( "Upstream sources config dir not found:", $self->{dir}, 'expanded to', $realDir );
+            error( "Upstream sources config dir not found:", $self->{dir}, 'expanded to', $realDir );
             return {};
         }
 
