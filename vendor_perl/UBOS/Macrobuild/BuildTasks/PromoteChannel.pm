@@ -71,6 +71,20 @@ sub new {
             'name' => 'Merge promotion lists from repositories: ' . join( ' ', @$dbs ),
             'keys' => \@promoteTasks ));
 
+    my $mergeAndReport = Macrobuild::CompositeTasks::Sequential->new(
+            'name' => 'Merge and report' );
+
+    $mergeAndReport->appendTask(
+            Macrobuild::BasicTasks::MergeValues->new(
+                    'name' => 'Merge promotion lists from repositories: ' . join( ' ', @$dbs ),
+                    'keys' => \@promoteTasks ));
+
+    $mergeAndReport->appendTask(
+            UBOS::Macrobuild::BasicTasks::Report->new(
+                    'name' => 'Report on ' . ref( $self )));
+
+    $self->setJoinTask( $mergeAndReport );
+
     return $self;
 }
 
