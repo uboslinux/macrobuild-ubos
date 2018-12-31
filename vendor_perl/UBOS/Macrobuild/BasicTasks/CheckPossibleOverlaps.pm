@@ -46,7 +46,7 @@ sub runImpl {
             foreach my $package ( keys %$packages ) {
                 if( exists( $all->{$overlapBucket}->{$package} )) {
                     my $already = $all->{$overlapBucket}->{$package};
-                    error( 'Package', $package, ', overlap bucket', $overlapBucket, 'exists both in', $already, 'and', $configName, ':', $package );
+                    error( 'Package', $package, ', overlap bucket', $overlapBucket, "($name)", 'exists both in', $already, 'and', $configName, ':', $package );
                     ++$errors;
                 } else {
                     $all->{$overlapBucket}->{$package} = $configName;
@@ -75,7 +75,7 @@ sub runImpl {
 
                 if( exists( $all->{$overlapBucket}->{$package} )) {
                     my $already = $all->{$overlapBucket}->{$package};
-                    error( 'Package', $package, ', overlap bucket', $overlapBucket, 'exists both in', $already, 'and', $configName, ':', $package );
+                    error( 'Package', $package, ', overlap bucket', $overlapBucket, "($name)", 'exists both in', $already, 'and', $configName, ':', $package );
                     ++$errors;
                 } else {
                     $all->{$overlapBucket}->{$package} = $configName;
