@@ -17,6 +17,7 @@ use Macrobuild::Task;
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::SplitJoin;
 use UBOS::Logging;
+use UBOS::Macrobuild::BasicTasks::Report;
 use UBOS::Macrobuild::ComplexTasks::PromoteChannelRepository;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
