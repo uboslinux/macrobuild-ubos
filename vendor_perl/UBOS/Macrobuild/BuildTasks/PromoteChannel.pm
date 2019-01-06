@@ -68,10 +68,6 @@ sub new {
         push @promoteTasks, $promoteTaskName;
     }
 
-    $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
-            'name' => 'Merge promotion lists from repositories: ' . join( ' ', @$dbs ),
-            'keys' => \@promoteTasks ));
-
     my $mergeAndReport = Macrobuild::CompositeTasks::Sequential->new(
             'name' => 'Merge and report' );
 
