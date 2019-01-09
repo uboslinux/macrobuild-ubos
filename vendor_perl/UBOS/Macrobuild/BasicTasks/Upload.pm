@@ -65,7 +65,7 @@ sub runImpl {
                             grep { ! /^\s*$/ }
                             split "\n", $out;
                 $uploadedFiles = [ grep { ! /^deleting\s+\S+/ } grep { ! /\.\// } @fileMessages ];
-                $deletedFiles  = [ map { my $s = $_; $s =~ s/^deleting\s+// ; $s } grep { /^deleting\s+\S+/ } @fileMessages ];
+                $deletedFiles  = [ map { my $s = $_; $s =~ s/^deleting\s+// ; $s =~ s/\s//g; $s } grep { /^deleting\s+\S+/ } @fileMessages ];
                 $ret = SUCCESS;
             }
         }
