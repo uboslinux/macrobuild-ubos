@@ -56,7 +56,9 @@ sub runImpl {
     }
     # NOTE: CHANNEL dependency
     if( 'dev' eq $channel ) {
-        $installCmd .= " --disablepackagedb hl"; # not in dev
+        # not in dev
+        $installCmd .= " --disablepackagedb hl";
+        $installCmd .= " --disablepackagedb hl-experimental";
     }
 
     if( UBOS::Logging::isTraceActive() ) {
