@@ -64,6 +64,8 @@ sub runImpl {
             my $sourceSourceDir = "$sourceDir/$name";
             if( -d $sourceSourceDir ) {
                 foreach my $test ( keys %$webapptests ) {
+                    my $testTls = exists( $webapptests->{$test}->{flags} ) ? ( ' ' . $webapptests->{$test}->{flags} ) : '';
+
                     my $testDir;
                     my $file;
                     if( $test =~ m!^(.*)/([^/]+)$! ) {
@@ -79,7 +81,7 @@ sub runImpl {
                     push @$testsSequence, $name . '::' . $test;
 
                     my $out;
-                    if( UBOS::Utils::myexec( "$testCmd '$testDir/$file'", undef, \$out, \$out )) {
+                    if( UBOS::Utils::myexec( "$testCmd$testTls '$testDir/$file'", undef, \$out, \$out )) {
                         $out =~ s!\s+$!!;
                         error( 'Test', $test, 'failed:', $out, ', command was:', "$testCmd '$testDir/$file'" );
                         $testsFailed->{$name . '::' . $test} = $out;
