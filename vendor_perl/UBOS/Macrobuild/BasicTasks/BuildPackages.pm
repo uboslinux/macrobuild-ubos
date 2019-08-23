@@ -191,6 +191,7 @@ sub _buildPackage {
     my $gpgHome        = $self->getValueOrDefault(    'GNUPGHOME',      undef ); # ok if not exists
     my $m2settingsfile = $self->getPropertyOrDefault( 'm2settingsfile', undef ); # ok if not exists
     my $m2repository   = $self->getPropertyOrDefault( 'm2repository',   undef ); # ok if not exists
+    my $goCache        = $self->getPropertyOrDefault( 'goCache',        undef ); # ok if not exists
 
     my $mvn_opts = ' -DskipTests -PUBOS';
     if( $m2settingsfile ) {
@@ -220,6 +221,9 @@ sub _buildPackage {
     if( $m2repository ) {
         # This is for gradle, not maven
         $cmd .= " 'M2REPOSITORY=$m2repository'";
+    }
+    if( $goCache ) {
+        $cmd .= " 'GOCACHE=$goCache'";
     }
     if( $packageSignKey ) {
         $cmd .= " PACKAGER='$packageSignKey'";
@@ -313,7 +317,7 @@ sub _readVarsFromPkgbuildIn {
             } elsif( $value =~ m!\s+! ) {
                 # list
                 $ret->{$key} = [ split( /\s+/, $value ) ];
-                
+
             } else {
                 $ret->{$key} = $value;
             }
