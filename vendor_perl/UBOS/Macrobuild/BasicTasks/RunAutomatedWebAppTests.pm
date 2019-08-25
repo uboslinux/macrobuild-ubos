@@ -83,7 +83,7 @@ sub runImpl {
                     my $out;
                     if( UBOS::Utils::myexec( "$testCmd$testTls '$testDir/$file'", undef, \$out, \$out )) {
                         $out =~ s!\s+$!!;
-                        error( 'Test', $test, 'failed:', $out, ', command was:', "$testCmd '$testDir/$file'" );
+                        error( 'Test', $test, 'failed:', $out, ', command was:', "$testCmd$testTls '$testDir/$file'" );
                         $testsFailed->{$name . '::' . $test} = $out;
                     } else {
                         $out =~ s!\s+$!!;
