@@ -59,9 +59,6 @@ sub runImpl {
                 error( "aws s3 sync failed:", $out );
                 $ret = FAIL;
             } else {
-                print( "XXX temporarily: print aws s3 sync output:\n" );
-                print( $out );
-
                 my @fileMessages = split( /[\n\r]+/, $out );
 
                 # These dudes emit "progress message\ractual message\n", where
