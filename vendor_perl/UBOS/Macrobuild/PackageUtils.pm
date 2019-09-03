@@ -210,7 +210,7 @@ sub parsePackageFileName {
     my $arch;
     my $compression;
 
-    if( $s =~ m!^([-_.\w]+)-(?:([^:]+):)?([^-]+)(?:-([^-]+))-(\w+)\.pkg\.tar(?:\.([a-z]+))$! ) {
+    if( $s =~ m!^([-_.\w]+)-(?:([^:]+):)?([^-]+)(?:-([^-]+))-(\w+)\.pkg\.tar(?:\.([a-z0-9]+))$! ) {
         $name        = $1;
         $epoch       = $2;
         $version     = $3;
