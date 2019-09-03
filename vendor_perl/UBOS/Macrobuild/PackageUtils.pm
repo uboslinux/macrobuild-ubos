@@ -27,7 +27,7 @@ sub packageVersionsInDirectory {
     my $arch        = shift;
 
     my @all = map { s!.*/!!; $_; } <$dir/*>; # strip off directory
-    my @ret = grep { /^\Q$packageName\E-[^-]+-\d+(\.\d+)?-($arch|any)\.pkg\.tar\.(xz|gz)$/ } @all;
+    my @ret = grep { /^\Q$packageName\E-[^-]+-\d+(\.\d+)?-($arch|any)\.pkg\.tar\.(xz|gz|lz4)$/ } @all;
     return @ret;
 }
 
@@ -74,7 +74,7 @@ sub mostRecentPackageInDir {
         warning( 'Cannot read directory', $dir );
         return undef;
     }
-    my @packages = grep { /^$packageName-\d.*\.pkg\.tar\.(xz|gz)$/ } readdir( $dh );
+    my @packages = grep { /^$packageName-\d.*\.pkg\.tar\.(xz|gz|lz4)$/ } readdir( $dh );
     # Look for $packageName-Number so we don't catch mariadb-clients when looking for mariadb
     closedir $dh;
 
