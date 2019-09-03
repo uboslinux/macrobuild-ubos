@@ -54,7 +54,7 @@ sub runImpl {
             outer: foreach my $file ( @filesInDir ) {
                 foreach my $mainOrFiles( $dbExt, '.files' ) {
                     foreach my $mainOrTar( '', '.tar' ) {
-                        foreach my $mainOrCompressed( '', '.xz', '.gz' ) {
+                        foreach my $mainOrCompressed( '', '.xz', '.gz', '.lz4' ) {
                             foreach my $mainOrOld( '', '.old' ) {
                                 foreach my $mainOrSig( '', '.sig' ) {
                                     if( $file eq "$dbName$mainOrFiles$mainOrTar$mainOrCompressed$mainOrOld$mainOrSig" ) {
