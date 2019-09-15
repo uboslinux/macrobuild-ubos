@@ -2,7 +2,7 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=${developer}
 pkgname=macrobuild-ubos
-pkgver=0.298
+pkgver=0.299
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
@@ -54,7 +54,7 @@ optdepends=(
         'grub'
         'virtualbox'
 )
-_vendor_perl=$(perl -V::vendorarch: | sed -e "s![' ]!!g")
+_vendor_perl=/usr/share/perl5/vendor_perl
 options=('!strip')
 
 package() {
