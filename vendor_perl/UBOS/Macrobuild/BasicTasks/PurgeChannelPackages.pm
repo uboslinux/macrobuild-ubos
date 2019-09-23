@@ -66,7 +66,7 @@ sub runImpl {
                     }
                 }
 
-                if( $file =~ m!\.pkg\.tar\.[a-z]+\.sig$! ) {
+                if( $file =~ m!\.pkg\.tar\.[a-z0-9]+\.sig$! ) {
                     $packageSigFiles{$file} = $file;
                 } elsif( $file !~ m!LAST_UPLOADED$! ) {
                     my $parsed = UBOS::Macrobuild::PackageUtils::parsePackageFileName( $file );
