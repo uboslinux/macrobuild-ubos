@@ -28,22 +28,18 @@ sub runImpl {
     my $m2BuildDir = $self->getPropertyOrDefault( 'm2builddir', undef );
     if( $m2BuildDir ) {
 
-        unless( -d $m2BuildDir ) {
-            if( -e $m2BuildDir ) {
-                error( 'Cannot create directory', $m2BuildDir, ', something else is in the way' );
-                $ret = FAIL;
-
-            } elsif( UBOS::Utils::mkdirDashP( $m2BuildDir )) {
+        unless( -d "$m2BuildDir/conf" ) {
+            if( UBOS::Utils::mkdirDashP( "$m2BuildDir/conf" )) {
                 $ret = SUCCESS;
 
             } else {
-                error( 'Failed to create directory', $m2BuildDir );
+                error( 'Failed to create directory', "$m2BuildDir/conf" );
                 $ret = FAIL;
             }
         }
-        if( -d $m2BuildDir ) {
+        if( -d "$m2BuildDir/conf" ) {
             # write settings.xml file
-            if( UBOS::Utils::saveFile( "$m2BuildDir/settings.xml", <<CONTENT )) {
+            if( UBOS::Utils::saveFile( "$m2BuildDir/conf/settings.xml", <<CONTENT )) {
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!--
