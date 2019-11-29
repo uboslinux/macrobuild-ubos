@@ -16,7 +16,7 @@ use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch sourcedir m2settingsfile m2repository );
+use fields qw( arch sourcedir m2settingsfile m2repository gradleM2Home );
 
 my $failedstamp = ".build-in-progress-or-failed";
 
