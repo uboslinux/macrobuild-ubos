@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::ComplexTasks::PullBuildUpdatePackages;
 
 use base qw( Macrobuild::CompositeTasks::Sequential );
-use fields qw( arch builddir repodir usconfigs db dbSignKey m2settingsfile m2repository );
+use fields qw( arch builddir repodir usconfigs db dbSignKey m2settingsfile m2repository gradleM2Home);
 
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::BuildPackages;
@@ -44,7 +44,8 @@ sub new {
             'sourcedir'      => '${builddir}/dbs/' . $db . '/ups',
             'stopOnError'    => 0,
             'm2settingsfile' => '${m2settingsfile}',
-            'm2repository'   => '${m2repository}' ));
+            'm2repository'   => '${m2repository}',
+            'gradleM2Home'   => '${gradleM2Home}' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
             'name'           => 'Stage new packages in local repository for db ' . $db . ' on ${channel}',

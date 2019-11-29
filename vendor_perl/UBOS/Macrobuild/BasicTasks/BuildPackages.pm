@@ -191,6 +191,7 @@ sub _buildPackage {
     my $gpgHome        = $self->getValueOrDefault(    'GNUPGHOME',      undef ); # ok if not exists
     my $m2settingsfile = $self->getPropertyOrDefault( 'm2settingsfile', undef ); # ok if not exists
     my $m2repository   = $self->getPropertyOrDefault( 'm2repository',   undef ); # ok if not exists
+    my $gradleM2Home   = $self->getPropertyOrDefault( 'gradleM2Home',   undef ); # of if not exists
     my $goCache        = $self->getValueOrDefault(    'goCache',        undef ); # ok if not exists
 
     my $mvn_opts = ' -DskipTests -PUBOS';
@@ -206,6 +207,9 @@ sub _buildPackage {
 
     if( $m2repository ) {
         $cmd .= " DIET4J_REPO='" . $m2repository . "'";
+    }
+    if( $gradleM2Home ) {
+        $cmd .= " GRADLE_M2_HOME='" . $gradleM2Home . "'";
     }
 
     if( $gpgHome ) {
