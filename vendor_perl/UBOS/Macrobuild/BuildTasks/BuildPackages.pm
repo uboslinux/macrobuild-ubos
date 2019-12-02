@@ -68,7 +68,7 @@ sub new {
                         'dbSignKey'      => '${dbSignKey}',
                         'm2settingsfile' => '${m2builddir}/conf/settings.xml',
                         'm2repository'   => '${m2builddir}/repository',
-                        'gradleM2Home'   => '${m2builddir}' ));
+                        'gradleM2Home'   => '${m2builddir}/repository' ));
     }
 
     my $splitTask = Macrobuild::CompositeTasks::Sequential->new();
