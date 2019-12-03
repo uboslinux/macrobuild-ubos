@@ -206,10 +206,10 @@ sub _buildPackage {
     $cmd    .=   ' TERM=xterm'; # Avahi currently needs this per https://github.com/mono/mono/issues/6768
 
     if( $m2repository ) {
-        $cmd .= " DIET4J_REPO='" . $m2repository . "'";
+        $cmd .= " DIET4J_REPO='$m2repository':/ubos/lib/java:/usr/lib/java";
     }
     if( $gradleM2Home ) {
-        $cmd .= " GRADLE_M2_HOME='" . $gradleM2Home . "'";
+        $cmd .= " GRADLE_M2_HOME='$gradleM2Home'";
     }
 
     if( $gpgHome ) {
