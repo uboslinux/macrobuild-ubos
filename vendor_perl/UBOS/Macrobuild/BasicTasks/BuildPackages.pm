@@ -258,7 +258,7 @@ sub _buildPackage {
 
         my $builtPackage = UBOS::Macrobuild::PackageUtils::mostRecentPackageInDir( $dir, $packageName );
 
-        if( $builtPackage =~ m!^\Q$builtPackageName-$builtPackageVersion\E-.+\.pkg\.tar\.(xz|gz|lz4)$! ) {
+        if( $builtPackage =~ m!^\Q$builtPackageName-$builtPackageVersion\E-.+\.pkg\.tar\.(xz|gz|lz4|zst)$! ) {
             if( $packageSignKey ) {
                 my $cmd2 = "gpg --detach-sign -u '$packageSignKey' --use-agent --no-armor '$dir/$builtPackage'";
                 my $out;
