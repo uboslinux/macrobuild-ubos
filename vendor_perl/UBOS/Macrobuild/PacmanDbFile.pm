@@ -111,7 +111,7 @@ sub addPackages {
         $cmd .= ' --quiet';
     }
     if( $dbSignKey ) {
-        $cmd .= ' --sign --key ' . $dbSignKey;
+        $cmd .= ' --sign --key "' . $dbSignKey . '"';
     }
     $cmd .= " '" . $self->{filename} . "'";
     $cmd .= ' ' . join( ' ', @$packageFiles );
