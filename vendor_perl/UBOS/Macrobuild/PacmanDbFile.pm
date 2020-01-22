@@ -111,6 +111,11 @@ sub addPackages {
         $cmd .= ' --quiet';
     }
     if( $dbSignKey ) {
+        # Unlike makepkg's PACKAGER, repo-add does not currently support "Foo Bar <foo@bar.com>"
+        # See bugs.archlinux.org/task/65240
+        if( $dbSignKey =~ m!<(.*)>! ) {
+            $dbSignKey = $1;
+        }
         $cmd .= ' --sign --key "' . $dbSignKey . '"';
     }
     $cmd .= " '" . $self->{filename} . "'";
@@ -145,6 +150,11 @@ sub removePackages {
         $cmd .= ' --quiet';
     }
     if( $dbSignKey ) {
+        # Unlike makepkg's PACKAGER, repo-remove does not currently support "Foo Bar <foo@bar.com>"
+        # See bugs.archlinux.org/task/65240
+        if( $dbSignKey =~ m!<(.*)>! ) {
+            $dbSignKey = $1;
+        }
         $cmd .= ' --sign --key ' . $dbSignKey;
     }
     $cmd .= " '" . $self->{filename} . "'";
