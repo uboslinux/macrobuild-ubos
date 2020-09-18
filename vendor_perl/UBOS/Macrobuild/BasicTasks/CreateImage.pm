@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CreateImage;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch channel depotRoot deviceclass image imagesize linkLatest repodir );
+use fields qw( arch channel installDepotRoot runDepotRoot deviceclass installCheckSignatures runCheckSignatures image imagesize linkLatest );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
@@ -24,14 +24,15 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $arch            = $self->getProperty( 'arch' );
-    my $channel         = $self->getProperty( 'channel' );
-    my $depotRoot       = $self->getProperty( 'depotRoot' );
-    my $deviceclass     = $self->getProperty( 'deviceclass' );
-    my $checkSignatures = $self->getPropertyOrDefault( 'checkSignatures', 'required' );
+    my $arch                   = $self->getProperty( 'arch' );
+    my $channel                = $self->getProperty( 'channel' );
+    my $installDepotRoot       = $self->getProperty( 'installDepotRoot' );
+    my $runDepotRoot           = $self->getProperty( 'runDepotRoot' );
+    my $deviceclass            = $self->getProperty( 'deviceclass' );
+    my $installCheckSignatures = $self->getPropertyOrDefault( 'installCheckSignatures', 'required' );
+    my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures', 'required' );
 
     my $errors    = 0;
-    my $repodir   = File::Spec->rel2abs( $self->getProperty( 'repodir' ));
     my $image     = File::Spec->rel2abs( $self->getProperty( 'image'   ));
     my $imagesize = $self->getProperty( 'imagesize' );
 
@@ -47,18 +48,21 @@ sub runImpl {
 
     my $installCmd = 'sudo ubos-install';
     $installCmd .= " --channel $channel";
-    $installCmd .= " --repository '$repodir'";
     $installCmd .= " --arch '$arch'";
     $installCmd .= " --deviceclass $deviceclass";
-    $installCmd .= " --checksignatures $checkSignatures";
-    if( $depotRoot ) {
-        $installCmd .= " --depotroot '$depotRoot'";
+    $installCmd .= " --install-check-signatures $installCheckSignatures";
+    $installCmd .= " --run-check-signatures $runCheckSignatures";
+    if( $installDepotRoot ) {
+        $installCmd .= " --install-depot-root '$installDepotRoot'";
+    }
+    if( $runDepotRoot ) {
+        $installCmd .= " --run-depot-root '$runDepotRoot'";
     }
     # NOTE: CHANNEL dependency
     if( 'dev' eq $channel ) {
         # not in dev
-        $installCmd .= " --disablepackagedb hl";
-        $installCmd .= " --disablepackagedb hl-experimental";
+        $installCmd .= " --disable-package-db hl";
+        $installCmd .= " --disable-package-db hl-experimental";
     }
 
     if( UBOS::Logging::isTraceActive() ) {

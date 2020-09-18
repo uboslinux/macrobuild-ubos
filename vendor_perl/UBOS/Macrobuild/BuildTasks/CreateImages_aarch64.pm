@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::CreateImages_aarch64;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
-use fields qw( arch channel depotRoot repodir );
+use fields qw( arch channel installDepotRoot runDepotRoot repodir );
 
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::CompositeTasks::Sequential;
@@ -37,15 +37,15 @@ sub new {
         $self->addParallelTask(
                 $deviceclass,
                 UBOS::Macrobuild::BasicTasks::CreateImage->new(
-                        'name'        => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
-                        'arch'        => '${arch}',
-                        'repodir'     => '${repodir}',
-                        'depotRoot'   => '${depotRoot}',
-                        'channel'     => '${channel}',
-                        'deviceclass' => $deviceclass,
-                        'imagesize'   => '7G',
-                        'image'       => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.img',
-                        'linkLatest'  => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
+                        'name'             => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
+                        'arch'             => '${arch}',
+                        'installDepotRoot' => '${installDepotRoot}',
+                        'runDepotRoot'     => '${runDepotRoot}',
+                        'channel'          => '${channel}',
+                        'deviceclass'      => $deviceclass,
+                        'imagesize'        => '7G',
+                        'image'            => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.img',
+                        'linkLatest'       => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
     }
 
     my $deviceclass = 'container';
@@ -54,8 +54,8 @@ sub new {
             UBOS::Macrobuild::BasicTasks::CreateContainer->new(
                     'name'              => 'Create ${arch} bootable container for ${channel}',
                     'arch'              => '${arch}',
-                    'repodir'           => '${repodir}',
-                    'depotRoot'         => '${depotRoot}',
+                    'installDepotRoot'  => '${installDepotRoot}',
+                    'runDepotRoot'      => '${runDepotRoot}',
                     'channel'           => '${channel}',
                     'deviceclass'       => $deviceclass,
                     'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
