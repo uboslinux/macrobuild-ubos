@@ -84,7 +84,7 @@ sub runImpl {
     } elsif( UBOS::Logging::isInfoActive() ) {
         $installCmd .= " --verbose";
     }
-    $installCmd .= "'$dir'";
+    $installCmd .= " '$dir'";
 
     my $out;
     if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isTraceActive
