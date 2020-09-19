@@ -32,8 +32,8 @@ sub runImpl {
     my $installDepotRoot       = $self->getProperty( 'installDepotRoot' );
     my $runDepotRoot           = $self->getProperty( 'runDepotRoot' );
     my $deviceclass            = $self->getProperty( 'deviceclass' );
-    my $installCheckSignatures = $self->getPropertyOrDefault( 'installCheckSignatures', 'required' );
-    my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures', 'required' );
+    my $installCheckSignatures = $self->getPropertyOrDefault( 'installCheckSignatures', 'always' );
+    my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures', 'always' );
 
     my $errors  = 0;
     my $dir     = File::Spec->rel2abs( $self->getProperty( 'dir'     ));

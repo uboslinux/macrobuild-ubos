@@ -1,5 +1,4 @@
-macrobuild-ubos-*.pkg.tar.xz
-macrobuild-ubos-*.pkg.tar.xz.sig
+macrobuild-ubos-*.pkg*
 local.pl
 pkg/
 src/
