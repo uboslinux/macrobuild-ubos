@@ -92,14 +92,15 @@ sub configs {
                 }
             }
 
-            my $shortRepoName;
-            if( exists( $upConfigJson->{shortdb} )) {
-                $shortRepoName = $upConfigJson->{shortdb};
+            my $shortRepoName = $file;
+            $shortRepoName =~ s!.*/!!;
+            $shortRepoName =~ s!\.json$!!;
 
+            my $shortDb;
+            if( exists( $upConfigJson->{shortdb} )) {
+                $shortDb = $upConfigJson->{shortdb};
             } else {
-                $shortRepoName = $file;
-                $shortRepoName =~ s!.*/!!;
-                $shortRepoName =~ s!\.json$!!;
+                $shortDb = $shortRepoName;
             }
 
             my $upstreamDir = $upConfigJson->{upstreamDir};
@@ -113,7 +114,7 @@ sub configs {
 
             my $directory = $task->replaceVariables(
                     $upstreamDir,
-                    { 'shortdb' => $shortRepoName } );
+                    { 'shortdb' => $shortDb } );
 
             unless( !defined( $directory ) || ( $directory =~ m!^/! && -d $directory ) || $directory =~ m!^https?://! ) {
                 warning( "No or invalid directory given in $file, skipping: ", $directory );
@@ -129,7 +130,7 @@ sub configs {
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $removePackages, $arch );
 
             $ret->{$shortRepoName} =
-                    UBOS::Macrobuild::UpConfig->new( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
+                    UBOS::Macrobuild::UpConfig->new( $shortDb, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
         }
     }
     return $ret;

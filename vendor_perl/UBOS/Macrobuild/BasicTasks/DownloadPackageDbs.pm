@@ -46,7 +46,7 @@ sub runImpl {
                 info( "Empty package list, skipping:", $upConfig->name );
                 next;
             }
-            my $upcRepoDir = "$downloadDir/$name";
+            my $upcRepoDir = "$downloadDir/$repoName";
             UBOS::Macrobuild::Utils::ensureDirectories( $upcRepoDir );
 
             my $upcRepoPackageDb      = "$upcRepoDir/$name.db";
@@ -72,18 +72,18 @@ sub runImpl {
                 return FAIL;
             }
 
-            $allPackageDatabases->{$name} = new UBOS::Macrobuild::PacmanDbFile( $upcRepoPackageDb );
+            $allPackageDatabases->{$repoName} = new UBOS::Macrobuild::PacmanDbFile( $upcRepoPackageDb );
             if( -e $cachedNow ) {
                 trace( "Have downloaded:", $cachedNow );
                 if( -e $upcRepoPackageDb ) {
                     UBOS::Utils::deleteFile( $upcRepoPackageDb );
                 }
                 UBOS::Utils::myexec( "mv '$cachedNow' '$upcRepoPackageDb'" );
-                $updatedPackageDatabases->{$name} = $allPackageDatabases->{$name};
+                $updatedPackageDatabases->{$repoName} = $allPackageDatabases->{$repoName};
 
             } elsif( $upConfig->lastModified > (stat($upcRepoPackageDb ))[9] ) {
                 # Configuration has changed since package database was updated
-                $updatedPackageDatabases->{$name} = $allPackageDatabases->{$name};
+                $updatedPackageDatabases->{$repoName} = $allPackageDatabases->{$repoName};
                 trace( "Upconfig updated" );
 
             } else {
