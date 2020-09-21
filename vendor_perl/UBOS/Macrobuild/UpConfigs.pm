@@ -65,9 +65,6 @@ sub configs {
 
         foreach my $file ( @files ) {
             trace( "Now reading upstream packages config file", $file );
-            my $shortRepoName = $file;
-            $shortRepoName =~ s!.*/!!;
-            $shortRepoName =~ s!\.json$!!;
 
             my $upConfigJson = UBOS::Utils::readJsonFromFile( $file );
             unless( $upConfigJson ) {
@@ -93,6 +90,16 @@ sub configs {
                     trace( 'Skipping', $file, 'on channel', $channel );
                     next;
                 }
+            }
+
+            my $shortRepoName;
+            if( exists( $upConfigJson->{shortdb} )) {
+                $shortRepoName = $upConfigJson->{shortdb};
+
+            } else {
+                $shortRepoName = $file;
+                $shortRepoName =~ s!.*/!!;
+                $shortRepoName =~ s!\.json$!!;
             }
 
             my $upstreamDir = $upConfigJson->{upstreamDir};
