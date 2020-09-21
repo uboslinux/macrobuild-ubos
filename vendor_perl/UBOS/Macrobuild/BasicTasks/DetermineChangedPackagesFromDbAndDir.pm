@@ -53,6 +53,7 @@ sub runImpl {
                 my $packageDatabase = $packageDatabases->{$upConfigName};
                 unless( $packageDatabase ) {
                     # wasn't updated, nothing to do
+                    trace( 'Skipping UpConfig', $upConfigName );
                     next;
                 }
                 my $upConfigDir        = "$dir/$upConfigName";
