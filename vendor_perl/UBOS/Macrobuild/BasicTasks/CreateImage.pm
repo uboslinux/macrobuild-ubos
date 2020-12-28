@@ -11,7 +11,13 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CreateImage;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch channel installDepotRoot runDepotRoot deviceclass installCheckSignatures runCheckSignatures image imagesize linkLatest );
+use fields qw(
+        arch channel
+        installDepotRoot runDepotRoot
+        deviceclass
+        installCheckSignatures runCheckSignatures
+        deviceConfig
+        image imagesize linkLatest );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::Utils;
@@ -30,7 +36,8 @@ sub runImpl {
     my $runDepotRoot           = $self->getProperty( 'runDepotRoot' );
     my $deviceclass            = $self->getProperty( 'deviceclass' );
     my $installCheckSignatures = $self->getPropertyOrDefault( 'installCheckSignatures', 'always' );
-    my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures', 'always' );
+    my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures',     'always' );
+    my $deviceConfig           = $self->getProperty( 'deviceConfig' );
 
     my $errors    = 0;
     my $image     = File::Spec->rel2abs( $self->getProperty( 'image'   ));
@@ -47,16 +54,29 @@ sub runImpl {
     }
 
     my $installCmd = 'sudo ubos-install';
-    $installCmd .= " --channel $channel";
-    $installCmd .= " --arch '$arch'";
-    $installCmd .= " --deviceclass $deviceclass";
-    $installCmd .= " --install-check-signatures $installCheckSignatures";
-    $installCmd .= " --run-check-signatures $runCheckSignatures";
+    if( $channel ) {
+        $installCmd .= " --channel $channel";
+    }
+    if( $arch ) {
+        $installCmd .= " --arch '$arch'";
+    }
+    if( $deviceclass ) {
+        $installCmd .= " --deviceclass $deviceclass";
+    }
+    if( $installCheckSignatures ) {
+        $installCmd .= " --install-check-signatures $installCheckSignatures";
+    }
+    if( $runCheckSignatures ) {
+        $installCmd .= " --run-check-signatures $runCheckSignatures";
+    }
     if( $installDepotRoot ) {
         $installCmd .= " --install-depot-root '$installDepotRoot'";
     }
     if( $runDepotRoot ) {
         $installCmd .= " --run-depot-root '$runDepotRoot'";
+    }
+    if( $deviceConfig ) {
+        $installCmd .= " --device-config '$deviceConfig'";
     }
     # NOTE: CHANNEL dependency
     if( 'dev' eq $channel ) {
