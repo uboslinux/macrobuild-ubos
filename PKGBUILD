@@ -2,7 +2,7 @@ developer="http://indiecomputing.com/"
 url="http://ubos.net/"
 maintainer=${developer}
 pkgname=macrobuild-ubos
-pkgver=0.314
+pkgver=0.315
 pkgrel=1
 pkgdesc="Macrobuild extensions and configuration for UBOS"
 arch=('any')
@@ -40,6 +40,7 @@ depends=(
         'parted'
         'perl-http-date'
         'pkg-config'
+        'python-setuptools'
         'rsync'
         'sed'
         'sudo'
