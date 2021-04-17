@@ -343,6 +343,7 @@ sub _determinePackageSequence {
     # 2) the dependency is not in %$deps and thus out of scope, or
     # 3) the dependency is in %done already.
 
+    my $nPreviousRet = 0;
     while( 1 ) {
         if( scalar( keys %$deps ) <= scalar( @ret )) { # let's be safe
             last;
@@ -369,6 +370,11 @@ sub _determinePackageSequence {
                 push @ret, $current;
             }
         }
+        if( @ret == $nPreviousRet ) {
+            # looks like we have made no progress
+            fatal( "No progress in determining package dependencies: mutual dependency between: " . join( ', ', grep { !$done{$_} } sort keys %$deps ) . "\n" );
+        }
+        $nPreviousRet = @ret;
     }
     return @ret;
 }
