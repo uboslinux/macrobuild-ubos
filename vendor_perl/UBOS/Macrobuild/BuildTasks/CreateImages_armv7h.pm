@@ -29,7 +29,7 @@ sub new {
         $self = fields::new( $self );
     }
 
-    my @deviceclasses = qw( rpi2 rpi4 );
+    my @deviceclasses = qw( rpi2 rpi4 odroid-xu3 );
 
     $self->SUPER::new( @args );
 

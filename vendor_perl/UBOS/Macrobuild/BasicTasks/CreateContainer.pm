@@ -32,8 +32,8 @@ sub runImpl {
     my $installDepotRoot       = $self->getProperty( 'installDepotRoot' );
     my $runDepotRoot           = $self->getProperty( 'runDepotRoot' );
     my $deviceclass            = $self->getProperty( 'deviceclass' );
-    my $installCheckSignatures = $self->getPropertyOrDefault( 'installCheckSignatures', 'required' );
-    my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures', 'required' );
+    my $installCheckSignatures = $self->getPropertyOrDefault( 'installCheckSignatures', 'always' );
+    my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures', 'always' );
 
     my $errors  = 0;
     my $dir     = File::Spec->rel2abs( $self->getProperty( 'dir'     ));
@@ -74,15 +74,17 @@ sub runImpl {
     # NOTE: CHANNEL dependency
     if( 'dev' eq $channel ) {
         # not in dev
-        $installCmd .= " --disable-package-db hl";
-        $installCmd .= " --disable-package-db hl-experimental";
+        $installCmd .= " --install-disable-package-db hl";
+        $installCmd .= " --install-disable-package-db hl-experimental";
+        $installCmd .= " --run-disable-package-db hl";
+        $installCmd .= " --run-disable-package-db hl-experimental";
     }
     if( UBOS::Logging::isTraceActive() ) {
         $installCmd .= " --verbose --verbose";
     } elsif( UBOS::Logging::isInfoActive() ) {
         $installCmd .= " --verbose";
     }
-    $installCmd .= "'$dir'";
+    $installCmd .= " '$dir'";
 
     my $out;
     if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isTraceActive

@@ -87,9 +87,9 @@ sub runImpl {
                 for my $section ( 'depends', 'makedepends' ) {
                     if( $packageInfo->{$section} ) {
                         if( 'ARRAY' eq ref( $packageInfo->{$section} )) {
-                            map { $dependencies{$_} = 1; } @{$packageInfo->{$section}};
+                            map { $dependencies{ _stripVersionFromDependency( $_ ) } = 1; } @{$packageInfo->{$section}};
                         } else {
-                            $dependencies{$packageInfo->{$section}} = 1;
+                            $dependencies{ _stripVersionFromDependency( $packageInfo->{$section} ) } = 1;
                         }
                     }
                 }
@@ -377,6 +377,18 @@ sub _determinePackageSequence {
         $nPreviousRet = @ret;
     }
     return @ret;
+}
+
+##
+# Helper method to extract the package name from a name=version dependency
+# in the PKGBUILD
+# $raw: the value in the depends or makedepends
+sub _stripVersionFromDependency {
+    my $raw = shift;
+
+    $raw =~ s![=<>].*!!;
+
+    return $raw;
 }
 
 1;

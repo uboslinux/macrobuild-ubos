@@ -65,9 +65,6 @@ sub configs {
 
         foreach my $file ( @files ) {
             trace( "Now reading upstream packages config file", $file );
-            my $shortRepoName = $file;
-            $shortRepoName =~ s!.*/!!;
-            $shortRepoName =~ s!\.json$!!;
 
             my $upConfigJson = UBOS::Utils::readJsonFromFile( $file );
             unless( $upConfigJson ) {
@@ -95,6 +92,17 @@ sub configs {
                 }
             }
 
+            my $shortRepoName = $file;
+            $shortRepoName =~ s!.*/!!;
+            $shortRepoName =~ s!\.json$!!;
+
+            my $shortDb;
+            if( exists( $upConfigJson->{shortdb} )) {
+                $shortDb = $upConfigJson->{shortdb};
+            } else {
+                $shortDb = $shortRepoName;
+            }
+
             my $upstreamDir = $upConfigJson->{upstreamDir};
             unless( $upstreamDir ) {
                 error( 'Field upstreamDir not set in', $file );
@@ -106,7 +114,7 @@ sub configs {
 
             my $directory = $task->replaceVariables(
                     $upstreamDir,
-                    { 'shortdb' => $shortRepoName } );
+                    { 'shortdb' => $shortDb } );
 
             unless( !defined( $directory ) || ( $directory =~ m!^/! && -d $directory ) || $directory =~ m!^https?://! ) {
                 warning( "No or invalid directory given in $file, skipping: ", $directory );
@@ -122,7 +130,7 @@ sub configs {
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $removePackages, $arch );
 
             $ret->{$shortRepoName} =
-                    UBOS::Macrobuild::UpConfig->new( $shortRepoName, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
+                    UBOS::Macrobuild::UpConfig->new( $shortDb, $upConfigJson, $lastModified, $directory, $packages, $removePackages );
         }
     }
     return $ret;
