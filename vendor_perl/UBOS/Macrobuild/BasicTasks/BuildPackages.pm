@@ -189,6 +189,7 @@ sub _buildPackage {
 
     my $packageSignKey = $self->getValueOrDefault(    'packageSignKey', undef ); # ok if not exists
     my $gpgHome        = $self->getValueOrDefault(    'GNUPGHOME',      undef ); # ok if not exists
+    my $javaHome       = $self->getPropertyOrDefault( 'JAVA_HOME',      undef ); # ok if not exists
     my $m2settingsfile = $self->getPropertyOrDefault( 'm2settingsfile', undef ); # ok if not exists
     my $m2repository   = $self->getPropertyOrDefault( 'm2repository',   undef ); # ok if not exists
     my $gradleM2Home   = $self->getPropertyOrDefault( 'gradleM2Home',   undef ); # of if not exists
@@ -205,13 +206,15 @@ sub _buildPackage {
     $cmd    .=   ' LANG=en_US.utf8';
     $cmd    .=   ' TERM=xterm'; # Avahi currently needs this per https://github.com/mono/mono/issues/6768
 
+    if( $javaHome ) {
+        $cmd .= " JAVA_HOME='$javaHome'";
+    }
     if( $m2repository ) {
         $cmd .= " DIET4J_REPO='$m2repository':/ubos/lib/java:/usr/lib/java";
     }
     if( $gradleM2Home ) {
         $cmd .= " GRADLE_M2_HOME='$gradleM2Home'";
     }
-
     if( $gpgHome ) {
         $cmd .= " GNUPGHOME='$gpgHome'";
     }
