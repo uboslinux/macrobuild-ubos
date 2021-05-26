@@ -98,7 +98,7 @@ sub _processPackages {
         } else {
              $packageSourceDir .= "/$package";
         }
- 
+
         my @builtPackages  = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $package, $packageSourceDir, $arch );
         my @stagedPackages = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $package, $stageDir, $arch );
         if( @builtPackages ) {
@@ -121,9 +121,11 @@ sub _processPackages {
 
             if( $updateRequired ) {
                 my $stagedPackage = "$stageDir/$mostRecentBuiltPackage";
-                UBOS::Utils::myexec( "cp '$packageSourceDir/$mostRecentBuiltPackage' '$stagedPackage'" );
                 if( -e "$packageSourceDir/$mostRecentBuiltPackage.sig" ) {
+                    UBOS::Utils::myexec( "cp '$packageSourceDir/$mostRecentBuiltPackage' '$stagedPackage'" );
                     UBOS::Utils::myexec( "cp '$packageSourceDir/$mostRecentBuiltPackage.sig' '$stagedPackage.sig'" );
+                } else {
+                    warning( 'No .sig file for package, not staging:', '$packageSourceDir/$mostRecentBuiltPackage' );
                 }
                 push @$addedPackageFiles, $stagedPackage;
                 trace( "Staged:", $stagedPackage );
