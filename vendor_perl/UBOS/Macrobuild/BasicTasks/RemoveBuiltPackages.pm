@@ -46,14 +46,15 @@ sub runImpl {
         my $usConfig = $usConfigs->{$repoName};
 
         my $removePackages = $usConfig->removePackages;
-
         unless( $removePackages ) {
             next;
         }
 
         foreach my $removePackage ( keys %$removePackages ) {
             my $dir = "$sourceDir/$repoName";
+
             unless( '.' eq $removePackage ) {
+                $removePackage = $repoName;
                 $dir .= "/$removePackage";
             }
 

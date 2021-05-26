@@ -43,6 +43,10 @@ sub runImpl {
         }
 
         foreach my $removePackage ( keys %$removePackages ) {
+            unless( '.' eq $removePackage ) {
+                $removePackage = $repoName;
+            }
+
             my @files = UBOS::Macrobuild::PackageUtils::packageVersionsInDirectory( $removePackage, $downloadDir, $arch );
 
             if( @files ) {

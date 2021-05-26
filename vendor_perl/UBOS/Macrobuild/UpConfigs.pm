@@ -123,10 +123,6 @@ sub configs {
             my $lastModified   = (stat( $file ))[9];
             my $removePackages = $upConfigJson->{'remove-packages'};
 
-            if( exists( $removePackages->{'.'} )) {
-                warning( 'Invalid value for remove-packages in', $file, ': .' );
-                delete $removePackages->{'.'};
-            }
             UBOS::Macrobuild::Utils::removeItemsNotForThisArch( $removePackages, $arch );
 
             $ret->{$shortRepoName} =
