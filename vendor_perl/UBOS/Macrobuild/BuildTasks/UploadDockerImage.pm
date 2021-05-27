@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Creates and uploads an UBOS image to Docker
+# Uploads an UBOS image to Docker
 #
 # Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
@@ -8,13 +8,12 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::CreateUploadDockerImage;
+package UBOS::Macrobuild::BuildTasks::UploadDockerImage;
 
 use base qw( Macrobuild::CompositeTasks::Sequential );
 use fields qw( arch channel repodir );
 
 use Macrobuild::Task;
-use UBOS::Macrobuild::BasicTasks::CreateDockerImage;
 use UBOS::Macrobuild::BasicTasks::UploadDockerImage;
 
 ##
@@ -29,12 +28,8 @@ sub new {
 
     $self->SUPER::new( @args );
 
-    $self->appendTask( UBOS::Macrobuild::BasicTasks::CreateDockerImage->new(
-            'name'       => 'Create docker image on ${channel}',
-            'image'      => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-container_LATEST.tar',
+    $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage->new(
             'dockerName' => 'ubos/ubos-${channel}' ));
-
-    $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage->new());
 
     return $self;
 }

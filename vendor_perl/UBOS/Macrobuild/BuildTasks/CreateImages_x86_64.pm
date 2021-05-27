@@ -32,11 +32,13 @@ sub new {
 
     $self->SUPER::new( @args );
 
+    //
+
     my $deviceclass = 'pc';
     $self->addParallelTask(
             $deviceclass,
             UBOS::Macrobuild::BasicTasks::CreateImage->new(
-                    'name'             => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
+                    'name'             => 'Create ${arch} ' . $deviceclass . ' disk image for ${channel}',
                     'arch'             => '${arch}',
                     'installDepotRoot' => '${installDepotRoot}',
                     'runDepotRoot'     => '${runDepotRoot}',
@@ -46,11 +48,13 @@ sub new {
                     'image'            => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.img',
                     'linkLatest'       => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
 
+    //
+
     $deviceclass = 'vbox';
     my $vboxTask = Macrobuild::CompositeTasks::Sequential->new();
 
     $vboxTask->appendTask( UBOS::Macrobuild::BasicTasks::CreateImage->new(
-            'name'             => 'Create ${arch} ' . $deviceclass . ' boot disk image for ${channel}',
+            'name'             => 'Create ${arch} ' . $deviceclass . ' disk image for ${channel}',
             'arch'             => '${arch}',
             'installDepotRoot' => '${installDepotRoot}',
             'runDepotRoot'     => '${runDepotRoot}',
@@ -65,6 +69,32 @@ sub new {
     $self->addParallelTask(
             $deviceclass,
             $vboxTask );
+
+    //
+
+    $deviceclass = 'docker';
+    my $dockerTask = Macrobuild::CompositeTasks::Sequential->new();
+
+    $dockerTask->appendTask( UBOS::Macrobuild::BasicTasks::CreateImage->new(
+            'name'              => 'Create ${arch} ' . $deviceclass . ' bootable image for ${channel}',
+            'arch'              => '${arch}',
+            'installDepotRoot'  => '${installDepotRoot}',
+            'runDepotRoot'      => '${runDepotRoot}',
+            'channel'           => '${channel}',
+            'deviceclass'       => $deviceclass,
+            'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
+            'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
+            'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
+            'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
+
+    $dockerTask->appendTask( UBOS::Macrobuild::BasicTasks::DockerImageAdjustAndImport->new(
+            'dockerName' => 'ubos/ubos-${channel}' ));
+
+    $self->addParallelTask(
+            $deviceclass,
+            $dockerTask );
+
+    //
 
     $deviceclass = 'container';
     $self->addParallelTask(
