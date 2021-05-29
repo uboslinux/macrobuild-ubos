@@ -32,7 +32,7 @@ sub new {
 
     $self->SUPER::new( @args );
 
-    //
+    # pc
 
     my $deviceclass = 'pc';
     $self->addParallelTask(
@@ -48,7 +48,7 @@ sub new {
                     'image'            => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.img',
                     'linkLatest'       => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
 
-    //
+    # vbox
 
     $deviceclass = 'vbox';
     my $vboxTask = Macrobuild::CompositeTasks::Sequential->new();
@@ -70,7 +70,7 @@ sub new {
             $deviceclass,
             $vboxTask );
 
-    //
+    # docker
 
     $deviceclass = 'docker';
     my $dockerTask = Macrobuild::CompositeTasks::Sequential->new();
@@ -94,7 +94,7 @@ sub new {
             $deviceclass,
             $dockerTask );
 
-    //
+    # container
 
     $deviceclass = 'container';
     $self->addParallelTask(
@@ -119,7 +119,3 @@ sub new {
 }
 
 1;
-
-
-
-
