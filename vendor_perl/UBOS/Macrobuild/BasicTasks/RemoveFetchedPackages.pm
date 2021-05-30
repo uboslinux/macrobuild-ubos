@@ -43,7 +43,7 @@ sub runImpl {
         }
 
         foreach my $removePackage ( keys %$removePackages ) {
-            unless( '.' eq $removePackage ) {
+            if( '.' eq $removePackage ) {
                 $removePackage = $repoName;
             }
 

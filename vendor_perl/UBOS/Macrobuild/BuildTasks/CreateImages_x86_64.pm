@@ -18,6 +18,7 @@ use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::CreateContainer;
 use UBOS::Macrobuild::BasicTasks::CreateImage;
+use UBOS::Macrobuild::BasicTasks::DockerImageAdjustAndImport;
 use UBOS::Macrobuild::BasicTasks::ImagesToVmdk;
 
 ##
@@ -75,7 +76,7 @@ sub new {
     $deviceclass = 'docker';
     my $dockerTask = Macrobuild::CompositeTasks::Sequential->new();
 
-    $dockerTask->appendTask( UBOS::Macrobuild::BasicTasks::CreateImage->new(
+    $dockerTask->appendTask( UBOS::Macrobuild::BasicTasks::CreateContainer->new(
             'name'              => 'Create ${arch} ' . $deviceclass . ' bootable image for ${channel}',
             'arch'              => '${arch}',
             'installDepotRoot'  => '${installDepotRoot}',

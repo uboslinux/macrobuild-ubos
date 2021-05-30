@@ -53,8 +53,9 @@ sub runImpl {
         foreach my $removePackage ( keys %$removePackages ) {
             my $dir = "$sourceDir/$repoName";
 
-            unless( '.' eq $removePackage ) {
+            if( '.' eq $removePackage ) {
                 $removePackage = $repoName;
+            } else {
                 $dir .= "/$removePackage";
             }
 
