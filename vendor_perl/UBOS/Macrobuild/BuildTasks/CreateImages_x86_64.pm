@@ -71,50 +71,9 @@ sub new {
             $deviceclass,
             $vboxTask );
 
-    # docker
-
-    $deviceclass = 'docker';
-    my $dockerTask = Macrobuild::CompositeTasks::Sequential->new();
-
-    $dockerTask->appendTask( UBOS::Macrobuild::BasicTasks::CreateContainer->new(
-            'name'              => 'Create ${arch} ' . $deviceclass . ' bootable image for ${channel}',
-            'arch'              => '${arch}',
-            'installDepotRoot'  => '${installDepotRoot}',
-            'runDepotRoot'      => '${runDepotRoot}',
-            'channel'           => '${channel}',
-            'deviceclass'       => $deviceclass,
-            'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
-            'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
-            'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
-            'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
-
-    $dockerTask->appendTask( UBOS::Macrobuild::BasicTasks::DockerImageAdjustAndImport->new(
-            'dockerName' => 'ubos/ubos-${channel}' ));
-
-    $self->addParallelTask(
-            $deviceclass,
-            $dockerTask );
-
-    # container
-
-    $deviceclass = 'container';
-    $self->addParallelTask(
-            $deviceclass,
-            UBOS::Macrobuild::BasicTasks::CreateContainer->new(
-                    'name'              => 'Create x86_64 bootable container for ${channel}',
-                    'arch'              => '${arch}',
-                    'installDepotRoot'  => '${installDepotRoot}',
-                    'runDepotRoot'      => '${runDepotRoot}',
-                    'channel'           => '${channel}',
-                    'deviceclass'       => $deviceclass,
-                    'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
-                    'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
-                    'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
-                    'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
-
     $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
             'name' => 'Merge images list for ${channel}',
-            'keys' => [ 'pc', 'vbox', 'container' ] ));
+            'keys' => [ 'pc', 'vbox' ] ));
 
     return $self;
 }

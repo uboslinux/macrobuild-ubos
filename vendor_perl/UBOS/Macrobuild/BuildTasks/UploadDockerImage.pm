@@ -10,7 +10,7 @@ use warnings;
 
 package UBOS::Macrobuild::BuildTasks::UploadDockerImage;
 
-use base qw( Macrobuild::CompositeTasks::Sequential );
+use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields qw( arch channel repodir );
 
 use Macrobuild::Task;
@@ -28,11 +28,10 @@ sub new {
 
     $self->SUPER::new( @args );
 
-    $self->appendTask( UBOS::Macrobuild::BasicTasks::UploadDockerImage->new(
+    $self->setDelegate( UBOS::Macrobuild::BasicTasks::UploadDockerImage->new(
             'dockerName' => 'ubos/ubos-${channel}' ));
 
     return $self;
 }
 
 1;
-

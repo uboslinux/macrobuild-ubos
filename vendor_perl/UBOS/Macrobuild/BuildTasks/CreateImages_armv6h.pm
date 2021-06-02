@@ -48,24 +48,9 @@ sub new {
                         'linkLatest'       => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.img' ));
     }
 
-    my $deviceclass = 'container';
-    $self->addParallelTask(
-            $deviceclass,
-            UBOS::Macrobuild::BasicTasks::CreateContainer->new(
-                    'name'              => 'Create ${arch} bootable container for ${channel}',
-                    'arch'              => '${arch}',
-                    'installDepotRoot'  => '${installDepotRoot}',
-                    'runDepotRoot'      => '${runDepotRoot}',
-                    'channel'           => '${channel}',
-                    'deviceclass'       => $deviceclass,
-                    'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
-                    'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
-                    'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
-                    'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
-
     $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(
             'name' => 'Merge images list for ${channel}',
-            'keys' => [ @deviceclasses, 'container' ]));
+            'keys' => \@deviceclasses ));
 
     return $self;
 }
