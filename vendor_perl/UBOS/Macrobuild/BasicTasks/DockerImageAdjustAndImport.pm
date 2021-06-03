@@ -37,7 +37,7 @@ sub runImpl {
     foreach my $image ( @$images ) { # should really only be one
         my $realImage;
         my $dockerTag;
-        if( -s $image ) {
+        if( -l $image ) {
             $realImage = abs_path( dirname( $image ) . '/' . readlink( $image ));
         } else {
             $realImage = $image;

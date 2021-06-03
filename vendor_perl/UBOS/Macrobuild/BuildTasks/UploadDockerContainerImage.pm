@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::UploadDockerImage;
+package UBOS::Macrobuild::BuildTasks::UploadDockerContainerImage;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
 use fields qw( arch channel repodir );
