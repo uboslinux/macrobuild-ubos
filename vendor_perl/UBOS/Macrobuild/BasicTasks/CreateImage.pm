@@ -40,7 +40,7 @@ sub runImpl {
     my $deviceConfig           = $self->getProperty( 'deviceConfig' );
 
     my $errors    = 0;
-    my $image     = File::Spec->rel2abs( $self->getProperty( 'image'   ));
+    my $image     = File::Spec->rel2abs( $self->getProperty( 'image' ));
     my $imagesize = $self->getProperty( 'imagesize' );
 
     UBOS::Macrobuild::Utils::ensureParentDirectoriesOf( $image );

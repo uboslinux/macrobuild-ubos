@@ -1,7 +1,6 @@
 #!/usr/bin/perl
 #
-# Import an image into Docker after making some adjustments to cut down
-# on the need for lenghty Docker command-lines.
+# Import a container directory into Docker.
 #
 # Copyright (C) 2015 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
@@ -9,7 +8,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BasicTasks::DockerImageAdjustAndImport;
+package UBOS::Macrobuild::BasicTasks::DockerContainerImport;
 
 use base qw( Macrobuild::Task );
 use fields qw( image dockerName );
@@ -28,21 +27,21 @@ sub runImpl {
     my $run  = shift;
 
     my $in               = $run->getInput();
-    my $images           = $in->{'image'};
+    my $tarFiles         = $in->{'tarfile'};
     my $dockerName       = $self->getProperty( 'dockerName' );
     my $errors           = 0;
     my @createdImageIds  = ();
     my @createdDockerIds = ();
 
-    foreach my $image ( @$images ) { # should really only be one
-        my $realImage;
+    foreach my $tarFile ( @$tarFiles ) { # should really only be one
+        my $realTarFile;
         my $dockerTag;
-        if( -l $image ) {
-            $realImage = abs_path( dirname( $image ) . '/' . readlink( $image ));
+        if( -l $tarFile ) {
+            $realTarFile = abs_path( dirname( $tarFile ) . '/' . readlink( $tarFile ));
         } else {
-            $realImage = $image;
+            $realTarFIle = $tarFile;
         }
-        $dockerTag = basename( $realImage );
+        $dockerTag = basename( $realTarFile );
         $dockerTag =~ s!\..*!!;
 
         my $imageId;
@@ -59,7 +58,7 @@ sub runImpl {
 
             my $flags = " --change 'CMD /usr/lib/systemd/systemd'";
 
-            if( UBOS::Utils::myexec( "sudo docker import$flags '$realImage' '$dockerName:$dockerTag'", undef, \$out )) {
+            if( UBOS::Utils::myexec( "sudo docker import$flags '$realTarFile' '$dockerName:$dockerTag'", undef, \$out )) {
                 error( 'Docker import failed' );
                 ++$errors;
             } else {
