@@ -30,12 +30,13 @@ sub new {
 
     my $deviceclass = 'docker';
     $self->appendTask( UBOS::Macrobuild::BasicTasks::CreateContainer->new(
-            'name'             => 'Create ${arch} ' . $deviceclass . ' bootable directory for ${channel}',
-            'arch'             => '${arch}',
-            'installDepotRoot' => '${installDepotRoot}',
-            'runDepotRoot'     => '${runDepotRoot}',
-            'channel'          => '${channel}',
-            'deviceclass'      => $deviceclass,
+            'name'              => 'Create ${arch} ' . $deviceclass . ' bootable directory for ${channel}',
+            'arch'              => '${arch}',
+            'installDepotRoot'  => '${installDepotRoot}',
+            'runDepotRoot'      => '${runDepotRoot}',
+            'channel'           => '${channel}',
+            'deviceclass'       => $deviceclass,
+            'deviceConfig'      => '${deviceConfig}',
             'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
             'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
             'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',

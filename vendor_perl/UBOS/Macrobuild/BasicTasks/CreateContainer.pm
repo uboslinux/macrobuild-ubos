@@ -34,6 +34,7 @@ sub runImpl {
     my $deviceclass            = $self->getProperty( 'deviceclass' );
     my $installCheckSignatures = $self->getPropertyOrDefault( 'installCheckSignatures', 'always' );
     my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures', 'always' );
+    my $deviceConfig           = $self->getProperty( 'deviceConfig' );
 
     my $errors  = 0;
     my $dir     = File::Spec->rel2abs( $self->getProperty( 'dir'     ));
@@ -60,17 +61,31 @@ sub runImpl {
     UBOS::Macrobuild::Utils::ensureDirectories( $dir );
 
     my $installCmd = 'sudo ubos-install';
-    $installCmd .= " --channel $channel";
-    $installCmd .= " --arch '$arch'";
-    $installCmd .= " --deviceclass $deviceclass";
-    $installCmd .= " --install-check-signatures $installCheckSignatures";
-    $installCmd .= " --run-check-signatures $runCheckSignatures";
+    if( $channel ) {
+        $installCmd .= " --channel $channel";
+    }
+    if( $arch ) {
+        $installCmd .= " --arch '$arch'";
+    }
+    if( $deviceclass ) {
+        $installCmd .= " --deviceclass $deviceclass";
+    }
+    if( $installCheckSignatures ) {
+        $installCmd .= " --install-check-signatures $installCheckSignatures";
+    }
+    if( $runCheckSignatures ) {
+        $installCmd .= " --run-check-signatures $runCheckSignatures";
+    }
     if( $installDepotRoot ) {
         $installCmd .= " --install-depot-root '$installDepotRoot'";
     }
     if( $runDepotRoot ) {
         $installCmd .= " --run-depot-root '$runDepotRoot'";
     }
+    if( $deviceConfig ) {
+        $installCmd .= " --device-config '$deviceConfig'";
+    }
+
     # NOTE: CHANNEL dependency
     if( 'dev' eq $channel ) {
         # not in dev
