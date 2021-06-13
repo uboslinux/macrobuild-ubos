@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::CreateContainerImage;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( arch channel installDepotRoot runDepotRoot repodir );
+use fields qw( arch channel installDepotRoot runDepotRoot repodir imageName deviceConfig );
 
 use UBOS::Macrobuild::BasicTasks::CreateContainer;
 
@@ -36,10 +36,11 @@ sub new {
                     'runDepotRoot'      => '${runDepotRoot}',
                     'channel'           => '${channel}',
                     'deviceclass'       => $deviceclass,
-                    'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
-                    'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
-                    'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
-                    'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
+                    'deviceConfig'      => '${deviceConfig}',
+                    'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
+                    'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
+                    'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
+                    'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
 
     return $self;
 }

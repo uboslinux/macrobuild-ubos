@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::CreateImportDockerContainer;
 
 use base qw( Macrobuild::CompositeTasks::Sequential );
-use fields qw( arch channel installDepotRoot runDepotRoot repodir deviceConfig );
+use fields qw( arch channel installDepotRoot runDepotRoot repodir imageName deviceConfig );
 
 use UBOS::Macrobuild::BasicTasks::CreateContainer;
 use UBOS::Macrobuild::BasicTasks::DockerContainerImport;
@@ -30,20 +30,20 @@ sub new {
 
     my $deviceclass = 'docker';
     $self->appendTask( UBOS::Macrobuild::BasicTasks::CreateContainer->new(
-            'name'              => 'Create ${arch} ' . $deviceclass . ' bootable directory for ${channel}',
+            'name'              => 'Create ${arch} ' . $deviceclass . ' bootable directory named ${imageName} for ${channel}',
             'arch'              => '${arch}',
             'installDepotRoot'  => '${installDepotRoot}',
             'runDepotRoot'      => '${runDepotRoot}',
             'channel'           => '${channel}',
             'deviceclass'       => $deviceclass,
             'deviceConfig'      => '${deviceConfig}',
-            'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
-            'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
-            'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
-            'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/ubos_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
+            'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
+            'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
+            'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
+            'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::DockerContainerImport->new(
-            'dockerName' => 'ubos/ubos-${channel}' ));
+            'dockerName' => 'ubos/${imageName}-${channel}' ));
 
     return $self;
 }
