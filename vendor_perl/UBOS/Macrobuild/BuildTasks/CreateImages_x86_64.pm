@@ -18,7 +18,6 @@ use Macrobuild::CompositeTasks::Sequential;
 use Macrobuild::Task;
 use UBOS::Macrobuild::BasicTasks::CreateContainer;
 use UBOS::Macrobuild::BasicTasks::CreateImage;
-use UBOS::Macrobuild::BasicTasks::DockerImageAdjustAndImport;
 use UBOS::Macrobuild::BasicTasks::ImagesToVmdk;
 
 ##

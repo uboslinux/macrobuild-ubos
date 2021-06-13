@@ -13,7 +13,13 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::CreateContainer;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch channel installDepotRoot runDepotRoot deviceclass installCheckSignatures runCheckSignatures dir tarfile linkLatest-dir linkLatest-tarfile );
+use fields qw(
+        arch channel
+        installDepotRoot runDepotRoot
+        deviceclass
+        installCheckSignatures runCheckSignatures
+        deviceConfig
+        dir tarfile linkLatest-dir linkLatest-tarfile );
 
 use File::Basename;
 use Macrobuild::Task;
@@ -121,10 +127,10 @@ sub runImpl {
 
     if( $errors ) {
         $run->setOutput( {
-                'dirs'                => [],
-                'tarfiles'            => [],
-                'linkLatest-dirs'     => [],
-                'linkLatest-tarfiles' => [] });
+                'dir'                => [],
+                'tarfile'            => [],
+                'linkLatest-dir'     => [],
+                'linkLatest-tarfile' => [] });
 
         return FAIL;
 
@@ -165,21 +171,20 @@ sub runImpl {
             $result->{dirs} = [];
         }
         if( defined( $tarfile )) {
-            $result->{tarfiles} = [ $tarfile ];
+            $result->{tarfile} = [ $tarfile ];
         } else {
-            $result->{tarfiles} = [];
+            $result->{tarfile} = [];
         }
         if( defined( $linkLatestDir )) {
-            $result->{'linkLatest-dirs'} = [ $linkLatestDir ];
+            $result->{'linkLatest-dir'} = [ $linkLatestDir ];
         } else {
-            $result->{'linkLatest-dirs'} = [];
+            $result->{'linkLatest-dir'} = [];
         }
         if( defined( $linkLatestDir )) {
-            $result->{'linkLatest-tarfiles'} = [ $linkLatestTarfile ];
+            $result->{'linkLatest-tarfile'} = [ $linkLatestTarfile ];
         } else {
-            $result->{'linkLatest-tarfiles'} = [];
+            $result->{'linkLatest-tarfile'} = [];
         }
-
 
         $run->setOutput( $result );
 
@@ -187,10 +192,10 @@ sub runImpl {
 
     } else {
         $run->setOutput( {
-                'dirs'                => [],
-                'tarfiles'            => [],
-                'linkLatest-dirs'     => [],
-                'linkLatest-tarfiles' => []
+                'dir'                => [],
+                'tarfile'            => [],
+                'linkLatest-dir'     => [],
+                'linkLatest-tarfile' => []
         });
 
         return DONE_NOTHING;

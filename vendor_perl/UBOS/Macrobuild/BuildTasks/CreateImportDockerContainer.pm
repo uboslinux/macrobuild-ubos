@@ -11,7 +11,7 @@ use warnings;
 package UBOS::Macrobuild::BuildTasks::CreateImportDockerContainer;
 
 use base qw( Macrobuild::CompositeTasks::Sequential );
-use fields qw( arch channel installDepotRoot runDepotRoot repodir );
+use fields qw( arch channel installDepotRoot runDepotRoot repodir deviceConfig );
 
 use UBOS::Macrobuild::BasicTasks::CreateContainer;
 use UBOS::Macrobuild::BasicTasks::DockerContainerImport;
