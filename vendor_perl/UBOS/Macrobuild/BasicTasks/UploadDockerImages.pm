@@ -28,36 +28,15 @@ sub runImpl {
 
     my $dockerName = $self->getPropertyOrDefault( 'dockerName', undef );
     if( $dockerName ) {
-        # Determine image ids
-
-        my $out;
-        if( UBOS::Utils::myexec( "sudo docker images '$dockerName' -q", undef, \$out )) {
-            error( 'Failed to list Docker images with dockerName', $dockerName );
+        if( UBOS::Utils::myexec( "sudo docker push --all-tags '$dockerName'" )) {
+            error( 'Docker push failed of', $dockerName );
             ++$errors;
-
-        } else {
-            # Push
-            my @dockerIds = grep { $_ } split( /\s+/, $out );
-            info( "Found DockerIds " . join( " // ", @dockerIds ));
-
-            foreach my $dockerId ( @dockerIds ) {
-                if( UBOS::Utils::myexec( "sudo docker push '$dockerId'" )) {
-                    error( 'Docker push failed of', $dockerId );
-                    ++$errors;
-                } else {
-                    push @pushedDockerIds, $dockerId;
-                }
-            }
         }
 
     } else {
         error( 'No dockerName provided' );
         ++$errors;
     }
-
-    $run->setOutput( {
-            'pushedDockerIds' => \@pushedDockerIds
-    } );
 
     if( $errors ) {
         return FAIL;
