@@ -30,7 +30,7 @@ sub new {
     my $deviceclass = 'container';
     $self->setDelegate(
             UBOS::Macrobuild::BasicTasks::CreateContainer->new(
-                    'name'              => 'Create ${arch} bootable container for ${channel}',
+                    'name'              => 'Create ${arch} bootable container ${imageName} for ${channel}',
                     'arch'              => '${arch}',
                     'installDepotRoot'  => '${installDepotRoot}',
                     'runDepotRoot'      => '${runDepotRoot}',
