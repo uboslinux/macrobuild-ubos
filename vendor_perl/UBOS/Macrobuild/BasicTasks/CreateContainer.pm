@@ -109,7 +109,7 @@ sub runImpl {
 
     my $out;
     if( UBOS::Utils::myexec( $installCmd, undef, \$out, \$out, UBOS::Logging::isInfoActive() )) { # also catch isTraceActive
-        error( 'ubos-install failed:', $out );
+        error( 'ubos-install failed, command-line was:', $installCmd . "\n", $out );
         ++$errors;
 
     } else {
