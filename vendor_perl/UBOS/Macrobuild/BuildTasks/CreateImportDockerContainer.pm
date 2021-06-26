@@ -37,10 +37,10 @@ sub new {
             'channel'           => '${channel}',
             'deviceclass'       => $deviceclass,
             'deviceConfig'      => '${deviceConfig}',
-            'dir'               => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
-            'linkLatest-dir'    => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
-            'tarfile'           => '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
-            'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/uncompressed-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
+            'dir'               => '${repodir}/${channel}/${arch}/docker-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tardir',
+            'linkLatest-dir'    => '${repodir}/${channel}/${arch}/docker-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_LATEST.tardir',
+            'tarfile'           => '${repodir}/${channel}/${arch}/docker-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_${tstamp}.tar',
+            'linkLatest-tarfile'=> '${repodir}/${channel}/${arch}/docker-images/${imageName}_${channel}_${arch}-' . $deviceclass . '_LATEST.tar' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::DockerContainerImport->new(
             'dockerName' => 'ubos/${imageName}-${channel}' ));

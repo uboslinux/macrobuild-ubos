@@ -29,7 +29,7 @@ sub new {
 
     $self->SUPER::new( @args );
 
-    my @places = qw( images uncompressed-images );
+    my @places = qw( images uncompressed-images docker-images );
 
     foreach my $place ( @places ) {
         $self->addParallelTask(
