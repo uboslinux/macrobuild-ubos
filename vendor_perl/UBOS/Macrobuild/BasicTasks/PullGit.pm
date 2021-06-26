@@ -25,11 +25,11 @@ sub runImpl {
     my $dir    = $self->getProperty( 'dir' );
     my $branch = $self->getProperty( 'branch' );
 
-    my $gitCmd = "git checkout -- . ; git checkout '$branch' ; git pull";
+    my $gitCmd = "git checkout -- . && git checkout '$branch' && git pull";
 
     my $out;
     my $err;
-    UBOS::Utils::myexec( "( cd '$dir'; $gitCmd )", undef, \$out, \$err );
+    UBOS::Utils::myexec( "( cd '$dir' && $gitCmd )", undef, \$out, \$err );
     if( $err =~ m!^error!m ) {
         error( 'Error when attempting to pull git repository:', $dir, "\n$err" );
         return FAIL;
