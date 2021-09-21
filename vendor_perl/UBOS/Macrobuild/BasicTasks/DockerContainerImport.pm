@@ -27,7 +27,7 @@ sub runImpl {
     my $run  = shift;
 
     my $in               = $run->getInput();
-    my $tarFiles         = $in->{'tarfile'};
+    my $tarFiles         = $in->{'tarfiles'};
     my $dockerName       = $self->getProperty( 'dockerName' );
     my $errors           = 0;
     my @createdImageIds  = ();
@@ -39,7 +39,7 @@ sub runImpl {
         if( -l $tarFile ) {
             $realTarFile = abs_path( dirname( $tarFile ) . '/' . readlink( $tarFile ));
         } else {
-            $realTarFIle = $tarFile;
+            $realTarFile = $tarFile;
         }
         $dockerTag = basename( $realTarFile );
         $dockerTag =~ s!\..*!!;
@@ -70,7 +70,7 @@ sub runImpl {
             }
         }
         unless( $errors ) {
-            if( $image =~ m!LATEST[^/]*$! ) {
+            if( $tarFile =~ m!LATEST[^/]*$! ) {
                 # delete first in case it exists already
                 my $out;
                 my $err;
