@@ -206,6 +206,7 @@ sub _buildPackage {
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=en_US.utf8';
     $cmd    .=   ' TERM=xterm'; # Avahi currently needs this per https://github.com/mono/mono/issues/6768
+    $cmd    .=   ' "GRADLE_TARGET=clean jar"' # per https://github.com/uboslinux/macrobuild-ubos/issues/36
 
     if( $jdk ) {
         $cmd .= " JDK='$jdk'";
