@@ -206,7 +206,7 @@ sub _buildPackage {
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=en_US.utf8';
     $cmd    .=   ' TERM=xterm'; # Avahi currently needs this per https://github.com/mono/mono/issues/6768
-    $cmd    .=   ' "GRADLE_TARGET=clean jar"' # per https://github.com/uboslinux/macrobuild-ubos/issues/36
+    $cmd    .=   ' "GRADLE_TARGET=clean jar"'; # per https://github.com/uboslinux/macrobuild-ubos/issues/36
 
     if( $jdk ) {
         $cmd .= " JDK='$jdk'";
@@ -218,6 +218,7 @@ sub _buildPackage {
         $cmd .= " DIET4J_REPO='$m2repository':/ubos/lib/java:/usr/lib/java";
     }
     if( $gradleM2Home ) {
+        $cmd .= " maven.repo.local='$gradleM2Home'"; # overrides gradle's location for mavenLocal()
         $cmd .= " GRADLE_M2_HOME='$gradleM2Home'";
     }
     if( $gpgHome ) {
