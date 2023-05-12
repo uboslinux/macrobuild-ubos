@@ -65,6 +65,8 @@ sub new {
         $self->{url} = $configJson->{url};
     }
 
+    trace( ref( $self ) . ':', $name, 'sources dir:', $localSourcesDir, 'packages:', join( ' ', sort keys %$packages ), 'remove:', join( ' ', sort keys %$removePackages ));
+
     return $self;
 }
 

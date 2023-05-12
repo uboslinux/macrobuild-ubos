@@ -40,6 +40,7 @@ sub new {
     } else {
         $self->{overlapBucket} = 'ubos';
     }
+    trace( 'UpConfig:', $name, 'mod:', $lastModified, 'in directory:', $directory, 'packages:', sort keys %$packages, 'remove:', sort keys %$removePackages );
 
     return $self;
 }

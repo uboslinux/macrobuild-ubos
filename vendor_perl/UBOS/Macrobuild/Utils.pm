@@ -112,7 +112,6 @@ sub removeItemsNotForThisArch {
             if( defined( $itemData ) && exists( $itemData->{archs} )) {
                 unless( UBOS::Macrobuild::Utils::useForThisArch( $arch, $itemData->{archs} )) {
                     delete $items->{$itemName};
-                    trace( 'Skipping item', $itemName, 'for arch', $arch );
                 }
             }
         }
