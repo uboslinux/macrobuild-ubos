@@ -25,7 +25,7 @@ sub runImpl {
 
     my $ret = 0;
 
-    if( UBOS::Utils::myexec( 'sudo ubos-admin update --noreboot' )) {
+    if( UBOS::Utils::myexec( 'sudo ubos-admin update --noreboot --nokeyrefresh' )) {
         return FAIL();
     }
 
