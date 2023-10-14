@@ -40,6 +40,7 @@ sub runImpl {
     my $deviceclass            = $self->getProperty( 'deviceclass' );
     my $installCheckSignatures = $self->getPropertyOrDefault( 'installCheckSignatures', 'always' );
     my $runCheckSignatures     = $self->getPropertyOrDefault( 'runCheckSignatures', 'always' );
+    my $genSha256              = $self->getPropertyOrDefault( 'genSha256', 1 );
     my $deviceConfig           = $self->getProperty( 'deviceConfig' );
 
     my $errors  = 0;
@@ -116,7 +117,15 @@ sub runImpl {
         if( UBOS::Utils::myexec( "sudo tar -c -f '$tarfile' -C '$dir' .", undef, \$out, \$out )) {
             error( 'tar failed:', $out );
             ++$errors;
+        } elsif( $genSha256 ) {
+            if( $UBOS::Utils::myexec( "sha256 '$tarfile' > '$tarfile.sha256'" )) {
+                error( 'sha256 failed' );
+                ++$errors;
 
+            } elsif( UBOS::Utils::myexec( "sudo chown \$(id -u -n):\$(id -g -n) '$tarfile{,.sha256}'" )) {
+                error( 'chown failed' );
+                ++$errors;
+            }
         } else {
             if( UBOS::Utils::myexec( "sudo chown \$(id -u -n):\$(id -g -n) '$tarfile'" )) {
                 error( 'chown failed' );
