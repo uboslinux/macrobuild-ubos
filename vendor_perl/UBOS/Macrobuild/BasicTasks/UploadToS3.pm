@@ -27,6 +27,8 @@ sub runImpl {
     my $from          = $self->getProperty( 'from' );
     my $to            = $self->getProperty( 'to' );
     my $genindextitle = $self->getProperty( 'genindextitle' );
+    my $awsProfile    = $self->getProperty( 'awsprofile' );
+    my $awsEndpoint   = $self->getProperty( 'awsendpoint' );
 
     my $ret           = DONE_NOTHING;
     my $uploadedFiles = undef;
@@ -42,7 +44,14 @@ sub runImpl {
                 UBOS::Utils::saveFile( "$from/index.html", _generateIndex( $from, $genindextitle ));
             }
 
-            my $cmd = 'aws s3 sync --delete --acl public-read';
+            my $cmd = 'aws';
+            if( $awsProfile ) {
+                $cmd .= ' --profile=' . $awsProfile;
+            }
+            if( $awsEndpoint ) {
+                $cmd .= ' --endpoit' . $awsEndpoint;
+            }
+            $cmd .= ' s3 sync --delete --acl public-read';
 
             my $inexclude = $self->getPropertyOrDefault( 'inexclude', undef );
             if( $inexclude ) {
