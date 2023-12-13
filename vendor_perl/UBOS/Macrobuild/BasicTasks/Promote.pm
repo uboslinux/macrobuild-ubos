@@ -11,12 +11,13 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::Promote;
 
 use base qw( Macrobuild::Task );
-use fields qw( sourcedir stagedir dbfile dbSignKey );
+use fields qw( sourcedir stagedir dbfile dbSignKey releaseTimeStamp );
 
 use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::PacmanDbFile;
 use UBOS::Macrobuild::Utils;
+use UBOS::Utils;
 
 ##
 # @Overridden
@@ -27,12 +28,17 @@ sub runImpl {
     my $in = $run->getInput();
 
     if( exists( $in->{'new-packages'} )) {
-        my $stageDir  = $self->getProperty( 'stagedir' );
-        my $dbSignKey = $self->getPropertyOrDefault( 'dbSignKey', undef );
-        my $dbFile    = UBOS::Macrobuild::PacmanDbFile->new( $self->getProperty( 'dbfile' ));
+        my $stageDir         = $self->getProperty( 'stagedir' );
+        my $dbSignKey        = $self->getPropertyOrDefault( 'dbSignKey', undef );
+        my $dbFile           = UBOS::Macrobuild::PacmanDbFile->new( $self->getProperty( 'dbfile' ));
+        my $releaseTimeStamp = $self->getProperty( 'releaseTimeStamp' );
+
+        if( $releaseTimeStamp ) {
+            $releaseTimeStamp = UBOS::Utils::lenientRfc3339string2time( $releaseTimeStamp );
+        }
 
         UBOS::Macrobuild::Utils::ensureDirectories( $stageDir );
-        
+
         my $promoted = {};
         my @addedPackageFiles = ();
         foreach my $usConfigName ( keys %{$in->{'new-packages'}} ) {
@@ -56,6 +62,9 @@ sub runImpl {
 
         if( @addedPackageFiles ) {
             if( $dbFile->addPackages( $dbSignKey, \@addedPackageFiles ) == -1 ) {
+                return FAIL;
+            }
+            if( $dbFile->createTimestampedCopy( $releaseTimeStamp ) == -1 ) {
                 return FAIL;
             }
         }

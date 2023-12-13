@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# Purge the packages in a channel
+# Purge the packages in a channel according to what's still referenced in the history ratchet.
 #
 # Copyright (C) 2014 and later, Indie Computing Corp. All rights reserved. License: see package.
 #
@@ -26,7 +26,6 @@ sub runImpl {
     my $self = shift;
     my $run  = shift;
 
-    my $age = $self->getProperty( 'maxAge' );
     my $dir = $self->getProperty( 'dir' );
 
     my @keepList  = ();
@@ -57,7 +56,7 @@ sub runImpl {
                         foreach my $mainOrCompressed( '', '.xz', '.gz', '.lz4', '.zst' ) {
                             foreach my $mainOrOld( '', '.old' ) {
                                 foreach my $mainOrSig( '', '.sig' ) {
-                                    if( $file eq "$dbName$mainOrFiles$mainOrTar$mainOrCompressed$mainOrOld$mainOrSig" ) {
+                                    if( $file ~= m!^\Q$dbName\E(-\d{8}T\d{6}Z)?(\Q$mainOrFiles$mainOrTar$mainOrCompressed$mainOrOld$mainOrSig\E$! ) {
                                         next outer;
                                     }
                                 }
@@ -68,31 +67,56 @@ sub runImpl {
 
                 if( $file =~ m!\.pkg\.tar\.[a-z0-9]+\.sig$! ) {
                     $packageSigFiles{$file} = $file;
-                } elsif( $file !~ m!LAST_UPLOADED$! ) {
+                } elsif( $file !~ m!LAST_UPLOADED$! && $file !~ m!history\.json$! ) {
                     my $parsed = UBOS::Macrobuild::PackageUtils::parsePackageFileName( $file );
                     if( $parsed ) {
                         $packageFiles{$parsed->{name}}->{$file} = $parsed;
                     } else {
                         $uncategorized{$file} = $file;
                     }
-                } # LAST_UPLOADED is being ignored
+                } # LAST_UPLOADED and history.json are being ignored
             }
             if( %uncategorized ) {
                 warning( 'Found uncategorizable file(s) in dir', $dir, ':', keys %uncategorized );
             }
 
             # Find what files we should be having
-            my $db       = new UBOS::Macrobuild::PacmanDbFile( "$dir/$dbName$dbExt" );
-            my $packages = $db->containedPackages;
+            my $@dbFiles = ();
+            my $historyFile = "$dir/history.json";
+            my $historyJson;
+            if( -e $historyFile && ( $historyJson = UBOS::Utils::readJsonFromFile( $historyFile )) {
+                foreach my $historyElement ( @{$historyJson->{history}} ) {
+                    my $ts = UBOS::Utils::lenientRfc3339string2time( $historyElement->{tstamp} );
+
+                    push @dbFiles, UBOS::Host::dbNameWithTimestamp( "$dir/$dbName", $ts ) . $dbExt;
+                }
+
+            } else {
+                # no history yet
+                push @dbFiles, "$dir/$dbName$dbExt";
+            }
 
             my $cutoff = time()- $age;
 
-            foreach my $packageName ( keys %$packages ) {
-                my $packageFile = $packages->{$packageName};
-                unless( exists( $packageFiles{$packageName} )) {
-                    error( 'Cannot find any sign of package', $packageName, 'in dir', $dir, ', db wants file', $packageFile );
-                    next;
+            my %packagesUsed = ();
+            foreach my $dbFile ( @dbFiles ) {
+                my $db       = new UBOS::Macrobuild::PacmanDbFile( $dbFile );
+                my $packages = $db->containedPackages;
+
+                foreach my $packageName ( keys %$packages ) {
+                    my $packageFile = $packages->{$packageName};
+                    unless( exists( $packageFiles{$packageName} )) {
+                        error( 'Cannot find any sign of package', $packageName, 'in dir', $dir, ', db wants file', $packageFile );
+                        next;
+                    }
+                    $packagesUsed{$packageFile} = 1;
                 }
+            }
+
+            foreach my $packageFile
+
+
+
                 my $filesForPackage       = $packageFiles{$packageName};
                 my @parsedFilesForPackage = values %$filesForPackage;
                 my @orderedFilesForPackage = sort

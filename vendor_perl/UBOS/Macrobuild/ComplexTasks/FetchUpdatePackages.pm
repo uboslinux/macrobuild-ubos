@@ -58,7 +58,8 @@ sub new {
             'sourcedir'   => '${builddir}/dbs/' . $db . '/upc',
             'stagedir'    => '${repodir}/${channel}/${arch}/' . $db,
             'dbfile'      => '${repodir}/${channel}/${arch}/' . $db . '/' . $db . '.db.tar.xz',
-            'dbSignKey'   => '${dbSignKey}' ));
+            'dbSignKey'   => '${dbSignKey}',
+            'releaseTimeStamp' => '${releaseTimeStamp}' ));
 
     return $self;
 }

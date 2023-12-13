@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::PurgePackages;
+package UBOS::Macrobuild::BuildTasks::PurgeHistoryRatchet
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
 use fields qw( arch channel db maxAge repodir );
@@ -16,7 +16,7 @@ use fields qw( arch channel db maxAge repodir );
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::Task;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::PurgeChannelPackages;
+use UBOS::Macrobuild::BasicTasks::PurgeHistoryRatchet;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
 use UBOS::Macrobuild::Utils;
@@ -46,9 +46,10 @@ sub new {
 
         $self->addParallelTask(
                 $taskName,
-                UBOS::Macrobuild::BasicTasks::PurgeChannelPackages->new(
+                UBOS::Macrobuild::BasicTasks::PurgeHistoryRatchet->new(
                         'name'   => 'Purge channel packages on db ' . $db . ' on ${channel}',
-                        'dir'    => '${repodir}/${channel}/${arch}/' . $shortDb );
+                        'dir'    => '${repodir}/${channel}/${arch}/' . $shortDb,
+                        'maxAge' => '${maxAge}' ));
     }
 
     $self->setJoinTask( Macrobuild::BasicTasks::MergeValues->new(

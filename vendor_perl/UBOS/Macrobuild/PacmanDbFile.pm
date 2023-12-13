@@ -11,7 +11,6 @@ use warnings;
 package UBOS::Macrobuild::PacmanDbFile;
 
 use Archive::Tar;
-use File::Temp;
 use UBOS::Logging;
 use UBOS::Utils;
 
@@ -172,6 +171,57 @@ sub removePackages {
         return -1;
     }
     return 0;
+}
+
+##
+# Create a copy of the file, with timestamp
+# $ts: the timestamp
+sub createTimestampedCopy(
+    my $self = shift;
+    my $ts   = shift;
+
+    if( $self->{filename} =~ m!^(.*)/([^/]+)\.db$! ) {
+        my $path     = $1;
+        my $repoName = $2;
+
+        my $fromDbFile = $self->{filename};
+        my $toDbFile   = UBOS::Host::dbNameWithTimestamp( $repoName, $ts );
+
+        foreach my $ext ( '.db', '.db.sig', '.db.tar.xz', '.db.tar.xz.sig', '.files', '.files.sig', '.files.tar.xz', '.files.tar.xz.sig' ) {
+            if( -e "$fromDbFile$ext" ) {
+                UBOS::Utils::copyRecursively( "$fromDbFile$ext", "$toDbFile$ext" );
+            } else {
+                error( 'Cannot find file:', "$fromDbFile$ext" );
+            }
+        }
+    } else {
+        error( 'Regex did not match:', $self->{filename} );
+    }
+}
+
+##
+# Create or update the history.json file that corresponds to this pacman db file.
+# $ts: the timestamp
+sub createUpdateHistoryFile {
+    my $self = shift;
+    my $ts   = shift;
+
+    if( $self->{filename} =~ m!^(.*)/([^/]+)$! ) {
+        my $historyFile = "$1/history.json";
+
+        my $historyJson;
+        if( -e $historyFile ) {
+            $historyJson = UBOS::Utils::readJsonFromFile( $historyFile );
+        }
+        unless( $historyJson ) {
+            $historyJson = { 'history' => [] };
+        }
+        push @{$historyJson->{history}}, { 'tstamp' => UBOS::Utils::time2rfc3339String( $ts ) };
+        UBOS::Utils::writeJsonToFile( $historyJson, $historyFile );
+
+    } else {
+        error( 'Regex did not match:', $self->{filename} );
+    }
 }
 
 1;

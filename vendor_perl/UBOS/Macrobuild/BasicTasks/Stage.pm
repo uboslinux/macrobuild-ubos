@@ -11,12 +11,13 @@ use warnings;
 package UBOS::Macrobuild::BasicTasks::Stage;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch upconfigs usconfigs sourcedir stagedir dbfile dbSignKey );
+use fields qw( arch upconfigs usconfigs sourcedir stagedir dbfile dbSignKey releaseTimeStamp );
 
 use Macrobuild::Task;
 use UBOS::Logging;
 use UBOS::Macrobuild::PacmanDbFile;
 use UBOS::Macrobuild::Utils;
+use UBOS::Utils;
 
 ##
 # @Overridden
@@ -57,10 +58,18 @@ sub runImpl {
     }
 
     if( @addedPackageFiles ) {
-        my $dbFile    = UBOS::Macrobuild::PacmanDbFile->new( $self->getProperty( 'dbfile' ));
-        my $dbSignKey = $self->getPropertyOrDefault( 'dbSignKey', undef );
+        my $dbFile           = UBOS::Macrobuild::PacmanDbFile->new( $self->getProperty( 'dbfile' ));
+        my $dbSignKey        = $self->getPropertyOrDefault( 'dbSignKey', undef );
+        my $releaseTimeStamp = $self->getProperty( 'releaseTimeStamp' );
+
+        if( $releaseTimeStamp ) {
+            $releaseTimeStamp = UBOS::Utils::lenientRfc3339string2time( $releaseTimeStamp );
+        }
 
         if( $dbFile->addPackages( $dbSignKey, \@addedPackageFiles ) == -1 ) {
+            return FAIL;
+        }
+        if( $dbFile->createTimestampedCopy( $releaseTimeStamp ) == -1 ) {
             return FAIL;
         }
 
