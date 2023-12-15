@@ -127,6 +127,8 @@ sub addPackages {
         my $out;
         $result = UBOS::Utils::myexec( $cmd, undef, \$out );
     }
+    $self->{containedPackages} = undef;
+
     if( $result ) {
         error( 'Something went wrong when executing:', $cmd, " -- env was:\n" . join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
         return -1;
@@ -166,6 +168,8 @@ sub removePackages {
     if( $result && $out ) {
         error( $out );
     }
+    $self->{containedPackages} = undef;
+
     if( $result ) {
         error( 'Something went wrong when executing:', $cmd, " -- env was:\n" . join( "\n", map { "$_ => " . $ENV{$_} } keys %ENV ));
         return -1;
