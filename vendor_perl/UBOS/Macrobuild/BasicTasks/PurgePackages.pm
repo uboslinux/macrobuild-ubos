@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BasicTasks::PurgeChannelPackages;
+package UBOS::Macrobuild::BasicTasks::PurgePackages;
 
 use base qw( Macrobuild::Task );
 use fields qw( dir maxAge );

@@ -16,7 +16,7 @@ use fields qw( arch channel db maxAge repodir );
 use Macrobuild::BasicTasks::MergeValues;
 use Macrobuild::Task;
 use UBOS::Logging;
-use UBOS::Macrobuild::BasicTasks::PurgeChannelPackages;
+use UBOS::Macrobuild::BasicTasks::PurgePackages;
 use UBOS::Macrobuild::UpConfigs;
 use UBOS::Macrobuild::UsConfigs;
 use UBOS::Macrobuild::Utils;
@@ -46,8 +46,8 @@ sub new {
 
         $self->addParallelTask(
                 $taskName,
-                UBOS::Macrobuild::BasicTasks::PurgeChannelPackages->new(
-                        'name'   => 'Purge channel packages on db ' . $db . ' on ${channel}',
+                UBOS::Macrobuild::BasicTasks::PurgePackages->new(
+                        'name'   => 'Purge packages on db ' . $db . ' on ${channel}',
                         'dir'    => '${repodir}/${channel}/${arch}/' . $shortDb );
     }
 
