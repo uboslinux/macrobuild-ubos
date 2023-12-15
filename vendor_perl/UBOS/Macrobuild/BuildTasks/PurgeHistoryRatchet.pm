@@ -8,7 +8,7 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::PurgeHistoryRatchet
+package UBOS::Macrobuild::BuildTasks::PurgeHistoryRatchet;
 
 use base qw( Macrobuild::CompositeTasks::SplitJoin );
 use fields qw( arch channel db maxAge repodir );

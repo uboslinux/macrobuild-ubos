@@ -41,7 +41,7 @@ sub runImpl {
     my $historyFile = "$dir/history.json";
     my $historyJson;
 
-    if( -e $historyFile && ( $historyJson = UBOS::Utils::readJsonFromFile( $historyFile )) {
+    if( -e $historyFile && ( $historyJson = UBOS::Utils::readJsonFromFile( $historyFile ))) {
         # May not exist on some platforms
 
         my $historyArray    = $historyJson->{history};
@@ -50,7 +50,7 @@ sub runImpl {
         foreach my $historyElement ( @$historyArray ) {
             my $tstamp       = UBOS::Utils::lenientRfc3339string2time( $historyElement->{tstamp} );
             my $repoFileRoot = UBOS::Host::dbNameWithTimestamp( $dbName, $tstamp );
-            my @files        =  map { "$parentDir/$repoFileRoot$_" } ( '.db', '.db.sig', '.db.tar.xz', '.db.tar.xz.sig', '.files.db', '.files.db.sig', '.files.db.tar.xz', '.files.db.tar.xz.sig' ) };
+            my @files        =  map { "$parentDir/$repoFileRoot$_" } ( '.db', '.db.sig', '.db.tar.xz', '.db.tar.xz.sig', '.files.db', '.files.db.sig', '.files.db.tar.xz', '.files.db.tar.xz.sig' );
 
             if( $tstamp >= $cutoff ) {
                 push @$newHistoryArray, $historyElement;
@@ -64,7 +64,7 @@ sub runImpl {
         }
     } else {
         error( 'Failed to read:', $historyFile );
-        $ret = $FAIL;
+        $ret = FAIL;
     }
 
     trace( 'Keeping', @keepList );

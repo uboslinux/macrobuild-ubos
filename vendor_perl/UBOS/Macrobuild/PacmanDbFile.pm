@@ -176,7 +176,7 @@ sub removePackages {
 ##
 # Create a copy of the file, with timestamp
 # $ts: the timestamp
-sub createTimestampedCopy(
+sub createTimestampedCopy {
     my $self = shift;
     my $ts   = shift;
 
