@@ -99,7 +99,7 @@ sub _generateIndex {
     my $title = shift;
 
     my @files = <$dir/*>;
-    @files = grep { ! m/index\.html$/ && ! m/$LAST_UPLOADED$/ }
+    @files = grep { ! m/index\.html$/ && ! m/LAST_UPLOADED$/ }
              map { my $x = $_; $x =~ s!.*/!!; $x; } @files;
 
     my $html = <<HTML;
