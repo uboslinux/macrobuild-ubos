@@ -50,7 +50,7 @@ sub runImpl {
                 $cmd .= ' --profile=' . $awsProfile;
             }
             if( $awsEndpoint ) {
-                $cmd .= ' --endpoint' . $awsEndpoint;
+                $cmd .= ' --endpoint=' . $awsEndpoint;
             }
             $cmd .= ' s3 sync --delete --acl public-read';
 
