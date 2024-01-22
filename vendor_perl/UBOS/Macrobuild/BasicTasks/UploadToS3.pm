@@ -26,9 +26,10 @@ sub runImpl {
 
     my $from          = $self->getProperty( 'from' );
     my $to            = $self->getProperty( 'to' );
+    my $inexclude     = $self->getPropertyOrDefault( 'inexclude', undef );
     my $genindextitle = $self->getProperty( 'genindextitle' );
-    my $awsProfile    = $self->getProperty( 'awsprofile' );
-    my $awsEndpoint   = $self->getProperty( 'awsendpoint' );
+    my $awsProfile    = $self->getValueOrDefault( 'awsprofile', undef );
+    my $awsEndpoint   = $self->getValueOrDefault( 'awsendpoint', undef );
 
     my $ret           = DONE_NOTHING;
     my $uploadedFiles = undef;
@@ -49,11 +50,10 @@ sub runImpl {
                 $cmd .= ' --profile=' . $awsProfile;
             }
             if( $awsEndpoint ) {
-                $cmd .= ' --endpoit' . $awsEndpoint;
+                $cmd .= ' --endpoint' . $awsEndpoint;
             }
             $cmd .= ' s3 sync --delete --acl public-read';
 
-            my $inexclude = $self->getPropertyOrDefault( 'inexclude', undef );
             if( $inexclude ) {
                 $cmd .= ' ' . $inexclude;
             }
