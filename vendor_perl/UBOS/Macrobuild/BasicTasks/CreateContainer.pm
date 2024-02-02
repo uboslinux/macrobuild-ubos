@@ -118,11 +118,11 @@ sub runImpl {
             error( 'tar failed:', $out );
             ++$errors;
         } elsif( $genSha256 ) {
-            if( $UBOS::Utils::myexec( "sha256sum '$tarfile' > '$tarfile.sha256'" )) {
+            if( UBOS::Utils::myexec( "sha256sum '$tarfile' > '$tarfile.sha256'" )) {
                 error( 'sha256sum failed' );
                 ++$errors;
 
-            } elsif( UBOS::Utils::myexec( "sudo chown \$(id -u -n):\$(id -g -n) '$tarfile" . "{,.sha256}'" )) {
+            } elsif( UBOS::Utils::myexec( "sudo chown \$(id -u -n):\$(id -g -n) '$tarfile' '$tarfile.sha256'" )) {
                 error( 'chown failed' );
                 ++$errors;
             }
