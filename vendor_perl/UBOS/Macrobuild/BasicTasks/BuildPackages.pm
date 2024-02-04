@@ -16,7 +16,7 @@ use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch sourcedir m2settingsfile m2repository gradleM2Home );
+use fields qw( arch sourcedir m2settingsfile m2repository gradleM2Home goCache );
 
 my $failedstamp = ".build-in-progress-or-failed";
 
@@ -194,7 +194,7 @@ sub _buildPackage {
     my $m2settingsfile = $self->getPropertyOrDefault( 'm2settingsfile', undef ); # ok if not exists
     my $m2repository   = $self->getPropertyOrDefault( 'm2repository',   undef ); # ok if not exists
     my $gradleM2Home   = $self->getPropertyOrDefault( 'gradleM2Home',   undef ); # of if not exists
-    my $goCache        = $self->getValueOrDefault(    'goCache',        undef ); # ok if not exists
+    my $goCache        = $self->getPropertyOrDefault( 'goCache',        undef ); # ok if not exists
 
     my $mvn_opts = ' -DskipTests -PUBOS';
     if( $m2settingsfile ) {

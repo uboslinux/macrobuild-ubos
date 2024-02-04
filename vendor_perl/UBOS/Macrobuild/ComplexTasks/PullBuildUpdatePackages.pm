@@ -45,7 +45,8 @@ sub new {
             'stopOnError'    => 0,
             'm2settingsfile' => '${m2settingsfile}',
             'm2repository'   => '${m2repository}',
-            'gradleM2Home'   => '${gradleM2Home}' ));
+            'gradleM2Home'   => '${gradleM2Home}',
+            'goCache'        => '${goCache}' ));
 
     $self->appendTask( UBOS::Macrobuild::BasicTasks::Stage->new(
             'name'           => 'Stage new packages in local repository for db ' . $db . ' on ${channel}',
