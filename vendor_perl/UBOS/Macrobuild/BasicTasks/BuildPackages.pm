@@ -16,7 +16,7 @@ use UBOS::Macrobuild::PackageUtils;
 use UBOS::Utils;
 
 use base qw( Macrobuild::Task );
-use fields qw( arch sourcedir m2settingsfile m2repository gradleM2Home goCache );
+use fields qw( arch sourcedir m2settingsfile m2repository gradleM2Home goCache composerHome );
 
 my $failedstamp = ".build-in-progress-or-failed";
 
@@ -195,6 +195,7 @@ sub _buildPackage {
     my $m2repository   = $self->getPropertyOrDefault( 'm2repository',   undef ); # ok if not exists
     my $gradleM2Home   = $self->getPropertyOrDefault( 'gradleM2Home',   undef ); # of if not exists
     my $goCache        = $self->getPropertyOrDefault( 'goCache',        undef ); # ok if not exists
+    my $composerHome   = $self->getPropertyOrDefault( 'composerHome',   undef ); # ok if not exists
 
     my $mvn_opts = ' -DskipTests -PUBOS';
     if( $m2settingsfile ) {
@@ -206,7 +207,7 @@ sub _buildPackage {
     $cmd    .=   ' PATH=/usr/bin:/usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl';
     $cmd    .=   ' LANG=en_US.utf8';
     $cmd    .=   ' TERM=xterm'; # Avahi currently needs this per https://github.com/mono/mono/issues/6768
-    $cmd    .=   ' "GRADLE_TARGET=clean jar"'; # per https://github.com/uboslinux/macrobuild-ubos/issues/36
+    $cmd    .=   " GRADLE_TARGET='clean jar'"; # per https://github.com/uboslinux/macrobuild-ubos/issues/36
 
     if( $jdk ) {
         $cmd .= " JDK='$jdk'";
@@ -229,10 +230,13 @@ sub _buildPackage {
         my $trimmed = $mvn_opts;
         $trimmed =~ s/^\s+//;
         $trimmed =~ s/\s+$//;
-        $cmd .= " 'MVN_OPTS=$trimmed'";
+        $cmd .= " MVN_OPTS='$trimmed'";
     }
     if( $goCache ) {
-        $cmd .= " 'GOCACHE=$goCache'";
+        $cmd .= " GOCACHE='$goCache'";
+    }
+    if( $composerHome ) {
+        $cmd .= " COMPOSER_HOME='$composerHome'";
     }
     if( $packageSignKey ) {
         $cmd .= " PACKAGER='$packageSignKey'";
