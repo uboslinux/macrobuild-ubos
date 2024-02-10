@@ -124,11 +124,13 @@ sub _processPackages {
                 if( -e "$packageSourceDir/$mostRecentBuiltPackage.sig" ) {
                     UBOS::Utils::myexec( "cp '$packageSourceDir/$mostRecentBuiltPackage' '$stagedPackage'" );
                     UBOS::Utils::myexec( "cp '$packageSourceDir/$mostRecentBuiltPackage.sig' '$stagedPackage.sig'" );
+
+                    push @$addedPackageFiles, $stagedPackage;
+                    trace( "Staged:", $stagedPackage );
+
                 } else {
                     warning( 'No .sig file for package, not staging:', '$packageSourceDir/$mostRecentBuiltPackage' );
                 }
-                push @$addedPackageFiles, $stagedPackage;
-                trace( "Staged:", $stagedPackage );
             }
 
         } else {
