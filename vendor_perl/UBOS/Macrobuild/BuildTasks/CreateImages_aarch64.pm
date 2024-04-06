@@ -29,7 +29,7 @@ sub new {
         $self = fields::new( $self );
     }
 
-    my @deviceclasses = qw( espressobin );
+    my @deviceclasses = qw( espressobin rpi5 );
 
     $self->SUPER::new( @args );
 
