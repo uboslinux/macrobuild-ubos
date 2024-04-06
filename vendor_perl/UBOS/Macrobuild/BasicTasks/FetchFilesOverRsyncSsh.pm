@@ -28,29 +28,26 @@ sub runImpl {
 
     my $sourceLocation = $self->getProperty( 'sourceLocation' );
     my $destinationDir = $self->getProperty( 'destinationDir' );
-    my @exts           = @{$self->getProperty( 'exts' );
+    my $exts           = $self->getProperty( 'exts' );
 
-    my $cmd = 'rsync -e ssh';
-    $cmd .= ' --progress';
-    $cmd .= "'$sourceLocation";
-    unless( $sourceLocation =~ m!/$! ) {
-        $cmd .= '/';
-    }
-    $cmd .= '*';
-    my $sep = '{';
-    foreach $ext ( @exts ) {
-        $cmd .= $sep;
+    foreach my $ext ( split / /, $exts ) {
+        # rsync does not understand *{.a,.b}
+
+        my $cmd = 'rsync -e ssh';
+        $cmd .= ' --progress';
+        $cmd .= " '$sourceLocation";
+        unless( $sourceLocation =~ m!/$! ) {
+            $cmd .= '/';
+        }
+        $cmd .= '*';
         $cmd .= $ext;
-        $sep = ',';
-    }
-    if( $sep ne '{' ) {
-        $cmd .= '}';
-    }
-    $cmd .= "' '$destinationDir'";
+        $cmd .= "' '$destinationDir'";
 
-    if( UBOS::Utils::myexec( $cmd )) {
-        error( 'rsync failed' );
-        $ret = FAIL;
+        if( UBOS::Utils::myexec( $cmd )) {
+            error( 'rsync failed, cmd was', $cmd );
+            $ret = FAIL;
+            last;
+        }
     }
 
     return $ret;

@@ -8,10 +8,10 @@
 use strict;
 use warnings;
 
-package UBOS::Macrobuild::BuildTasks::BurnToUsb;
+package UBOS::Macrobuild::BuildTasks::FetchDeveloperVms;
 
 use base qw( Macrobuild::CompositeTasks::Delegating );
-use fields qw( arch channel sourceLocation repoDir );
+use fields qw( arch channel sourceLocation repodir exts );
 
 use UBOS::Logging;
 use UBOS::Macrobuild::BasicTasks::FetchFilesOverRsyncSsh;
@@ -31,7 +31,7 @@ sub new {
             'name'           => 'Fetch developer VMs from ${sourceLocation}',
             'sourceLocation' => '${sourceLocation}',
             'destinationDir' => '${repodir}/${channel}/${arch}/images/',
-            'ext'            => [ '.ova', '.pvmp', '.utm.zip' ]
+            'exts'           => '${exts}'
     ));
 
     return $self;
